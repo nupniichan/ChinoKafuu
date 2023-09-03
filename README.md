@@ -4,12 +4,12 @@
 
 Welcome to Chino Kafu, the Discord bot I've crafted using the dotnet framework. As this is my first attempt at creating a bot, there might be a few errors along the way. Don't hesitate to contact me if you encounter any issues. I'll do my best to resolve them.
 
-To get started,download the release file and simply add your token to `config.json` and `token.json`, and everything will work perfectly.
+To get started,you must download the release file and simply add your token to `config.json` and `token.json`, and everything will work perfectly.
 
 ## Requirements
 
 - **dotnet 7.0**
-- **Discord/Osu/Saucenao token**
+- **Discord(Required) Osu/Saucenao/CharacterAI(Optional) token**
 
 ## New update
 Now you can have a conversation with Chino-Chan :D
