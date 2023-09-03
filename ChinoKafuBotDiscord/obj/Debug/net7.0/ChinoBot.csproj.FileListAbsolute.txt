@@ -1,0 +1,241 @@
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\ChinoBot.exe
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\ChinoBot.deps.json
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\ChinoBot.runtimeconfig.json
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\ChinoBot.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\ChinoBot.pdb
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\ConcurrentCollections.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\DSharpPlus.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\DSharpPlus.CommandsNext.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\DSharpPlus.Interactivity.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\DSharpPlus.SlashCommands.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.DependencyInjection.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Newtonsoft.Json.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\ChinoBot.csproj.AssemblyReference.cache
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\ChinoBot.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\ChinoBot.AssemblyInfoInputs.cache
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\ChinoBot.AssemblyInfo.cs
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\ChinoBot.csproj.CoreCompileInputs.cache
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\ChinoBot.csproj.CopyComplete
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\ChinoBot.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\refint\ChinoBot.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\ChinoBot.pdb
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\ChinoBot.genruntimeconfig.cache
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\ref\ChinoBot.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\GraphQL.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\GraphQLParser.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\GraphQL.Client.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\GraphQL.Client.Abstractions.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\GraphQL.Client.Abstractions.Websocket.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\GraphQL.Primitives.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\System.Reactive.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Configuration.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Configuration.Binder.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Http.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Logging.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Options.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Primitives.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\OpenAI_API.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\xunit.abstractions.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\xunit.assert.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\xunit.core.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\xunit.execution.dotnet.dll
+C:\Users\ASUS\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\GraphQL.Client.Serializer.Newtonsoft.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\ChinoBot.exe
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\ChinoBot.deps.json
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\ChinoBot.runtimeconfig.json
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\ChinoBot.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\ChinoBot.pdb
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\ConcurrentCollections.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\DSharpPlus.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\DSharpPlus.CommandsNext.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\DSharpPlus.Interactivity.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\DSharpPlus.SlashCommands.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\GraphQL.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\GraphQLParser.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\GraphQL.Client.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\GraphQL.Client.Abstractions.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\GraphQL.Client.Abstractions.Websocket.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\GraphQL.Client.Serializer.Newtonsoft.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\GraphQL.Primitives.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Configuration.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Configuration.Binder.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.DependencyInjection.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Http.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Logging.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Options.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Primitives.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\Newtonsoft.Json.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\OpenAI_API.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\System.Reactive.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\xunit.abstractions.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\xunit.assert.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\xunit.core.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\bin\Debug\net7.0\xunit.execution.dotnet.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\ChinoBot.csproj.AssemblyReference.cache
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\ChinoBot.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\ChinoBot.AssemblyInfoInputs.cache
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\ChinoBot.AssemblyInfo.cs
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\ChinoBot.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\ChinoBot.csproj.CopyComplete
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\ChinoBot.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\refint\ChinoBot.dll
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\ChinoBot.pdb
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\ChinoBot.genruntimeconfig.cache
+C:\Users\Admin\Documents\c#\ChinoBot\ChinoBot\obj\Debug\net7.0\ref\ChinoBot.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\ChinoBot.exe
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\ChinoBot.deps.json
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\ChinoBot.runtimeconfig.json
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\ChinoBot.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\ChinoBot.pdb
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\ConcurrentCollections.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\DSharpPlus.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\DSharpPlus.CommandsNext.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\DSharpPlus.Interactivity.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\DSharpPlus.SlashCommands.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\GraphQL.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\GraphQLParser.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\GraphQL.Client.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\GraphQL.Client.Abstractions.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\GraphQL.Client.Abstractions.Websocket.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\GraphQL.Client.Serializer.Newtonsoft.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\GraphQL.Primitives.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Configuration.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Configuration.Binder.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.DependencyInjection.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Http.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Logging.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Options.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Primitives.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\Newtonsoft.Json.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\OpenAI_API.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\System.Reactive.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\xunit.abstractions.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\xunit.assert.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\xunit.core.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\xunit.execution.dotnet.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\obj\Debug\net7.0\ChinoBot.csproj.AssemblyReference.cache
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\obj\Debug\net7.0\ChinoBot.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\obj\Debug\net7.0\ChinoBot.AssemblyInfoInputs.cache
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\obj\Debug\net7.0\ChinoBot.AssemblyInfo.cs
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\obj\Debug\net7.0\ChinoBot.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\obj\Debug\net7.0\ChinoBot.csproj.CopyComplete
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\obj\Debug\net7.0\ChinoBot.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\obj\Debug\net7.0\refint\ChinoBot.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\obj\Debug\net7.0\ChinoBot.pdb
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\obj\Debug\net7.0\ChinoBot.genruntimeconfig.cache
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\obj\Debug\net7.0\ref\ChinoBot.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\SauceNET.dll
+C:\Users\Admin\Documents\c#\ChinoBot - Copy\ChinoBot\bin\Debug\net7.0\OsuNet.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\ChinoBot.exe
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\ChinoBot.deps.json
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\ChinoBot.runtimeconfig.json
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\ChinoBot.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\ChinoBot.pdb
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\ConcurrentCollections.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\DSharpPlus.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\DSharpPlus.CommandsNext.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\DSharpPlus.Interactivity.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\DSharpPlus.SlashCommands.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\GraphQL.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\GraphQLParser.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\GraphQL.Client.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\GraphQL.Client.Abstractions.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\GraphQL.Client.Abstractions.Websocket.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\GraphQL.Client.Serializer.Newtonsoft.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\GraphQL.Primitives.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Configuration.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Configuration.Binder.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.DependencyInjection.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Http.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Logging.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Options.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\Microsoft.Extensions.Primitives.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\Newtonsoft.Json.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\OpenAI_API.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\OsuNet.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\SauceNET.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\System.Reactive.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\xunit.abstractions.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\xunit.assert.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\xunit.core.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\bin\Debug\net7.0\xunit.execution.dotnet.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\obj\Debug\net7.0\ChinoBot.csproj.AssemblyReference.cache
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\obj\Debug\net7.0\ChinoBot.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\obj\Debug\net7.0\ChinoBot.AssemblyInfoInputs.cache
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\obj\Debug\net7.0\ChinoBot.AssemblyInfo.cs
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\obj\Debug\net7.0\ChinoBot.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\obj\Debug\net7.0\ChinoBot.csproj.CopyComplete
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\obj\Debug\net7.0\ChinoBot.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\obj\Debug\net7.0\refint\ChinoBot.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\obj\Debug\net7.0\ChinoBot.pdb
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\obj\Debug\net7.0\ChinoBot.genruntimeconfig.cache
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoBot\obj\Debug\net7.0\ref\ChinoBot.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\ChinoBot.exe
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\ChinoBot.deps.json
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\ChinoBot.runtimeconfig.json
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\ChinoBot.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\ChinoBot.pdb
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\ConcurrentCollections.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\DSharpPlus.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\DSharpPlus.CommandsNext.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\DSharpPlus.Interactivity.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\DSharpPlus.SlashCommands.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\GraphQL.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\GraphQLParser.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\GraphQL.Client.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\GraphQL.Client.Abstractions.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\GraphQL.Client.Abstractions.Websocket.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\GraphQL.Client.Serializer.Newtonsoft.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\GraphQL.Primitives.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\Microsoft.Extensions.Configuration.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\Microsoft.Extensions.Configuration.Binder.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\Microsoft.Extensions.DependencyInjection.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\Microsoft.Extensions.Http.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\Microsoft.Extensions.Logging.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\Microsoft.Extensions.Options.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\Microsoft.Extensions.Primitives.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\Newtonsoft.Json.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\OpenAI_API.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\OsuNet.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\SauceNET.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\System.Reactive.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\xunit.abstractions.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\xunit.assert.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\xunit.core.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\xunit.execution.dotnet.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\obj\Debug\net7.0\ChinoBot.csproj.AssemblyReference.cache
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\obj\Debug\net7.0\ChinoBot.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\obj\Debug\net7.0\ChinoBot.AssemblyInfoInputs.cache
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\obj\Debug\net7.0\ChinoBot.AssemblyInfo.cs
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\obj\Debug\net7.0\ChinoBot.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\obj\Debug\net7.0\ChinoBot.csproj.CopyComplete
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\obj\Debug\net7.0\ChinoBot.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\obj\Debug\net7.0\refint\ChinoBot.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\obj\Debug\net7.0\ChinoBot.pdb
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\obj\Debug\net7.0\ChinoBot.genruntimeconfig.cache
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\obj\Debug\net7.0\ref\ChinoBot.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\PuppeteerExtraSharp.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\RestSharp.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\Microsoft.AspNetCore.WebUtilities.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\Microsoft.Net.Http.Headers.dll
+C:\Users\Admin\Documents\c#\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\PuppeteerSharp.dll
