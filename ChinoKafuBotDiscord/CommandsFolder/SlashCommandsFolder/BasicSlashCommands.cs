@@ -109,7 +109,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                     .WithColor(member.Color)
                     .WithImageUrl(member.BannerUrl)
                     .AddField("Ngày tham gia discord", member.CreationTimestamp.ToString("dd/MM/yyyy"), true)
-                    .AddField("Ngày tham gia server này", member.Guild.JoinedAt.ToString("dd/MM/yyyy"), true);
+                    .AddField("Ngày tham gia server này", member.JoinedAt.ToString("dd/MM/yyyy") ?? "Không rõ", true);
                 memberInformation.WithFooter($"Được tra bởi {ctx.User.Username} | {DateTime.Now}");
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(memberInformation));
             }
