@@ -14,15 +14,10 @@ namespace ChinoBot.CommandsFolder.PrefixCommandsFolder
 {
     public class BasicCommands : BaseCommandModule
     {
-        [Command("iuako")]
-        public async Task test(CommandContext ctx)
-        {
-            await ctx.Channel.SendMessageAsync("e iu a <3");
-        }
         [Command("say")]
         public async Task TestCommand(CommandContext ctx)
         {
-            string test = "a  " + "\n" + "a  " + "\n" + "a  " + "\n" + "a  " + "\n" + "a  " + "\n" + "a  " + "\n" + "a  " + "\n" + "a  " + "\n" + "a  " + "\n" + "a  " + "\n" + "a  " + "\n" ;
+            string test = "a  " + "\n" + "a  " + "\n" + "a  " + "\n" + "a  " + "\n" + "a  " + "\n" + "a  " + "\n" + "a  " + "\n" + "a  " + "\n" + "a  " + "\n" + "a  " + "\n" + "a  " + "\n";
             var builder = new DiscordEmbedBuilder
             {
                 Title = "Title Here",
@@ -32,18 +27,6 @@ namespace ChinoBot.CommandsFolder.PrefixCommandsFolder
             builder.WithThumbnail(ctx.Client.CurrentUser.AvatarUrl);
 
             await ctx.Channel.SendMessageAsync(embed: builder.Build());
-        }
-        [Command("test1")]
-        public async Task testa(CommandContext ctx)
-        {
-            var memberInformation = new DiscordEmbedBuilder()
-            {
-                Title = ctx.User.Username,
-                Description = "hay la minh test di ha",
-                Color = DiscordColor.Red
-            };
-
-            await ctx.Channel.SendMessageAsync(memberInformation);
         }
     }
 }

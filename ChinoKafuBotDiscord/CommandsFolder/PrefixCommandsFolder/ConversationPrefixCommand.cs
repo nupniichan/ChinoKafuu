@@ -55,11 +55,7 @@ namespace ChinoBot.CommandsFolder.PrefixCommandsFolder
                     await ctx.RespondAsync(embed: errorEmbed);
                 }
 
-                var responseMessage = new DiscordEmbedBuilder()
-                    .WithAuthor(character.Name, null, character.AvatarUrlMini)
-                    .WithDescription(FormatResponseText(characterResponse.Response.Text))
-                    .WithColor(DiscordColor.Azure);
-                await ctx.RespondAsync(embed: responseMessage);
+                await ctx.RespondAsync(characterResponse.Response.Text);
             }
             catch (Exception e)
             {
@@ -69,36 +65,6 @@ namespace ChinoBot.CommandsFolder.PrefixCommandsFolder
                     .WithDescription(e.Message);
                 await ctx.RespondAsync(embed: errorEmbed);
             }
-        }
-
-        public static string FormatResponseText(string inputText)
-        {
-            string[] lines = inputText.Split('\n');
-            StringBuilder formattedText = new StringBuilder();
-
-            foreach (string line in lines)
-            {
-                if (IsUppercase(line))
-                {
-                    formattedText.AppendLine(); // Thêm dấu xuống dòng nếu là chữ in hoa
-                }
-
-                formattedText.Append(line);
-            }
-
-            return formattedText.ToString().Trim();
-        }
-
-        public static bool IsUppercase(string text)
-        {
-            foreach (char c in text)
-            {
-                if (char.IsLetter(c) && !char.IsUpper(c))
-                {
-                    return false;
-                }
-            }
-            return true;
         }
     }
 }
