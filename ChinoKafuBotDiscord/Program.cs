@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using AnimeListBot.Handler;
 using ChinoBot;
 using static System.Net.WebRequestMethods;
+using System.Net.Sockets;
 
 internal class Program
 {
@@ -38,7 +39,6 @@ internal class Program
         {
             Timeout = TimeSpan.FromMinutes(2)
         });
-
         Client.Ready += Client_Ready;
         Client.VoiceStateUpdated += VoiceChannelHandler;
         Client.GuildMemberAdded += UserJoinHandler;
@@ -70,7 +70,7 @@ internal class Program
         var goodByeEmbed = new DiscordEmbedBuilder()
             .WithColor(DiscordColor.Red)
             .WithTitle($"Sayonara {e.Member.Username}")
-            .WithDescription("Cảm ơn bạn đã đến quán của mình~" +"\n" +"Nếu có dịp mong bạn hãy ghé quán tiếp nhé!")
+            .WithDescription("Cảm ơn bạn đã đến quán của mình~" + "\n" + "Nếu có dịp mong bạn hãy ghé quán tiếp nhé!")
             .WithThumbnail(e.Member.AvatarUrl)
             .WithImageUrl(goodByeImage);
         await defaultChannel.SendMessageAsync(embed: goodByeEmbed);
@@ -91,30 +91,29 @@ internal class Program
 
     private static async Task VoiceChannelHandler(DiscordClient sender, DSharpPlus.EventArgs.VoiceStateUpdateEventArgs e)
     {
-            // Joining
-            if (e.Channel != null && e.Channel.Name == "Tạo Phòng" && e.Before == null)
-            {
-                var userVC = await e.Guild.CreateVoiceChannelAsync($"🎙 {e.User.Username}'s Voice Channel", e.Channel.Parent);
+        // Joining
+        if (e.Channel != null && e.Channel.Name == "Tạo Phòng" && e.Before == null)
+        {
+            var userVC = await e.Guild.CreateVoiceChannelAsync($"🎙 {e.User.Username}'s Voice Channel", e.Channel.Parent);
 
-                voiceChannelIDs.Add(e.User.Username, userVC.Id);
+            voiceChannelIDs.Add(e.User.Username, userVC.Id);
 
-                var member = await e.Guild.GetMemberAsync(e.User.Id);
+            var member = await e.Guild.GetMemberAsync(e.User.Id);
 
-                await member.ModifyAsync(x => x.VoiceChannel = userVC);
-            }
-            // Leaving
-            if (e.Channel == null && e.Before != null && e.Before.Channel != null && e.Before.Channel.Name == $"🎙 {e.User.Username}'s Voice Channel")
-            {
-                var channelSearch = voiceChannelIDs.TryGetValue(e.User.Username, out ulong channelID);
-                var channelToDelete = e.Guild.GetChannel(channelID);
-                await channelToDelete.DeleteAsync();
+            await member.ModifyAsync(x => x.VoiceChannel = userVC);
+        }
+        // Leaving
+        if (e.Channel == null && e.Before != null && e.Before.Channel != null && e.Before.Channel.Name == $"🎙 {e.User.Username}'s Voice Channel")
+        {
+            var channelSearch = voiceChannelIDs.TryGetValue(e.User.Username, out ulong channelID);
+            var channelToDelete = e.Guild.GetChannel(channelID);
+            await channelToDelete.DeleteAsync();
 
-                voiceChannelIDs.Remove(e.User.Username);
-            }
+            voiceChannelIDs.Remove(e.User.Username);
+        }
     }
-
-    private static Task Client_Ready(DiscordClient sender, DSharpPlus.EventArgs.ReadyEventArgs args)
+    private static async Task Client_Ready(DiscordClient sender, DSharpPlus.EventArgs.ReadyEventArgs args)
     {
-        return Task.CompletedTask;
+        await Client.UpdateStatusAsync(new DiscordActivity("with Cocoa and Rize~", ActivityType.Playing)); ;
     }
 }
