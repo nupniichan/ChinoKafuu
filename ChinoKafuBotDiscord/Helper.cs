@@ -21,26 +21,6 @@ namespace ChinoBot
         }
         public static string getOsuRank(string rank, string mode, InteractionContext ctx)
         {
-            if (mode == "Hidden")
-            {
-                switch (rank)
-                {
-                    case "A":
-                        return DiscordEmoji.FromName(ctx.Client, ":rankingA:", true);
-                    case "B":
-                        return DiscordEmoji.FromName(ctx.Client, ":rankingB:", true);
-                    case "C":
-                        return DiscordEmoji.FromName(ctx.Client, ":rankingC:", true);
-                    case "D":
-                        return DiscordEmoji.FromName(ctx.Client, ":rankingD:", true);
-                    case "S":
-                        return DiscordEmoji.FromName(ctx.Client, ":rankingSH:", true);
-                    case "SS":
-                        return DiscordEmoji.FromName(ctx.Client, ":rankingXH:", true);
-                }
-            }
-            else
-            {
                 switch (rank)
                 {
                     case "A":
@@ -53,10 +33,13 @@ namespace ChinoBot
                         return DiscordEmoji.FromName(ctx.Client, ":rankingD:", true);
                     case "S":
                         return DiscordEmoji.FromName(ctx.Client, ":rankingS:", true);
-                    case "SS":
-                        return DiscordEmoji.FromName(ctx.Client, ":rankingX :", true);
+                    case "X":
+                        return DiscordEmoji.FromName(ctx.Client, ":rankingX:", true);
+                    case "SH":
+                        return DiscordEmoji.FromName(ctx.Client, ":rankingSH:", true);
+                    case "XH":
+                        return DiscordEmoji.FromName(ctx.Client, ":rankingXH:", true);
                 }
-            }
             return null;
         }
         public static string FormatDate(DateTime? date)
