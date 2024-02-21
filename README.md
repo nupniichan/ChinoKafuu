@@ -42,8 +42,3 @@ I want to express my gratitude to ThomasAunvik for creating an API code connecti
 - [CharacterAI] (https://github.com/drizzle-mizzle/CharacterAI.Net-API-Wrapper/tree/9264b20ba3124d0bacad0c8cb388a48ada531c9c)
 
 Thank you for using Chino Kafu! More features are coming soon~.
-
-## Update
-=======
-
-Thank you for using Chino Kafu! More features are coming soon~.
