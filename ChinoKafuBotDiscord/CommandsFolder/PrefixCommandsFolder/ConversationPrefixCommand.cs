@@ -57,7 +57,7 @@ namespace ChinoBot.CommandsFolder.PrefixCommandsFolder
             catch (Exception e)
             {
                 var errorEmbed = new DiscordEmbedBuilder()
-                    .WithTitle("Error")
+                    .WithTitle("Xảy ra lỗi")
                     .WithColor(DiscordColor.Red)
                     .WithDescription(e.Message);
                 await ctx.RespondAsync(embed: errorEmbed);
