@@ -39,6 +39,6 @@ I want to express my gratitude to ThomasAunvik for creating an API code connecti
 - [SauceNet](https://github.com/ta1H3n/SauceNET)
 - [Anilist-GraphQL](https://github.com/AniList/ApiV2-GraphQL-Docs)
 - [AnilistAPIcode by ThomasAunvik](https://github.com/ThomasAunvik/AnimeListBot/tree/master?fbclid=IwAR0mYkNMSCsnxpXPIj2hAERlldHlDFkRP1X8gxDB4zaHIncZaV5jcFXEAe8)
-- [CharacterAI] (https://github.com/drizzle-mizzle/CharacterAI.Net-API-Wrapper/tree/9264b20ba3124d0bacad0c8cb388a48ada531c9c)
+- [CharacterAI](https://github.com/drizzle-mizzle/CharacterAI.Net-API-Wrapper/tree/9264b20ba3124d0bacad0c8cb388a48ada531c9c)
 
 Thank you for using Chino Kafu! More features are coming soon~.
