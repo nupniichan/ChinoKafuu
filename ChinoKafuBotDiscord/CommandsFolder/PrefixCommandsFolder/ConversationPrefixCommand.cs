@@ -31,9 +31,9 @@ namespace ChinoBot.CommandsFolder.PrefixCommandsFolder
                 AppDomain.CurrentDomain.ProcessExit += (s, args) => client.KillBrowser();
 
                 // Send message to a character
-                string characterId = "zRG-rUxaNf7gfOlGSCuSF6csdGqMBrD2Sfu5wmWlXDg";
+                string characterId = "YOUR_CAI_CHARACTER_HERE";
                 var character = await client.GetInfoAsync(characterId);
-                var historyId = "7h2Ua061aBQq0RU1hQsSDgYSjQGfRzo0LLPBHi0g_og";
+                var historyId = "YOUR_HISTORY_CHARACTER_CHAT_HERE";
                 Console.WriteLine(historyId);
 
                 var characterResponse = await client.CallCharacterAsync(
