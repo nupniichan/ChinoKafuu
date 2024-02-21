@@ -51,20 +51,20 @@ namespace AnimeListBot.Handler.Anilist
 
             public AniMediaCoverImage coverImage { get; set; }
 
-            public string siteUrl { get; set; }
+            public string? siteUrl { get; set; }
 
-            public string bannerImage { get; set; }
+            public string? bannerImage { get; set; }
 
-            public float averageScore { get; set; }
-            public float meanScore { get; set; }
+            public float? averageScore { get; set; }
+            public float? meanScore { get; set; }
 
-            public string season { get; set; }
+            public string? season { get; set; }
 
-            public string source { get; set; }
+            public string? source { get; set; }
 
             public List<string> genres { get; set; }
 
-            public int duration { get; set; }
+            public int? duration { get; set; }
         }
     }
 }

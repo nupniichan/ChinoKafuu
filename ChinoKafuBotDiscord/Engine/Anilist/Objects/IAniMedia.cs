@@ -41,15 +41,15 @@ namespace AnimeListBot.Handler.Anilist
 
         string bannerImage { get; }
 
-        float averageScore { get; }
+        float? averageScore { get; }
 
-        float meanScore { get; }
-        string season { get; }
+        float? meanScore { get; }
+        string? season { get; }
 
-        string source { get; }
+        string? source { get; }
 
         List<string> genres { get; }
 
-        int duration { get; }
+        int? duration { get; }
     }
 }

@@ -161,7 +161,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             var media = await AniMediaQuery.GetMedia((int)animeID, AniMediaType.ANIME);
             try
             {
-                if (media != null)
+                if (media.title != null)
                 {
                     AniFuzzyDate startDate = media.startDate;
                     DateTime? start = null;
@@ -391,7 +391,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             var media = await AniMediaQuery.SearchMedia(name, AniMediaType.MANGA);
             try
             {
-                if (media != null)
+                if (media.title != null)
                 {
                     AniFuzzyDate startDate = media.startDate;
                     DateTime? start = null;
@@ -532,7 +532,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             var media = await AniMediaQuery.GetMedia((int)mangaID, AniMediaType.MANGA);
             try
             {
-                if (media != null)
+                if (media.title != null)
                 {
                     AniFuzzyDate startDate = media.startDate;
                     DateTime? start = null;

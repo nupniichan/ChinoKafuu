@@ -29,7 +29,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 foreach (var result in sauce.Results)
                 {
                     float resultScore = float.Parse(result.Similarity);
-                    if (result.ExtUrls != null && result.ExtUrls.Count > 0 && resultScore >= 6000)
+                    if (result.ExtUrls != null && result.ExtUrls.Count > 0 && resultScore >= 60.00)
                     {
                         name = sauce.Results[0].Properties[0].Name;
                         extUrls.AddRange(result.ExtUrls);
