@@ -1,0 +1,129 @@
+{
+  "format": 1,
+  "restore": {
+    "G:\\Programming\\Discord\\cloned\\ChinoKafuBotDiscord\\ChinoBot.csproj": {}
+  },
+  "projects": {
+    "G:\\Programming\\Discord\\cloned\\ChinoKafuBotDiscord\\ChinoBot.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "G:\\Programming\\Discord\\cloned\\ChinoKafuBotDiscord\\ChinoBot.csproj",
+        "projectName": "ChinoBot",
+        "projectPath": "G:\\Programming\\Discord\\cloned\\ChinoKafuBotDiscord\\ChinoBot.csproj",
+        "packagesPath": "C:\\Users\\nup\\.nuget\\packages\\",
+        "outputPath": "G:\\Programming\\Discord\\cloned\\ChinoKafuBotDiscord\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\nup\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "DSharpPlus": {
+              "target": "Package",
+              "version": "[4.4.6, )"
+            },
+            "DSharpPlus.CommandsNext": {
+              "target": "Package",
+              "version": "[4.4.6, )"
+            },
+            "DSharpPlus.Interactivity": {
+              "target": "Package",
+              "version": "[4.4.6, )"
+            },
+            "DSharpPlus.Rest": {
+              "target": "Package",
+              "version": "[4.4.6, )"
+            },
+            "DSharpPlus.SlashCommands": {
+              "target": "Package",
+              "version": "[4.4.6, )"
+            },
+            "DSharpPlus.VoiceNext": {
+              "target": "Package",
+              "version": "[4.4.6, )"
+            },
+            "GraphQL": {
+              "target": "Package",
+              "version": "[7.6.1, )"
+            },
+            "GraphQL.Client": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "GraphQL.Client.Abstractions": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "GraphQL.Client.Serializer.Newtonsoft": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "HtmlAgilityPack": {
+              "target": "Package",
+              "version": "[1.11.59, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
+            },
+            "OsuNet": {
+              "target": "Package",
+              "version": "[2.0.1, )"
+            },
+            "PuppeteerSharp": {
+              "target": "Package",
+              "version": "[10.0.0, )"
+            },
+            "SauceNET": {
+              "target": "Package",
+              "version": "[1.1.1, )"
+            },
+            "xunit": {
+              "target": "Package",
+              "version": "[2.5.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
