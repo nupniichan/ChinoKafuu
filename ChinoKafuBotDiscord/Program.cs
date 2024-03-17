@@ -14,6 +14,10 @@ using AnimeListBot.Handler;
 using ChinoBot;
 using static System.Net.WebRequestMethods;
 using System.Net.Sockets;
+using DSharpPlus.EventArgs;
+using Python.Runtime;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using ChinoBot.CommandsFolder.NonePrefixCommandFolder;
 
 internal class Program
 {
@@ -43,6 +47,7 @@ internal class Program
         Client.VoiceStateUpdated += VoiceChannelHandler;
         Client.GuildMemberAdded += UserJoinHandler;
         Client.GuildMemberRemoved += UserLeaveHandler;
+        var autoMessageHandler = new ChinoConservationChat(Client);
         var commandsConfig = new CommandsNextConfiguration()
         {
             StringPrefixes = new string[] { jsonReader.prefix },
@@ -52,12 +57,10 @@ internal class Program
         };
         Commands = Client.UseCommandsNext(commandsConfig);
         Commands.RegisterCommands<BasicCommands>();
-        Commands.RegisterCommands<ConversationPrefixCommand>();
         var slashCommands = Client.UseSlashCommands();
         slashCommands.RegisterCommands<BasicSlashCommands>();
         slashCommands.RegisterCommands<AdministratorCommand>();
         slashCommands.RegisterCommands<AnilistSlashCommand>();
-        slashCommands.RegisterCommands<SauceNaoSlashCommand>();
         slashCommands.RegisterCommands<OsuSlashCommand>();
         await Client.ConnectAsync();
         await Task.Delay(-1);

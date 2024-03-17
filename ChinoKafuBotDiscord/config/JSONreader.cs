@@ -34,7 +34,6 @@ namespace ChinoBot.config
                 JsonStructer data = JsonConvert.DeserializeObject<JsonStructer>(json);
                 this.saucenaoToken = data.saucenaoToken;
                 this.osuToken = data.osuToken;
-                this.cAIToken = data.cAIToken;
             }
         }
     }
@@ -47,6 +46,5 @@ namespace ChinoBot.config
         public string saucenaoToken { get; set; }
 
         public string osuToken { get; set; }
-        public string cAIToken { get; set; }
     }
 }
