@@ -21,8 +21,7 @@
     <PackageReference Include="HtmlAgilityPack" Version="1.11.59" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="OsuNet" Version="2.0.1" />
-    <PackageReference Include="PuppeteerSharp" Version="10.0.0" />
-    <PackageReference Include="SauceNET" Version="1.1.1" />
+    <PackageReference Include="pythonnet" Version="3.0.3" />
     <PackageReference Include="xunit" Version="2.5.0" />
   </ItemGroup>
 
