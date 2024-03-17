@@ -71,7 +71,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 
             try
             {
-                Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", "C:\\Users\\nup\\AppData\\Local\\Programs\\Python\\Python39\\python39.dll");
+                Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", "PYTHONPATH_HERE");
                 PythonEngine.Initialize();
 
                 dynamic sys = Py.Import("sys");
@@ -120,7 +120,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                 await Task.Run(() =>
                 {
                     // Your python environment path: example: "C:\\Users\\{YourUser}\\AppData\\Local\\Programs\\Python\\Python39\\python39.dll
-                    Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", "C:\\Users\\nup\\AppData\\Local\\Programs\\Python\\Python39\\python39.dll");
+                    Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", "PYTHONPATH_HERE");
                     PythonEngine.Initialize();
                     using (Py.GIL())
                     {
