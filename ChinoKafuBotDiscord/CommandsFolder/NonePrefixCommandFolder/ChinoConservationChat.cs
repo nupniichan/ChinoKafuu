@@ -71,6 +71,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 
             try
             {
+                // Your python environment path: example: "C:\\Users\\{YourUser}\\AppData\\Local\\Programs\\Python\\Python39\\python39.dll
                 Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", "PYTHONPATH_HERE");
                 PythonEngine.Initialize();
 
