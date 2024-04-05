@@ -13,7 +13,7 @@ To get started, you must download the release file and simply add your token to 
 - **Discord(Required) Osu token**
 
 ## New update
-I changed conservation engine from characterAI to gemini for better result. Also, I deleted saucenao API and file relate to it. Some bugs are fixed yay :D
+From now you can put all your config like discord token, osu token, file path,... to otherconfig.json 
 
 ## Features
 
