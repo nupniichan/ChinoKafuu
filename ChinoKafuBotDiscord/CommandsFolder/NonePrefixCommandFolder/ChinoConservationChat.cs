@@ -8,24 +8,25 @@ using System.Text;
 using System.Threading.Tasks;
 using Python.Runtime;
 using static GraphQL.Validation.Rules.OverlappingFieldsCanBeMerged;
+using ChinoBot.config;
 
 namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 {
     internal class ChinoConservationChat
     {
+        private readonly JSONreader jsonReader;
         private readonly DiscordClient _client;
-        // change this one
-        private readonly ulong allowChannelID = 12345678; 
-        // private readonly ulong _anotherChannelId = ...;
         public ChinoConservationChat(DiscordClient client)
         {
             _client = client;
+            jsonReader = new JSONreader();
+            jsonReader.ReadJsonToken().GetAwaiter().GetResult();
             _client.MessageCreated += Client_MessageCreated;
         }
 
         private async Task Client_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
         {
-            if (!e.Author.IsBot && !e.Message.Content.StartsWith("BOT") && e.Channel.Id == allowChannelID)
+            if (!e.Author.IsBot && !e.Message.Content.StartsWith("BOT") && e.Channel.Id == jsonReader.allowChannelID_gemini)
             {
                 await e.Channel.TriggerTypingAsync();
 
@@ -71,8 +72,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 
             try
             {
-                // Your python environment path: example: "C:\\Users\\{YourUser}\\AppData\\Local\\Programs\\Python\\Python39\\python39.dll
-                Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", "PYTHONPATH_HERE");
+                Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", $"{jsonReader.python_dll_path}");
                 PythonEngine.Initialize();
 
                 dynamic sys = Py.Import("sys");
@@ -82,7 +82,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 
                 using (Py.GIL())
                 {
-                    sys.path.append(@"G:\Programming\Discord\ChinoKafu\ChinoKafuBotDiscord\Engine\Gemini");
+                    sys.path.append($"{jsonReader.gemini_folder_path}");
                     dynamic script = Py.Import("GeminiVision");
 
                     dynamic convo = script.convo;
@@ -120,13 +120,12 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
             {
                 await Task.Run(() =>
                 {
-                    // Your python environment path: example: "C:\\Users\\{YourUser}\\AppData\\Local\\Programs\\Python\\Python39\\python39.dll
-                    Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", "PYTHONPATH_HERE");
+                    Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", $"{jsonReader.python_dll_path}");
                     PythonEngine.Initialize();
                     using (Py.GIL())
                     {
                         dynamic sys = Py.Import("sys");
-                        sys.path.append(@"G:\Programming\Discord\ChinoKafu\ChinoKafuBotDiscord\Engine\Gemini");
+                        sys.path.append($"{jsonReader.gemini_folder_path}");
 
                         dynamic script = Py.Import("GeminiText");
                         dynamic convo = script.convo;

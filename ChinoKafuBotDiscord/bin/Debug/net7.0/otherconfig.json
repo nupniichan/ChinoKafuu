@@ -1,0 +1,6 @@
+﻿{
+  "osuToken": "your_osu_token_here",
+  "gemini_folder_path": "path_to_your_gemini_folder",
+  "allowChannelID_gemini": "your_channel_id",
+  "python_dll_path": "C:\\Users\\{USER}\\AppData\\Local\\Programs\\Python\\Python39\\python39.dll"
+}

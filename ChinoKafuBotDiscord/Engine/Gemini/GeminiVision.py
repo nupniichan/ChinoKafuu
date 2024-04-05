@@ -3,8 +3,7 @@
 import google.generativeai as genai
 import PIL.Image
 from GeminiVision import genai
-
-genai.configure(api_key="Gemini-Token")
+genai.configure(api_key="AIzaSyCOwpqHStvfPpJiMGTGlncROs_zdKz8nUQ")
 
 # Set up the model
 generation_config = {

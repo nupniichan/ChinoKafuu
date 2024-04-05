@@ -11,11 +11,11 @@ namespace ChinoBot.config
     {
         public string token { get; set; }
         public string prefix { get; set; }
-
-        public string saucenaoToken { get; set; }
-
         public string osuToken { get; set; }
-        public string cAIToken { get; set; }
+        public string gemini_folder_path { get; set; }
+        public ulong allowChannelID_gemini { get; set; }
+        public string python_dll_path { get; set; }
+
         public async Task ReadJson()
         {
             using (StreamReader sr = new StreamReader("config.json"))
@@ -24,16 +24,22 @@ namespace ChinoBot.config
                 JsonStructer data = JsonConvert.DeserializeObject<JsonStructer>(json);
                 this.token = data.token;
                 this.prefix = data.prefix;
+                this.osuToken = data.osuToken;
+                this.gemini_folder_path = data.gemini_folder_path;
+                this.allowChannelID_gemini = data.allowChannelID_gemini;
+                this.python_dll_path = data.python_dll_path;
             }
         }
         public async Task ReadJsonToken()
         {
-            using (StreamReader sr = new StreamReader("token.json"))
+            using (StreamReader sr = new StreamReader("otherconfig.json"))
             {
                 string json = await sr.ReadToEndAsync();
                 JsonStructer data = JsonConvert.DeserializeObject<JsonStructer>(json);
-                this.saucenaoToken = data.saucenaoToken;
                 this.osuToken = data.osuToken;
+                this.gemini_folder_path = data.gemini_folder_path;
+                this.allowChannelID_gemini = data.allowChannelID_gemini;
+                this.python_dll_path = data.python_dll_path;
             }
         }
     }
@@ -42,9 +48,10 @@ namespace ChinoBot.config
     {
         public string token { get; set; }
         public string prefix { get; set; }
-
-        public string saucenaoToken { get; set; }
-
         public string osuToken { get; set; }
+        public string gemini_folder_path { get; set; }
+        public ulong allowChannelID_gemini { get; set; }
+        public string python_dll_path { get; set; }
+
     }
 }
