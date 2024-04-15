@@ -13,7 +13,7 @@ To get started, you must download the release file and simply add your token to 
 - **Discord(Required) Osu token**
 
 ## New update
-From now you can put all your config like discord token, osu token, file path,... to otherconfig.json 
+So i updated Gemini to 1.5. Now you can send image for Chino and she'll analysis that image and give you the information about it :D. 
 
 ## Features
 
