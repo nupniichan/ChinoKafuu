@@ -1,13 +1,7 @@
 ﻿using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Python.Runtime;
-using static GraphQL.Validation.Rules.OverlappingFieldsCanBeMerged;
 using ChinoBot.config;
 
 namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
@@ -40,36 +34,9 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                 }
             }
         }
-
-        private async Task HandleImageInputAsync(DiscordMessage message)
-        {
-            var attachment = message.Attachments.FirstOrDefault();
-
-            try
-            {
-                using (var httpClient = new HttpClient())
-                {
-                    using (var response = await httpClient.GetAsync(attachment.Url))
-                    {
-                        byte[] attachmentData = await response.Content.ReadAsByteArrayAsync();
-
-                        string result = await ExecuteGeminiVisionPython(attachmentData);
-
-                        await message.RespondAsync(result);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                await message.RespondAsync($"Anh ơi có lỗi trong quá trình phân tích ảnh rồi ;-; : {ex.Message}");
-            }
-        }
-
-        // still fixing ...
-        private async Task<string> ExecuteGeminiVisionPython(byte[] attachmentData)
+        private async Task<string> ExecuteGeminiImagePython(byte[] attachmentData)
         {
             string chinoMessage = "";
-
             try
             {
                 Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", $"{jsonReader.python_dll_path}");
@@ -83,13 +50,12 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                 using (Py.GIL())
                 {
                     sys.path.append($"{jsonReader.gemini_folder_path}");
-                    dynamic script = Py.Import("GeminiVision");
+                    dynamic script = Py.Import("Gemini");
 
                     dynamic convo = script.convo;
-                    dynamic img = script.PIL.Image.open(bytesIO); 
+                    dynamic img = script.PIL.Image.open(bytesIO);
 
-                    dynamic model = script.genai.GenerativeModel("gemini-pro-vision");
-                    dynamic response = model.generate_content(img);
+                    dynamic response = convo.send_message(img);
 
                     chinoMessage = response.text;
                 }
@@ -105,7 +71,29 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 
             return chinoMessage;
         }
+        private async Task HandleImageInputAsync(DiscordMessage message)
+        {
+            var attachment = message.Attachments.FirstOrDefault();
 
+            try
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    using (var response = await httpClient.GetAsync(attachment.Url))
+                    {
+                        byte[] attachmentData = await response.Content.ReadAsByteArrayAsync();
+
+                        string result = await ExecuteGeminiImagePython(attachmentData);
+
+                        await message.RespondAsync(result);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await message.RespondAsync($"Anh ơi có lỗi trong quá trình phân tích ảnh rồi ;-; : {ex.Message}");
+            }
+        }
         private async Task HandleTextInputAsync(DiscordMessage message)
         {
             string chinoMessage = await ExecuteGeminiTextPython(message);
@@ -115,7 +103,12 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         private async Task<string> ExecuteGeminiTextPython(DiscordMessage message)
         {
             string chinoMessage = "";
-
+            string username = message.Author.Username;
+            var member = await message.Channel.Guild.GetMemberAsync(message.Author.Id);
+            if (member != null && !string.IsNullOrEmpty(member.Nickname))
+            {
+                username = member.Nickname;
+            }
             try
             {
                 await Task.Run(() =>
@@ -127,10 +120,10 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                         dynamic sys = Py.Import("sys");
                         sys.path.append($"{jsonReader.gemini_folder_path}");
 
-                        dynamic script = Py.Import("GeminiText");
+                        dynamic script = Py.Import("Gemini");
                         dynamic convo = script.convo;
                         string messageContent = message.Content;
-                        dynamic response = convo.send_message(messageContent);
+                        dynamic response = convo.send_message(username + ": " + messageContent);
                         chinoMessage = convo.last.text;
                     }
                 });

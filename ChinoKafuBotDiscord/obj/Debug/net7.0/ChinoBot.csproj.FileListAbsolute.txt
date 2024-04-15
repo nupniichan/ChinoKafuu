@@ -347,3 +347,7 @@ G:\Programming\Discord\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\runtimes\w
 G:\Programming\Discord\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\runtimes\win-x86\native\libsodium.dll
 G:\Programming\Discord\ChinoKafu\ChinoKafuBotDiscord\obj\Debug\net7.0\ChinoBot.csproj.Up2Date
 G:\Programming\Discord\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\Python.Runtime.dll
+G:\Programming\Discord\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\Microsoft.Win32.SystemEvents.dll
+G:\Programming\Discord\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\System.Drawing.Common.dll
+G:\Programming\Discord\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\runtimes\win\lib\net7.0\Microsoft.Win32.SystemEvents.dll
+G:\Programming\Discord\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\SixLabors.ImageSharp.dll
