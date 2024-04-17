@@ -150,6 +150,12 @@ namespace AnimeListBot.Handler.Anilist
             source
             siteUrl
             duration
+            airingSchedule(page: 1, perPage: 1, notYetAired: true) {
+              nodes {
+                episode
+                timeUntilAiring
+              }
+            }
         }
     }
 ";
@@ -193,6 +199,12 @@ namespace AnimeListBot.Handler.Anilist
             source
             siteUrl
             duration
+            airingSchedule(page: 1, perPage: 1, notYetAired: true) {
+              nodes {
+                episode
+                timeUntilAiring
+              }
+            }
         }
     }
 ";

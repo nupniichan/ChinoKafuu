@@ -2,52 +2,92 @@
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Interactivity;
-using DSharpPlus.CommandsNext.Exceptions;
-using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using ChinoBot.config;
 using ChinoBot.CommandsFolder.PrefixCommandsFolder;
 using ChinoBot.CommandsFolder.SlashCommandsFolder;
-using Microsoft.Extensions.Logging;
-using AnimeListBot.Handler;
 using ChinoBot;
-using static System.Net.WebRequestMethods;
-using System.Net.Sockets;
-using DSharpPlus.EventArgs;
-using Python.Runtime;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using ChinoBot.CommandsFolder.NonePrefixCommandFolder;
+using DSharpPlus.EventArgs;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Lavalink4NET.Extensions;
 
 internal class Program
 {
     public static DiscordClient Client;
-    private static CommandsNextExtension Commands;
-    private static Dictionary<string, ulong> voiceChannelIDs = new Dictionary<string, ulong>();
+    public static HostApplicationBuilder builder;
     static async Task Main(string[] args)
     {
+        builder = new HostApplicationBuilder(args);
+
         var jsonReader = new JSONreader();
         await jsonReader.ReadJson();
 
-        var discordConfig = new DiscordConfiguration()
+        builder.Services.AddHostedService<ApplicationHost>();
+        builder.Services.AddSingleton<DiscordClient>();
+        builder.Services.AddSingleton(new DiscordConfiguration()
         {
             Intents = DiscordIntents.All,
             Token = jsonReader.token,
             TokenType = TokenType.Bot,
             AutoReconnect = true
+        });
+
+        builder.Services.AddLavalink();
+        builder.Build().Run();
+    }
+}
+file sealed class ApplicationHost : BackgroundService
+{
+    private readonly IServiceProvider _serviceProvider;
+    private readonly DiscordClient _discordClient;
+
+    private static Dictionary<string, ulong> voiceChannelIDs = new Dictionary<string, ulong>();
+
+    public ApplicationHost(IServiceProvider serviceProvider, DiscordClient discordClient)
+    {
+        ArgumentNullException.ThrowIfNull(serviceProvider);
+        ArgumentNullException.ThrowIfNull(discordClient);
+
+        _serviceProvider = serviceProvider;
+        _discordClient = discordClient;
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        // Đăng ký event
+        _discordClient
+            .UseInteractivity(new InteractivityConfiguration
+            {
+                Timeout = TimeSpan.FromMinutes(2)
+            });
+        _discordClient.Ready += Client_Ready;
+        _discordClient.VoiceStateUpdated += VoiceChannelHandler;
+        _discordClient.GuildMemberAdded += UserJoinHandler;
+        _discordClient.GuildMemberRemoved += UserLeaveHandler;
+
+        // Kiểm tra voice có còn ai không, nếu không thì out
+        _discordClient.VoiceStateUpdated += async (client, args) =>
+        {
+            var guild = args.Guild;
+            var botMember = await guild.GetMemberAsync(_discordClient.CurrentUser.Id).ConfigureAwait(false);
+
+            if (botMember.VoiceState?.Channel != null)
+            {
+                if (botMember.VoiceState.Channel.Users.Count == 1)
+                {
+                    await botMember.ModifyAsync(properties => properties.VoiceChannel = null).ConfigureAwait(false);
+                }
+            }
         };
 
-        Client = new DiscordClient(discordConfig);
+        // Đọc dữ liệu file config
+        var jsonReader = new JSONreader();
+        await jsonReader.ReadJson();
 
-        Client.UseInteractivity(new InteractivityConfiguration()
-        {
-            Timeout = TimeSpan.FromMinutes(2)
-        });
-        Client.Ready += Client_Ready;
-        Client.VoiceStateUpdated += VoiceChannelHandler;
-        Client.GuildMemberAdded += UserJoinHandler;
-        Client.GuildMemberRemoved += UserLeaveHandler;
-        var autoMessageHandler = new ChinoConservationChat(Client);
+        var autoMessageHandler = new ChinoConservationChat(_discordClient);
         var commandsConfig = new CommandsNextConfiguration()
         {
             StringPrefixes = new string[] { jsonReader.prefix },
@@ -55,17 +95,33 @@ internal class Program
             EnableDms = true,
             EnableDefaultHelp = false
         };
-        Commands = Client.UseCommandsNext(commandsConfig);
-        Commands.RegisterCommands<BasicCommands>();
-        var slashCommands = Client.UseSlashCommands();
+        // Đăng ký sử dụng lệnh prefix
+        var commands = _discordClient.UseCommandsNext(commandsConfig);
+        commands.RegisterCommands<BasicCommands>();
+
+        // Đăng ký sử dụng lệnh slash ( / )
+        var slashCommands = _discordClient.UseSlashCommands(new SlashCommandsConfiguration { Services = _serviceProvider });
         slashCommands.RegisterCommands<BasicSlashCommands>();
         slashCommands.RegisterCommands<AdministratorCommand>();
         slashCommands.RegisterCommands<AnilistSlashCommand>();
         slashCommands.RegisterCommands<OsuSlashCommand>();
-        await Client.ConnectAsync();
-        await Task.Delay(-1);
-    }
+        slashCommands.RegisterCommands<MusicCommands>();
+        slashCommands.RegisterCommands<ModerationCommands>();
 
+        await _discordClient.ConnectAsync().ConfigureAwait(false);
+
+        var readyTaskCompletionSource = new TaskCompletionSource();
+        Task SetResult(DiscordClient client, ReadyEventArgs eventArgs)
+        {
+            readyTaskCompletionSource.TrySetResult();
+            return Task.CompletedTask;
+        }
+        _discordClient.Ready += SetResult;
+        await readyTaskCompletionSource.Task.ConfigureAwait(false);
+        _discordClient.Ready -= SetResult;
+
+        await Task.Delay(Timeout.InfiniteTimeSpan, stoppingToken).ConfigureAwait(false);
+    }
     private static async Task UserLeaveHandler(DiscordClient sender, DSharpPlus.EventArgs.GuildMemberRemoveEventArgs e)
     {
         var defaultChannel = e.Guild.GetDefaultChannel();
@@ -73,7 +129,7 @@ internal class Program
         var goodByeEmbed = new DiscordEmbedBuilder()
             .WithColor(DiscordColor.Red)
             .WithTitle($"Sayonara {e.Member.Username}")
-            .WithDescription("Cảm ơn bạn đã đến quán của mình~" +"\n" +"Nếu có dịp mong bạn hãy ghé quán tiếp nhé!")
+            .WithDescription("Cảm ơn bạn đã đến quán của mình~" + "\n" + "Nếu có dịp mong bạn hãy ghé quán tiếp nhé!")
             .WithThumbnail(e.Member.AvatarUrl)
             .WithImageUrl(goodByeImage);
         await defaultChannel.SendMessageAsync(embed: goodByeEmbed);
@@ -94,29 +150,27 @@ internal class Program
 
     private static async Task VoiceChannelHandler(DiscordClient sender, DSharpPlus.EventArgs.VoiceStateUpdateEventArgs e)
     {
-            // Joining
-            if (e.Channel != null && e.Channel.Name == "Tạo Phòng" && e.Before == null)
-            {
-                var userVC = await e.Guild.CreateVoiceChannelAsync($"🎙 {e.User.Username}'s Voice Channel", e.Channel.Parent);
+        if (e.Channel != null && e.Channel.Name == "Tạo Phòng" && e.Before == null)
+        {
+            var userVC = await e.Guild.CreateVoiceChannelAsync($"🎙 {e.User.Username}'s Voice Channel", e.Channel.Parent);
 
-                voiceChannelIDs.Add(e.User.Username, userVC.Id);
+            voiceChannelIDs.Add(e.User.Username, userVC.Id);
 
-                var member = await e.Guild.GetMemberAsync(e.User.Id);
+            var member = await e.Guild.GetMemberAsync(e.User.Id);
 
-                await member.ModifyAsync(x => x.VoiceChannel = userVC);
-            }
-            // Leaving
-            if (e.Channel == null && e.Before != null && e.Before.Channel != null && e.Before.Channel.Name == $"🎙 {e.User.Username}'s Voice Channel")
-            {
-                var channelSearch = voiceChannelIDs.TryGetValue(e.User.Username, out ulong channelID);
-                var channelToDelete = e.Guild.GetChannel(channelID);
-                await channelToDelete.DeleteAsync();
+            await member.ModifyAsync(x => x.VoiceChannel = userVC);
+        }
+        if (e.Channel == null && e.Before != null && e.Before.Channel != null && e.Before.Channel.Name == $"🎙 {e.User.Username}'s Voice Channel")
+        {
+            var channelSearch = voiceChannelIDs.TryGetValue(e.User.Username, out ulong channelID);
+            var channelToDelete = e.Guild.GetChannel(channelID);
+            await channelToDelete.DeleteAsync();
 
-                voiceChannelIDs.Remove(e.User.Username);
-            }
+            voiceChannelIDs.Remove(e.User.Username);
+        }
     }
-    private static async Task Client_Ready(DiscordClient sender, DSharpPlus.EventArgs.ReadyEventArgs args)
+    private async Task Client_Ready(DiscordClient sender, DSharpPlus.EventArgs.ReadyEventArgs args)
     {
-        await Client.UpdateStatusAsync(new DiscordActivity("with Cocoa and Rize~", ActivityType.Playing));;
+        await _discordClient.UpdateStatusAsync(new DiscordActivity("with Cocoa and Rize~", ActivityType.Playing));
     }
 }

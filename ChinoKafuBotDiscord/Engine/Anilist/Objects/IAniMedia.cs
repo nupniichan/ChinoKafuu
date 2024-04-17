@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with AnimeList Bot.  If not, see <https://www.gnu.org/licenses/>
  */
+using ChinoBot.Engine.Anilist.Objects;
 using GraphQL.Types.Relay.DataObjects;
 
 namespace AnimeListBot.Handler.Anilist
@@ -51,5 +52,6 @@ namespace AnimeListBot.Handler.Anilist
         List<string> genres { get; }
 
         int? duration { get; }
+        AiringSchedule airingSchedule { get; set; }
     }
 }

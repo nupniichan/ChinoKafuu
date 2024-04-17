@@ -89,6 +89,18 @@
               "target": "Package",
               "version": "[1.11.59, )"
             },
+            "Lavalink4NET": {
+              "target": "Package",
+              "version": "[4.0.18, )"
+            },
+            "Lavalink4NET.DSharpPlus": {
+              "target": "Package",
+              "version": "[4.0.18, )"
+            },
+            "Microsoft.Extensions.Hosting": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.3, )"

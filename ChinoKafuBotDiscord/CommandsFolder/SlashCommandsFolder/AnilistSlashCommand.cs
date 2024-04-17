@@ -4,6 +4,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using HtmlAgilityPack;
 using System.Text;
+using System.Xml.Linq;
 
 namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 {
@@ -18,8 +19,8 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 .WithColor(DiscordColor.Azure)
                 .AddField("/AniUser", "Tìm profile trên Anilist")
                 .AddField("/AniuserFavorite", "Xem những bộ anime/manga mà người đó thích")
-                .AddField("/AnimeInformation", "Xem thông tin về bộ anime")
-                .AddField("/MangaInformation", "Xem thông tin về bộ manga")
+                .AddField("/Anime", "Xem thông tin về bộ anime")
+                .AddField("/Manga", "Xem thông tin về bộ manga")
                 .AddField("/AniCharacterInformation", "Xem thông tin về nhân vật")
                 .AddField("/AniStaffInformation", "Xem thông tin về những người làm ra")
                 .WithFooter("Để sử dụng lệnh cụ thể, nhập /tên-lệnh");
@@ -161,8 +162,9 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             var media = await AniMediaQuery.GetMedia((int)animeID, AniMediaType.ANIME);
             try
             {
-                if (media.title != null)
+                if (media != null)
                 {
+                    // calculate start date and end date of that anime
                     AniFuzzyDate startDate = media.startDate;
                     DateTime? start = null;
                     string startDateFormat = "N/A";
@@ -195,22 +197,33 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                             endDateFormat = end.Value.ToString("dd/MM/yyyy");
                         }
                     }
-                    // get description 
+
+                    // Get anime description
                     var descriptionString = media.description.ToString();
                     var doc = new HtmlDocument();
                     doc.LoadHtml(descriptionString);
                     string description = Helper.ProcessHtmlToMarkdown(doc.DocumentNode);
 
-                    // check if the anime is released
-                    bool isRelease = (media.status.ToString() != "NOT_YET_RELEASED");
-                    if (isRelease)
+                    // check if that anime released for releasing
+                    bool isFinished = (media.status.ToString() == "FINISHED");
+                    bool isAiring = (media.status.ToString() == "RELEASING");
+
+                    // get anime genres
+                    List<string> genres = media.genres;
+                    string genresString = string.Join(", ", genres);
+
+                    // get anime title
+                    string animeTitle = media.title.english;
+                    if (animeTitle == null)
                     {
-                        // Lấy danh sách thể loại
-                        List<string> genres = media.genres;
-                        string genresString = string.Join(", ", genres);
+                        animeTitle = media.title.romaji;
+                    }
+
+                    if (isFinished)
+                    {
                         var embed = new DiscordEmbedBuilder()
                         .WithAuthor($"{media.format}", null, "https://media.discordapp.net/attachments/1023808975185133638/1143013784584208504/AniList_logo.svg.png?width=588&height=588")
-                        .WithTitle(media.title.english)
+                        .WithTitle(animeTitle)
                         .WithUrl(media.siteUrl)
                         .WithDescription(description)
                         .AddField(":minidisc: Episodes", media.episodes.ToString(), true)
@@ -232,28 +245,67 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                     }
                     else
                     {
-                        var embed = new DiscordEmbedBuilder()
+                        if (isAiring)
+                        {
+                            // Calculate nextEpisode arrive (just a prediction)
+                            var nextEpisode = media.airingSchedule.nodes.FirstOrDefault();
+                            var secondsUntilAiring = nextEpisode.timeUntilAiring;
+                            var days = secondsUntilAiring / (60 * 60 * 24);
+                            var hours = (secondsUntilAiring % (60 * 60 * 24)) / (60 * 60);
+                            var minutes = (secondsUntilAiring % (60 * 60)) / 60;
+
+                            // Get computer timezone
+                            var airingTimeFormatted = $"{days}d {hours}h {minutes}m";
+                            TimeZoneInfo localTimeZone = TimeZoneInfo.Local;
+                            TimeSpan offset = localTimeZone.BaseUtcOffset;
+                            string utcOffsetString = $"UTC{(offset < TimeSpan.Zero ? "-" : "+")}{offset:hh\\:mm}";
+
+                            var embed = new DiscordEmbedBuilder()
+                                .WithAuthor($"{media.format}", null, "https://media.discordapp.net/attachments/1023808975185133638/1143013784584208504/AniList_logo.svg.png?width=588&height=588")
+                                .WithTitle(animeTitle)
+                                .WithUrl(media.siteUrl)
+                                .WithDescription(description)
+                                .AddField(":calendar_spiral: Aired", startDateFormat + " -> " + endDateFormat, true)
+                                .AddField(":hourglass_flowing_sand: Status", char.ToUpper(media.status.ToString()[0]) + media.status.ToString().Substring(1).ToLower(), true)
+                                .AddField(":comet: Season", char.ToUpper(media.season[0]) + media.season.Substring(1).ToLower(), true)
+                                .AddField(":calendar: Next Episode", $"Episode {nextEpisode.episode}, airing in {airingTimeFormatted} ({utcOffsetString})", false)
+                                .AddField("⏱ Episode Duration", media.duration.ToString() + "mins", false)
+                                .AddField(":file_folder: Source", char.ToUpper(media.source[0]) + media.source.Substring(1).ToLower(), false)
+                                .AddField(":star: Average Score", media.averageScore.ToString() + "/100", true)
+                                .AddField(":star: Mean Score", media.meanScore.ToString() + "/100", true)
+                                .AddField(":arrow_right: Genres", genresString, false)
+                                .AddField("🌐 Native", media.title.native, false)
+                                .AddField("🛈 For more information", $"[Anilist]({media.siteUrl})")
+                                .WithColor(DiscordColor.Azure);
+                            embed.WithThumbnail(media.coverImage.medium);
+                            embed.WithImageUrl(media.bannerImage);
+                            await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+                        }
+                        else
+                        {
+                            var embed = new DiscordEmbedBuilder()
                             .WithAuthor($"{media.format}", null, "https://media.discordapp.net/attachments/1023808975185133638/1143013784584208504/AniList_logo.svg.png?width=588&height=588")
-                            .WithTitle(media.title.english)
+                            .WithTitle(animeTitle)
                             .WithUrl(media.siteUrl)
                             .WithDescription(description)
                             .AddField("Start Date ", startDateFormat, true)
-                            .AddField("End Date ", endDateFormat , true)
+                            .AddField("End Date ", endDateFormat, true)
                             .AddField("Status", media.status.ToString(), false)
                             .AddField("Note", "Bởi vì bộ này có thể dời thời gian nên mình không thể hiện chi tiết thời gian bắt đầu, kết thúc, season và một vài thông tin khác được~")
                             .AddField("For more information", $"[Anilist]({media.siteUrl})")
                             .WithFooter("Provided by https://anilist.co/")
                             .WithColor(DiscordColor.Azure);
-                        embed.WithThumbnail(media.coverImage.medium);
-                        embed.WithImageUrl(media.bannerImage);
-                        await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+                            embed.WithThumbnail(media.coverImage.medium);
+                            embed.WithImageUrl(media.bannerImage);
+                            await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+                        }
                     }
                 }
                 else
                 {
                     var errorMessage = new DiscordEmbedBuilder()
                     .WithTitle("Thấy lỗi rồi nè~")
-                    .WithDescription($"Mình không tìm được kết quả về {animeID} trong dữ liệu của anilist.")
+                    .WithDescription($"Mình không tìm được kết quả về {animeID} trong dữ liệu của anilist. \n Bạn có thể cung cấp cho mình id để mình tìm sâu hơn nha")
                         .WithColor(DiscordColor.Red);
 
                     await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(errorMessage));
@@ -278,6 +330,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             {
                 if (media != null)
                 {
+                    // calculate start date and end date of that anime
                     AniFuzzyDate startDate = media.startDate;
                     DateTime? start = null;
                     string startDateFormat = "N/A";
@@ -310,22 +363,33 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                             endDateFormat = end.Value.ToString("dd/MM/yyyy");
                         }
                     }
-                    // get description 
+
+                    // Get anime description
                     var descriptionString = media.description.ToString();
                     var doc = new HtmlDocument();
                     doc.LoadHtml(descriptionString);
                     string description = Helper.ProcessHtmlToMarkdown(doc.DocumentNode);
 
-                    // check if the anime is released
-                    bool isRelease = (media.status.ToString() != "NOT_YET_RELEASED");
-                    if (isRelease)
+                    // check if that anime released for releasing
+                    bool isFinished = (media.status.ToString() == "FINISHED");
+                    bool isAiring = (media.status.ToString() == "RELEASING");
+
+                    // get anime genres
+                    List<string> genres = media.genres;
+                    string genresString = string.Join(", ", genres);
+
+                    // get anime title
+                    string animeTitle = media.title.english;
+                    if (animeTitle == null)
                     {
-                        // Lấy danh sách thể loại
-                        List<string> genres = media.genres;
-                        string genresString = string.Join(", ", genres);
+                        animeTitle = media.title.romaji;
+                    }
+
+                    if (isFinished)
+                    {
                         var embed = new DiscordEmbedBuilder()
                         .WithAuthor($"{media.format}", null, "https://media.discordapp.net/attachments/1023808975185133638/1143013784584208504/AniList_logo.svg.png?width=588&height=588")
-                        .WithTitle(media.title.english)
+                        .WithTitle(animeTitle)
                         .WithUrl(media.siteUrl)
                         .WithDescription(description)
                         .AddField(":minidisc: Episodes", media.episodes.ToString(), true)
@@ -347,9 +411,47 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                     }
                     else
                     {
-                        var embed = new DiscordEmbedBuilder()
+                        if (isAiring) 
+                        {
+                            // Calculate nextEpisode arrive (just a prediction)
+                            var nextEpisode = media.airingSchedule.nodes.FirstOrDefault();
+                            var secondsUntilAiring = nextEpisode.timeUntilAiring;
+                            var days = secondsUntilAiring / (60 * 60 * 24);
+                            var hours = (secondsUntilAiring % (60 * 60 * 24)) / (60 * 60);
+                            var minutes = (secondsUntilAiring % (60 * 60)) / 60;
+
+                            // Get computer timezone
+                            var airingTimeFormatted = $"{days}d {hours}h {minutes}m";
+                            TimeZoneInfo localTimeZone = TimeZoneInfo.Local;
+                            TimeSpan offset = localTimeZone.BaseUtcOffset;
+                            string utcOffsetString = $"UTC{(offset < TimeSpan.Zero ? "-" : "+")}{offset:hh\\:mm}";
+
+                            var embed = new DiscordEmbedBuilder()
+                                .WithAuthor($"{media.format}", null, "https://media.discordapp.net/attachments/1023808975185133638/1143013784584208504/AniList_logo.svg.png?width=588&height=588")
+                                .WithTitle(animeTitle)
+                                .WithUrl(media.siteUrl)
+                                .WithDescription(description)
+                                .AddField(":calendar_spiral: Aired", startDateFormat + " -> " + endDateFormat, true)
+                                .AddField(":hourglass_flowing_sand: Status", char.ToUpper(media.status.ToString()[0]) + media.status.ToString().Substring(1).ToLower(), true)
+                                .AddField(":comet: Season", char.ToUpper(media.season[0]) + media.season.Substring(1).ToLower(), true)
+                                .AddField(":calendar: Next Episode", $"Episode {nextEpisode.episode}, airing in {airingTimeFormatted} ({utcOffsetString})",false)
+                                .AddField("⏱ Episode Duration", media.duration.ToString() + "mins", false)
+                                .AddField(":file_folder: Source", char.ToUpper(media.source[0]) + media.source.Substring(1).ToLower(), false)
+                                .AddField(":star: Average Score", media.averageScore.ToString() + "/100", true)
+                                .AddField(":star: Mean Score", media.meanScore.ToString() + "/100", true)
+                                .AddField(":arrow_right: Genres", genresString, false)
+                                .AddField("🌐 Native", media.title.native, false)
+                                .AddField("🛈 For more information", $"[Anilist]({media.siteUrl})")
+                                .WithColor(DiscordColor.Azure);
+                            embed.WithThumbnail(media.coverImage.medium);
+                            embed.WithImageUrl(media.bannerImage);
+                            await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+                        }
+                        else
+                        {
+                            var embed = new DiscordEmbedBuilder()
                             .WithAuthor($"{media.format}", null, "https://media.discordapp.net/attachments/1023808975185133638/1143013784584208504/AniList_logo.svg.png?width=588&height=588")
-                            .WithTitle(media.title.english)
+                            .WithTitle(animeTitle)
                             .WithUrl(media.siteUrl)
                             .WithDescription(description)
                             .AddField("Start Date ", startDateFormat, true)
@@ -359,9 +461,10 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                             .AddField("For more information", $"[Anilist]({media.siteUrl})")
                             .WithFooter("Provided by https://anilist.co/")
                             .WithColor(DiscordColor.Azure);
-                        embed.WithThumbnail(media.coverImage.medium);
-                        embed.WithImageUrl(media.bannerImage);
-                        await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+                            embed.WithThumbnail(media.coverImage.medium);
+                            embed.WithImageUrl(media.bannerImage);
+                            await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+                        }
                     }
                 }
                 else
