@@ -106,7 +106,6 @@ file sealed class ApplicationHost : BackgroundService
         slashCommands.RegisterCommands<AnilistSlashCommand>();
         slashCommands.RegisterCommands<OsuSlashCommand>();
         slashCommands.RegisterCommands<MusicCommands>();
-        slashCommands.RegisterCommands<ModerationCommands>();
 
         await _discordClient.ConnectAsync().ConfigureAwait(false);
 
