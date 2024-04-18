@@ -1,9 +1,4 @@
 ﻿using ChinoBot.config;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChinoBot.Engine.Osu
 {
@@ -12,7 +7,7 @@ namespace ChinoBot.Engine.Osu
         public static async Task<string> OsuAPIConnect()
         {
             var jsonReader = new JSONreader();
-            await jsonReader.ReadJson();
+            await jsonReader.ReadJsonToken();
             return jsonReader.osuToken;
         }
     }

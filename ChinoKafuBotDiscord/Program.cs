@@ -14,7 +14,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Lavalink4NET.Extensions;
 
-internal class Program
+internal sealed class Program
 {
     public static DiscordClient Client;
     public static HostApplicationBuilder builder;

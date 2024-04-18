@@ -18,17 +18,17 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 .WithTitle("Danh sách các lệnh")
                 .WithDescription("Dưới đây là danh sách các lệnh có sẵn:")
                 .WithColor(new DiscordColor(255, 124, 187))
-                .AddField("/ou", "Tra thông tin osu của người chơi đó")
-                .AddField("/orc", "Xem lại điểm số của lần chơi gần đây nhất")
-                .AddField("/obs", "Xem top 5 map mà người đó có thành tích cao nhất")
-                .AddField("/obmi", "Xem thông tin về beatmap đó")
+                .AddField("/osuProfile", "Tra thông tin osu của người chơi đó")
+                .AddField("/osuRecent", "Xem lại điểm số của lần chơi gần đây nhất")
+                .AddField("/osuBestScore", "Xem top 5 map mà người đó có thành tích cao nhất")
+                .AddField("/osuBeatMap", "Xem thông tin về beatmap đó")
                 .WithFooter("Để sử dụng lệnh cụ thể, nhập /tên-lệnh");
 
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder().AddEmbed(embed));
         }
 
-        [SlashCommand("ou", "Tra thông tin osu của người chơi đó")]
+        [SlashCommand("osuProfile", "Tra thông tin osu của người chơi đó")]
         public async Task OsuProfile(InteractionContext ctx, [Option("user","Tên của người đó là gì")] string name,
                                                              [Option("mode", "Chọn loại mode mà bạn muốn xem")] BeatmapMode mode)
         {
@@ -107,7 +107,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(errorMessage));
             }
         }
-        [SlashCommand("orc", "Xem lại điểm số của lần chơi gần đây nhất")]
+        [SlashCommand("osuRecent", "Xem lại điểm số của lần chơi gần đây nhất")]
         public async Task OsurecentCommand(InteractionContext ctx, [Option("name", "Tên của người bạn cần xem là ai nè")] string name)
         {
             await ctx.DeferAsync();
@@ -189,7 +189,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 
 
 
-        [SlashCommand("obs", "Xem top 5 map mà người đó có thành thích cao nhất")]
+        [SlashCommand("osuBestScore", "Xem top 5 map mà người đó có thành thích cao nhất")]
         public async Task OsuUserBestScoreCommand(InteractionContext ctx, [Option("name", "Tên của người bạn cần xem là ai nè")] string name,
                                           [Option("mode", "Chọn loại mode mà bạn muốn xem")] BeatmapMode mode)
         {
@@ -264,7 +264,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(errorEmbed));
             }
         }
-        [SlashCommand("obmi","Xem thông tin về beatmap đó")]
+        [SlashCommand("osuBeatMap", "Xem thông tin về beatmap đó")]
         public async Task CheckBeatMapInformationCommand(InteractionContext ctx, [Option("ID","Map bạn cần xem có mã id là gì?")] long id)
         {
             await ctx.DeferAsync();

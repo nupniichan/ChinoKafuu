@@ -24,10 +24,6 @@ namespace ChinoBot.config
                 JsonStructer data = JsonConvert.DeserializeObject<JsonStructer>(json);
                 this.token = data.token;
                 this.prefix = data.prefix;
-                this.osuToken = data.osuToken;
-                this.gemini_folder_path = data.gemini_folder_path;
-                this.allowChannelID_gemini = data.allowChannelID_gemini;
-                this.python_dll_path = data.python_dll_path;
             }
         }
         public async Task ReadJsonToken()
