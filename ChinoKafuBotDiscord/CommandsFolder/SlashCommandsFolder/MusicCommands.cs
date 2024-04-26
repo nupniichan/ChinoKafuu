@@ -7,6 +7,7 @@ using Lavalink4NET.Rest.Entities.Tracks;
 using Microsoft.Extensions.Options;
 using DSharpPlus;
 using System.Text;
+using System.Runtime.InteropServices;
 
 namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 {
@@ -253,8 +254,11 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 
                 var player = await GetPlayerAsync(ctx, connectToVoiceChannel: true).ConfigureAwait(false);
 
-                if (player == null)
+                if (player == null || player.CurrentTrack == null)
                 {
+                    await ctx
+                        .FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent(":musical_note: Hiện không có bài nhạc đang được phát."))
+                        .ConfigureAwait(false);
                     return;
                 }
 
@@ -265,11 +269,11 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             catch (Exception e)
             {
                 await ctx
-                    .FollowUpAsync(new DiscordFollowupMessageBuilder()
-                    .WithContent($"Chino phát hiện lỗi rồi nè~: {e.Message}"))
+                    .FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent($"Chino phát hiện lỗi rồi nè~: {e.Message}"))
                     .ConfigureAwait(false);
             }
         }
+
         [SlashCommand("queue", "Xem danh sách nhạc đang chờ được phát")]
         public async Task musicQueue(InteractionContext ctx)
         {
