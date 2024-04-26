@@ -5,7 +5,7 @@ import PIL.Image
 
     
 # your geminiApi key
-genai.configure(api_key="YOUR_API_TOKEN")
+genai.configure(api_key="Your_Gemini_Api_Key")
 
 # Set up the model
 generation_config = {
@@ -46,6 +46,6 @@ convo = model.start_chat(history=[
   },
   {
     "role": "model",
-    "parts": ["Model_Response"]
+    "parts": ["Your_Model_Response"]
   },
 ])
