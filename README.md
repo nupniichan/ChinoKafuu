@@ -2,12 +2,12 @@
 
 ## Introduction
 
-Welcome to Chino Kafu, the Discord bot I've crafted using the dotnet framework. As this is my first attempt at creating a bot, there might be a few errors along the way. Don't hesitate to contact me if you encounter any issues. I'll do my best to resolve them.
+Welcome to Chino Kafu, the Discord bot I've crafted using the .NET 7.0. As this is my first attempt at creating a bot, there might be a few errors along the way. Don't hesitate to contact me if you encounter any issues. I'll do my best to resolve them.
 
 To get started, you must download the release file then follow my instructions:
-+Add your token to `config.json` on ../../../ChinoKafuBotDiscord/Configs and ../../../Engine/Gemini.py
-+Install *pip install google-generativeai* and *pip install pillow* on python 
-+Use cmd or shell to run Lavalink.jar (the command must be like: cd (path to your project. Example:*cd F:\Programming\LavaLink*) then type this to your cmd: **java -jar Lavalink.jar**)
+- Add your token to `config.json` on *../../../ChinoKafuBotDiscord/Configs/config.json* and add your Api key on *../../../Engine/Gemini.py*
+- Install *pip install google-generativeai* and *pip install pillow* on python
+- Use cmd or shell to run Lavalink.jar (the command must be like: cd (path to your project. Example:*cd F:\Programming\LavaLink*) then type this to your cmd: **java -jar Lavalink.jar**)
 
 ## Requirements
 
@@ -34,7 +34,7 @@ Chino Kafu offers plenty of features for your Discord server:
 - **Playing music on your server**: The only thing you do is just join a voice channel and then /start (url or name of the music you want to play) then Chino will come your voice channel and start playing your music. For more information, type /musicHelp
 ## Special Thanks
 
-I want to express my gratitude to ThomasAunvik for creating an API code connection to Anilist, which made it easier for me to create this bot. I have used [his file](https://github.com/ThomasAunvik/AnimeListBot/tree/master/AnimeListBot/Handler/API/Anilist) during the development process. If i didn't find him, creating Anilist search with dotnet wouldn't be possible for a beginner like me.
+I want to express my gratitude to ThomasAunvik for creating an API code connection to Anilist, which made it easier for me to create this bot. I have used [his file](https://github.com/ThomasAunvik/AnimeListBot/tree/master/AnimeListBot/Handler/API/Anilist) during the anilist's api development process. If i didn't find him, creating Anilist search with .NET wouldn't be possible for a beginner like me.
 
 ## API Used
 - [DSharpPlus](https://github.com/DSharpPlus/DSharpPlus)
