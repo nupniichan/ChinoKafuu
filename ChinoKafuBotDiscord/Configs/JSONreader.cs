@@ -18,20 +18,12 @@ namespace ChinoBot.config
 
         public async Task ReadJson()
         {
-            using (StreamReader sr = new StreamReader("config.json"))
+            using (StreamReader sr = new StreamReader("../../../Configs/config.json"))
             {
                 string json = await sr.ReadToEndAsync();
                 JsonStructer data = JsonConvert.DeserializeObject<JsonStructer>(json);
                 this.token = data.token;
                 this.prefix = data.prefix;
-            }
-        }
-        public async Task ReadJsonToken()
-        {
-            using (StreamReader sr = new StreamReader("otherconfig.json"))
-            {
-                string json = await sr.ReadToEndAsync();
-                JsonStructer data = JsonConvert.DeserializeObject<JsonStructer>(json);
                 this.osuToken = data.osuToken;
                 this.gemini_folder_path = data.gemini_folder_path;
                 this.allowChannelID_gemini = data.allowChannelID_gemini;

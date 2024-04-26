@@ -1,0 +1,8 @@
+﻿{
+  "token": "Your_Discord_Token",
+  "prefix": ">",
+  "osuToken": "Your_Osu_Api",
+  "gemini_folder_path": "..\\..\\..\\Engine\\Gemini",
+  "allowChannelID_gemini": "Your_Channel_ID",
+  "python_dll_path": "C:\\Users\\{user_name}\\AppData\\Local\\Programs\\Python\\Python39\\python39.dll"
+}
