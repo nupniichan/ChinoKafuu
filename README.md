@@ -6,7 +6,7 @@ Welcome to Chino Kafu, the Discord bot I've crafted using the .NET 7.0. As this 
 
 To get started, you must download the release file then follow my instructions:
 - Add your token to `config.json` on *../../../ChinoKafuBotDiscord/Configs/config.json* and add your Api key on *../../../Engine/Gemini.py*
-- Install *pip install google-generativeai* and *pip install pillow* on python
+- Install *pip install google-generativeai* and *pip install pillow* and *pip install grpcio* on python
 - Use cmd or shell to run Lavalink.jar (the command must be like: cd (path to your project. Example:*cd F:\Programming\LavaLink*) then type this to your cmd: **java -jar Lavalink.jar**)
 
 ## Requirements
