@@ -18,7 +18,7 @@ namespace ChinoBot.config
 
         public async Task ReadJson()
         {
-            using (StreamReader sr = new StreamReader("../../../Configs/config.json"))
+            using (StreamReader sr = new StreamReader("..//..//..//Configs//config.json"))
             {
                 string json = await sr.ReadToEndAsync();
                 JsonStructer data = JsonConvert.DeserializeObject<JsonStructer>(json);

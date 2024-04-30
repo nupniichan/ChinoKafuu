@@ -14,7 +14,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         {
             _client = client;
             jsonReader = new JSONreader();
-            jsonReader.ReadJsonToken().GetAwaiter().GetResult();
+            jsonReader.ReadJson().GetAwaiter().GetResult();
             _client.MessageCreated += Client_MessageCreated;
         }
 
