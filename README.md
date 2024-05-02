@@ -5,7 +5,7 @@
 Welcome to Chino Kafu, the Discord bot I've crafted using the .NET 7.0. As this is my first attempt at creating a bot, there might be a few errors along the way. Don't hesitate to contact me if you encounter any issues. I'll do my best to resolve them.
 
 To get started, you must download the release file then follow my instructions:
-- Add your token to `config.json` on *../../../ChinoKafuBotDiscord/Configs/config.json* and add your Api key on *../../../Engine/Gemini.py*
+- Change your token and some config on `config.json` on *../../../ChinoKafuBotDiscord/Configs/config.json* and add your Api key on *../../../Engine/Gemini.py*
 - Install *pip install google-generativeai* and *pip install pillow* and *pip install grpcio* on python
 - Use cmd or shell to run Lavalink.jar (the command must be like: cd (path to your project. Example:*cd F:\Programming\LavaLink*) then type this to your cmd: **java -jar Lavalink.jar**)
 
@@ -17,7 +17,7 @@ To get started, you must download the release file then follow my instructions:
 - **Discord Prefix, Token and Osu token (Required)**
 
 ## New update
-Changed config file from bin/Debug/net7.0 to ../../../ChinoKafuBotDiscord/Configs for easy config
+Added role for user when they join your server. The only thing you do is just change the **userDefaultRoleName** matched with the role you wanted to set on config file and everything will work :D
 
 ## Features
 
