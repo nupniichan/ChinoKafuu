@@ -13,6 +13,7 @@ using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Lavalink4NET.Extensions;
+using System.Data;
 
 internal sealed class Program
 {
@@ -43,6 +44,7 @@ file sealed class ApplicationHost : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly DiscordClient _discordClient;
+    private static JSONreader jsonReader;
 
     private static Dictionary<string, ulong> voiceChannelIDs = new Dictionary<string, ulong>();
 
@@ -84,7 +86,7 @@ file sealed class ApplicationHost : BackgroundService
         };
 
         // Đọc dữ liệu file config
-        var jsonReader = new JSONreader();
+        jsonReader = new JSONreader();
         await jsonReader.ReadJson();
 
         var autoMessageHandler = new ChinoConservationChat(_discordClient);
@@ -144,6 +146,11 @@ file sealed class ApplicationHost : BackgroundService
             .WithDescription("Mong bạn sẽ có trải nghiệm vui vẻ ở quán của mình~")
             .WithThumbnail(e.Member.AvatarUrl)
             .WithImageUrl(welcomeGifUrl);
+        // Set default role for user when them join
+        var defaultRolePair = e.Guild.Roles.FirstOrDefault(r => r.Value.Name == jsonReader.userDefaultRoleName);
+        var defaultRole = defaultRolePair.Value;
+        await e.Member.GrantRoleAsync(defaultRole);
+        // Send embed welcome them
         await defaultChannel.SendMessageAsync(embed: welcomeEmbed);
     }
 

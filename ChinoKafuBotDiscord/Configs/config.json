@@ -5,4 +5,5 @@
   "gemini_folder_path": "..\\..\\..\\Engine\\Gemini",
   "allowChannelID_gemini": "Your_Channel_ID",
   "python_dll_path": "C:\\Users\\{user_name}\\AppData\\Local\\Programs\\Python\\Python39\\python39.dll"
+  "userDefaultRoleName": "Your_Role_You_Want_To_Set"
 }

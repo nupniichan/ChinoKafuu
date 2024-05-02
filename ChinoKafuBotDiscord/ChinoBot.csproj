@@ -29,10 +29,4 @@
     <PackageReference Include="xunit" Version="2.5.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="CharacterAI">
-      <HintPath>bin\Debug\net7.0\CharacterAI.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
 </Project>

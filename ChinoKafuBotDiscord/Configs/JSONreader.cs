@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ChinoBot.config
 {
-    public class JSONreader
+    public sealed class JSONreader
     {
         public string token { get; set; }
         public string prefix { get; set; }
@@ -16,6 +16,7 @@ namespace ChinoBot.config
         public ulong allowChannelID_gemini { get; set; }
         public string python_dll_path { get; set; }
 
+        public string userDefaultRoleName { get; set; }
         public async Task ReadJson()
         {
             using (StreamReader sr = new StreamReader("..//..//..//Configs//config.json"))
@@ -28,11 +29,12 @@ namespace ChinoBot.config
                 this.gemini_folder_path = data.gemini_folder_path;
                 this.allowChannelID_gemini = data.allowChannelID_gemini;
                 this.python_dll_path = data.python_dll_path;
+                this.userDefaultRoleName = data.userDefaultRoleName;
             }
         }
     }
 
-    public class JsonStructer
+    public sealed class JsonStructer
     {
         public string token { get; set; }
         public string prefix { get; set; }
@@ -40,6 +42,6 @@ namespace ChinoBot.config
         public string gemini_folder_path { get; set; }
         public ulong allowChannelID_gemini { get; set; }
         public string python_dll_path { get; set; }
-
+        public string userDefaultRoleName { get; set; }
     }
 }
