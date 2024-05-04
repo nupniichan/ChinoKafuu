@@ -8,6 +8,8 @@ using Microsoft.Extensions.Options;
 using DSharpPlus;
 using System.Text;
 using System.Runtime.InteropServices;
+using DSharpPlus.VoiceNext;
+using System.Diagnostics;
 
 namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 {
@@ -366,6 +368,42 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             }
 
             return result.Player;
+        }
+        [SlashCommand("phat", description: "Phát nhạc từ youtube, soundcloud, local file,...")]
+        public async Task Phat(InteractionContext ctx)
+        {
+            await ctx.DeferAsync().ConfigureAwait(false);
+            try
+            {
+                var guild = ctx.Guild;
+                var user = ctx.Member;
+
+                // Get the voice state of the user to determine the voice channel they're in
+                var voiceState = user?.VoiceState;
+
+                // Connect to the voice channel the user is in
+                var channel = voiceState.Channel;
+                var connection = await channel.ConnectAsync();
+
+                var filePath = "G:\\Programming\\AI\\Applio-3.1.1\\result.wav";
+
+                var ffmpegPath = "G:\\Programming\\Discord\\ChinoKafu\\ffmpeg\\bin\\ffmpeg.exe"; // Provide the full path to ffmpeg.exe
+
+                var ffmpeg = Process.Start(new ProcessStartInfo
+                {
+                    FileName = ffmpegPath,
+                    Arguments = $@"-i ""{filePath}"" -ac 2 -f s16le -ar 48000 pipe:1",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false
+                });
+                using var pcm = ffmpeg.StandardOutput.BaseStream;
+                var transmit = connection.GetTransmitSink();
+                await pcm.CopyToAsync(transmit);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
     }
 }

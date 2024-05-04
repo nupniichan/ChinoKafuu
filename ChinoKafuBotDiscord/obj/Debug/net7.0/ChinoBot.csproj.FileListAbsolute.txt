@@ -482,3 +482,9 @@ C:\Users\nup\Documents\ChinoKafu\ChinoKafuBotDiscord\obj\Debug\net7.0\refint\Chi
 C:\Users\nup\Documents\ChinoKafu\ChinoKafuBotDiscord\obj\Debug\net7.0\ChinoBot.pdb
 C:\Users\nup\Documents\ChinoKafu\ChinoKafuBotDiscord\obj\Debug\net7.0\ChinoBot.genruntimeconfig.cache
 C:\Users\nup\Documents\ChinoKafu\ChinoKafuBotDiscord\obj\Debug\net7.0\ref\ChinoBot.dll
+G:\Programming\Discord\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\NAudio.dll
+G:\Programming\Discord\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\NAudio.Asio.dll
+G:\Programming\Discord\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\NAudio.Core.dll
+G:\Programming\Discord\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\NAudio.Midi.dll
+G:\Programming\Discord\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\NAudio.Wasapi.dll
+G:\Programming\Discord\ChinoKafu\ChinoKafuBotDiscord\bin\Debug\net7.0\NAudio.WinMM.dll

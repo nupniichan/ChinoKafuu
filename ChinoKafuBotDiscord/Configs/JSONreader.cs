@@ -1,9 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChinoBot.config
 {
@@ -15,8 +10,10 @@ namespace ChinoBot.config
         public string gemini_folder_path { get; set; }
         public ulong allowChannelID_gemini { get; set; }
         public string python_dll_path { get; set; }
-
         public string userDefaultRoleName { get; set; }
+        public string applioPath { get; set; }
+        public string resultApplioFilePath { get; set; }
+        public string ffmpegPath { get; set; }
         public async Task ReadJson()
         {
             using (StreamReader sr = new StreamReader("..//..//..//Configs//config.json"))
@@ -30,6 +27,9 @@ namespace ChinoBot.config
                 this.allowChannelID_gemini = data.allowChannelID_gemini;
                 this.python_dll_path = data.python_dll_path;
                 this.userDefaultRoleName = data.userDefaultRoleName;
+                this.applioPath = data.applioPath;
+                this.resultApplioFilePath = data.resultApplioFilePath;
+                this.ffmpegPath = data.ffmpegPath;
             }
         }
     }
@@ -43,5 +43,8 @@ namespace ChinoBot.config
         public ulong allowChannelID_gemini { get; set; }
         public string python_dll_path { get; set; }
         public string userDefaultRoleName { get; set; }
+        public string applioPath { get; set; }
+        public string resultApplioFilePath { get; set; }
+        public string ffmpegPath { get; set; }
     }
 }

@@ -14,6 +14,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Lavalink4NET.Extensions;
 using System.Data;
+using DSharpPlus.VoiceNext;
 
 internal sealed class Program
 {
@@ -69,7 +70,9 @@ file sealed class ApplicationHost : BackgroundService
         _discordClient.VoiceStateUpdated += VoiceChannelHandler;
         _discordClient.GuildMemberAdded += UserJoinHandler;
         _discordClient.GuildMemberRemoved += UserLeaveHandler;
+        _discordClient.VoiceStateUpdated += VoiceStateHandler;
 
+        _discordClient.UseVoiceNext();
         // Kiểm tra voice có còn ai không, nếu không thì out
         _discordClient.VoiceStateUpdated += async (client, args) =>
         {
@@ -107,7 +110,7 @@ file sealed class ApplicationHost : BackgroundService
         slashCommands.RegisterCommands<AdministratorCommand>();
         slashCommands.RegisterCommands<AnilistSlashCommand>();
         slashCommands.RegisterCommands<OsuSlashCommand>();
-        slashCommands.RegisterCommands<MusicCommands>();
+        slashCommands.RegisterCommands<MusicCommands>(1140906898254725181);
 
         await _discordClient.ConnectAsync().ConfigureAwait(false);
 
@@ -173,6 +176,26 @@ file sealed class ApplicationHost : BackgroundService
             await channelToDelete.DeleteAsync();
 
             voiceChannelIDs.Remove(e.User.Username);
+        }
+    }
+    private async Task VoiceStateHandler(DiscordClient sender, VoiceStateUpdateEventArgs e)
+    {
+        var user = e.User;
+        bool isBot = user.IsBot;
+
+        if (isBot)
+        {
+            return;
+        }
+        if (e.After != null)
+        {
+            if (e.Before?.Channel != null && e.After.Channel == null)
+            {
+                if (ChinoConservationChat.Connection != null)
+                {
+                    ChinoConservationChat.Connection = null;
+                }
+            }
         }
     }
     private async Task Client_Ready(DiscordClient sender, DSharpPlus.EventArgs.ReadyEventArgs args)

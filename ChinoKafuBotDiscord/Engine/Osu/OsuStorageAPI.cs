@@ -7,7 +7,7 @@ namespace ChinoBot.Engine.Osu
         public static async Task<string> OsuAPIConnect()
         {
             var jsonReader = new JSONreader();
-            await jsonReader.ReadJsonToken();
+            await jsonReader.ReadJson();
             return jsonReader.osuToken;
         }
     }

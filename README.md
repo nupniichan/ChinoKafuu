@@ -17,7 +17,7 @@ To get started, you must download the release file then follow my instructions:
 - **Discord Prefix, Token and Osu token (Required)**
 
 ## New update
-Added role for user when they join your server. The only thing you do is just change the **userDefaultRoleName** matched with the role you wanted to set on config file and everything will work :D
+So i added TTS (Text To Speech) for Chino. From now she can talk with while you chatting with her on discord :D. But there's a few problem that the response take so long. Im working on it to fix it for best the experiment for your server (and your PC too). The new installation guide i will update later please stand by...
 
 ## Features
 
@@ -44,5 +44,7 @@ I want to express my gratitude to ThomasAunvik for creating an API code connecti
 - [PythonNet](https://github.com/pythonnet/pythonnet)
 - [generativeAI](https://github.com/google/generative-ai-docs)
 - [LavaLink4Net](https://github.com/angelobreuer/Lavalink4NET)
+- [Applio](https://github.com/IAHispano/Applio)
+- [FFmpeg](https://github.com/FFmpeg/FFmpeg)
 
 Thank you for using Chino Kafu! More features are coming soon~.

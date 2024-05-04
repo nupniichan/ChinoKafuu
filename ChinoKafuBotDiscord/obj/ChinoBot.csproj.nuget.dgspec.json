@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "G:\\Programming\\Discord\\ChinoKafuGitHub_\\ChinoKafuBotDiscord\\ChinoBot.csproj": {}
+    "G:\\Programming\\Discord\\ChinoKafu\\ChinoKafuBotDiscord\\ChinoBot.csproj": {}
   },
   "projects": {
-    "G:\\Programming\\Discord\\ChinoKafuGitHub_\\ChinoKafuBotDiscord\\ChinoBot.csproj": {
+    "G:\\Programming\\Discord\\ChinoKafu\\ChinoKafuBotDiscord\\ChinoBot.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "G:\\Programming\\Discord\\ChinoKafuGitHub_\\ChinoKafuBotDiscord\\ChinoBot.csproj",
+        "projectUniqueName": "G:\\Programming\\Discord\\ChinoKafu\\ChinoKafuBotDiscord\\ChinoBot.csproj",
         "projectName": "ChinoBot",
-        "projectPath": "G:\\Programming\\Discord\\ChinoKafuGitHub_\\ChinoKafuBotDiscord\\ChinoBot.csproj",
+        "projectPath": "G:\\Programming\\Discord\\ChinoKafu\\ChinoKafuBotDiscord\\ChinoBot.csproj",
         "packagesPath": "C:\\Users\\nup\\.nuget\\packages\\",
-        "outputPath": "G:\\Programming\\Discord\\ChinoKafuGitHub_\\ChinoKafuBotDiscord\\obj\\",
+        "outputPath": "G:\\Programming\\Discord\\ChinoKafu\\ChinoKafuBotDiscord\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\nup\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -100,6 +100,10 @@
             "Microsoft.Extensions.Hosting": {
               "target": "Package",
               "version": "[8.0.0, )"
+            },
+            "NAudio": {
+              "target": "Package",
+              "version": "[2.2.1, )"
             },
             "Newtonsoft.Json": {
               "target": "Package",
