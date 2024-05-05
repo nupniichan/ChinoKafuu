@@ -17,7 +17,7 @@ To get started, you must download the release file then follow my instructions:
 - **Discord Prefix, Token and Osu token (Required)**
 
 ## New update
-So i added TTS (Text To Speech) for Chino. From now she can talk with while you chatting with her on discord :D. But there's a few problem that the response take so long. Im working on it to fix it for best the experiment for your server (and your PC too). The new installation guide i will update later please stand by...
+I uploaded the newest version but there's a lot of thing to install. Im trying to make it "one click install" command because no-one remember all the install command (including me lol) so the full installation guide will be updated later. But if you want to use it instantly, you can contact me via my social media .. I'll help you about that so don't be hestinate for asking me ( ´ ▽ ` )ﾉ
 
 ## Features
 
@@ -29,7 +29,7 @@ Chino Kafu offers plenty of features for your Discord server:
 
 - **Automatically Create VoiceChat Channels**: With just a click, you can create a voice chat channel. Click the channel you want to create, and a new channel will appear. The bot will automatically move you to the newly created channel. You can adjust the channel's initialization in `Program.CS` (VoiceChannelHandler).
 
-- **Conversation with Chino-Chan**: Simply just change the allowChannelId on *ChinoConservationChat* and put your gemini token in *GeminiText* and *GeminiVision* then run, Chino will answer you on that channel without any prefix :D. **. Don't worry i have noted in the code so you easily can change it. If you can't, feel free to contact with me via #nupchan0507 on Discord.**
+- **Conversation with Chino-Chan**: You can talk with Chino on your specific channel that you set id on the config file. Also, if you're on the voice chat, she will come and talk what she said with you with Japanese's voice (It might take a long time to get response but dont worry im trying to optimized about that)
 
 - **Playing music on your server**: The only thing you do is just join a voice channel and then /start (url or name of the music you want to play) then Chino will come your voice channel and start playing your music. For more information, type /musicHelp
 ## Special Thanks
