@@ -126,7 +126,6 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         private async Task HandleTextInputAsync(DiscordMessage message)
         {
             string chinoMessage = await ExecuteGeminiTextPython(message);
-            await message.Channel.SendMessageAsync(chinoMessage);
             string translateResult = await Translator(chinoMessage);
             if (message.Content.ToLower().Contains("rời voice") || message.Content.ToLower().Contains("out voice") || message.Content.ToLower().Contains("leave voice"))
             {
@@ -147,17 +146,19 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                     {
                         connection = await channel.ConnectAsync();
                         await RunTTSScript(translateResult);
+                        await message.Channel.SendMessageAsync(chinoMessage);
                         await PlayVoice();
                     }
                     else
                     {
                         await RunTTSScript(translateResult);
+                        await message.Channel.SendMessageAsync(chinoMessage);
                         await PlayVoice();
                     }
                 }
                 else
                 {
-                    return;
+                    await message.Channel.SendMessageAsync(chinoMessage);
                 }
             }
             catch (Exception e)
