@@ -106,7 +106,6 @@ file sealed class ApplicationHost : BackgroundService
 
         // Đăng ký sử dụng lệnh slash ( / )
         var slashCommands = _discordClient.UseSlashCommands(new SlashCommandsConfiguration { Services = _serviceProvider });
-        // nếu slash command không hoạt động thì bỏ comment
         await slashCommands.RefreshCommands();
         slashCommands.RegisterCommands<BasicSlashCommands>();
         slashCommands.RegisterCommands<AdministratorCommand>();

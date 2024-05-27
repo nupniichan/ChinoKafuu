@@ -5,6 +5,7 @@ using Python.Runtime;
 using ChinoBot.config;
 using System.Diagnostics;
 using DSharpPlus.VoiceNext;
+using static GraphQL.Validation.Rules.OverlappingFieldsCanBeMerged;
 
 namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 {
@@ -125,6 +126,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         private async Task HandleTextInputAsync(DiscordMessage message)
         {
             string chinoMessage = await ExecuteGeminiTextPython(message);
+            await message.Channel.SendMessageAsync(chinoMessage);
             string translateResult = await Translator(chinoMessage);
             if (message.Content.ToLower().Contains("rời voice") || message.Content.ToLower().Contains("out voice") || message.Content.ToLower().Contains("leave voice"))
             {
@@ -144,20 +146,18 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                     if (connection == null)
                     {
                         connection = await channel.ConnectAsync();
-                        await message.Channel.SendMessageAsync(chinoMessage);
                         await RunTTSScript(translateResult);
                         await PlayVoice();
                     }
                     else
                     {
-                        await message.Channel.SendMessageAsync(chinoMessage);
                         await RunTTSScript(translateResult);
                         await PlayVoice();
                     }
                 }
                 else
                 {
-                    await message.Channel.SendMessageAsync(chinoMessage);
+                    return;
                 }
             }
             catch (Exception e)
@@ -187,10 +187,8 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                         sys.path.append($"{jsonReader.gemini_folder_path}");
 
                         dynamic script = Py.Import("Gemini");
-                        dynamic convo = script.convo;
-                        string messageContent = message.Content;
-                        dynamic response = convo.send_message(username + ": " + messageContent);
-                        chinoMessage = convo.last.text;
+                        dynamic response = script.RunGeminiAPI(jsonReader.geminiAPIKey, message.Content, username);
+                        chinoMessage = response;
                     }
                 });
             }
@@ -204,7 +202,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
             }
             return chinoMessage;
         }
-        private async Task<string> Translator(string resultMessage)
+        private async Task<string> Translator(string messageContent)
         {
             string result = "";
             try
@@ -219,9 +217,8 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                         sys.path.append($"{jsonReader.gemini_folder_path}");
 
                         dynamic script = Py.Import("GeminiTranslate");
-                        dynamic convo = script.convo;
-                        dynamic response = convo.send_message(resultMessage);
-                        result = convo.last.text;
+                        dynamic response = script.GeminiTranslate(jsonReader.geminiTranslateAPIKey, messageContent);
+                        result = response;
                     }
                 });
             }

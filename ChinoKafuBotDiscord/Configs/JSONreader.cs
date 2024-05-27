@@ -7,6 +7,8 @@ namespace ChinoBot.config
         public string token { get; set; }
         public string prefix { get; set; }
         public string osuToken { get; set; }
+        public string geminiAPIKey { get; set; }
+        public string geminiTranslateAPIKey { get; set; }
         public string gemini_folder_path { get; set; }
         public ulong allowChannelID_gemini { get; set; }
         public string python_dll_path { get; set; }
@@ -23,6 +25,8 @@ namespace ChinoBot.config
                 this.token = data.token;
                 this.prefix = data.prefix;
                 this.osuToken = data.osuToken;
+                this.geminiAPIKey = data.geminiAPIKey;
+                this.geminiTranslateAPIKey = data.geminiTranslateAPIKey;
                 this.gemini_folder_path = data.gemini_folder_path;
                 this.allowChannelID_gemini = data.allowChannelID_gemini;
                 this.python_dll_path = data.python_dll_path;
@@ -39,6 +43,8 @@ namespace ChinoBot.config
         public string token { get; set; }
         public string prefix { get; set; }
         public string osuToken { get; set; }
+        public string geminiAPIKey { get; set; }
+        public string geminiTranslateAPIKey { get; set; }
         public string gemini_folder_path { get; set; }
         public ulong allowChannelID_gemini { get; set; }
         public string python_dll_path { get; set; }
