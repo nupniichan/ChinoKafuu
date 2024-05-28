@@ -14,11 +14,11 @@ Welcome to Chino Kafu, the Discord bot I've crafted using the .NET 7.0. As this 
 ## Installation Guide
 
 ### First run
-For the first run. You must run run-install.bat on Applio-3.2.0 folder
-Then config the file on ChinoKafuRelease\ChinoKafuBotDiscord\Configs\config.json 
-After that open ChinoBot.csproj on any ide you like to build the file
-When you got the .exe file located on ChinoKafuRelease\ChinoKafuBotDiscord\bin\Debug\net7.0\ChinoBot.exe. Run the *normalrun.bat*. 
-The final step is when appilo run successfully, it will direct you to its website. On that web site you have to download chino model on download tab (https://huggingface.co/Timur04129/Chino-Kafuu/resolve/main/chino-kafuu.zip)
+For the first run. You must run run-install.bat on Applio-3.2.0 folder <br>
+Then config the file on ChinoKafuRelease\ChinoKafuBotDiscord\Configs\config.json <br>
+After that open ChinoBot.csproj on any ide you like to build the file <br>
+When you got the .exe file located on ChinoKafuRelease\ChinoKafuBotDiscord\bin\Debug\net7.0\ChinoBot.exe. Run the *normalrun.bat*. <br>
+The final step is when appilo run successfully, it will direct you to its website. On that web site you have to download chino model on download tab or just simply copy [this link](https://huggingface.co/Timur04129/Chino-Kafuu/resolve/main/chino-kafuu.zip) and paste it to **Model Link** field
 
 ### Other runs
 Just simply run the normalrun.bat and Chino will work normally
