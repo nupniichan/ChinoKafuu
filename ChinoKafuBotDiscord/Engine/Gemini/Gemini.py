@@ -34,7 +34,7 @@ def RunGeminiAPI(geminiAPIKey,message_content,username):
       },
     ]
 
-    model = genai.GenerativeModel(model_name="gemini-1.5-pro-latest",
+    model = genai.GenerativeModel(model_name="gemini-1.5-pro",
                                   generation_config=generation_config,
                                   safety_settings=safety_settings)
 
@@ -46,7 +46,7 @@ def RunGeminiAPI(geminiAPIKey,message_content,username):
       },
       {
         "role": "model",
-        "parts": ["Chào anh, em là Chino đây! ヽ(^◇^*)/ Cà phê em pha ngon lắm đó, anh muốn nếm thử không? o(≧∇≦o)"]
+        "parts": ["Chào anh, em là Chino đây! ヽ(^◇^*)/"]
       },
     ])
     
