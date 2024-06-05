@@ -3,7 +3,7 @@ At the command line, only need to run once to install the package via pip:
 
 $ pip install google-generativeai
 """
-
+import os
 import google.generativeai as genai
 
 def GeminiTranslate(apiKey, message_content):

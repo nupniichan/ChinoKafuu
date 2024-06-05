@@ -6,6 +6,7 @@ using ChinoBot.config;
 using System.Diagnostics;
 using DSharpPlus.VoiceNext;
 using static GraphQL.Validation.Rules.OverlappingFieldsCanBeMerged;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 {
@@ -28,14 +29,17 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         }
         private async Task Client_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
         {
-            if (!e.Author.IsBot && !e.Message.Content.StartsWith("BOT") && e.Channel.Id == jsonReader.allowChannelID_gemini)
+            if (!e.Author.IsBot && !e.Message.Content.StartsWith("BOT"))
             {
-                await e.Channel.TriggerTypingAsync();
+                if (e.Channel.Id == 1140906898779017268 || e.Channel.Id == jsonReader.allowChannelID_gemini)
+                {
+                    await e.Channel.TriggerTypingAsync();
 
-                if (e.Message.Attachments.Any())
-                    await HandleImageInputAsync(e.Message);
-                else
-                    await HandleTextInputAsync(e.Message);
+                    if (e.Message.Attachments.Any())
+                        await HandleImageInputAsync(e.Message);
+                    else
+                        await HandleTextInputAsync(e.Message);
+                }
             }
         }
         private async Task<string> ExecuteGeminiImagePython(byte[] attachmentData)
@@ -126,7 +130,6 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         private async Task HandleTextInputAsync(DiscordMessage message)
         {
             string chinoMessage = await ExecuteGeminiTextPython(message);
-            string translateResult = await Translator(chinoMessage);
             if (message.Content.ToLower().Contains("rời voice") || message.Content.ToLower().Contains("out voice") || message.Content.ToLower().Contains("leave voice"))
             {
                 connection.Disconnect();
@@ -142,6 +145,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 
                 if (channel != null)
                 {
+                    string translateResult = await Translator(chinoMessage);
                     if (connection == null)
                     {
                         connection = await channel.ConnectAsync();
