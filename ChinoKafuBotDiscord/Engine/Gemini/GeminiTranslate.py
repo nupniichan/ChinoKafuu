@@ -1,15 +1,10 @@
-"""
-At the command line, only need to run once to install the package via pip:
-
-$ pip install google-generativeai
-"""
 import os
 import google.generativeai as genai
 
 def GeminiTranslate(apiKey, message_content):
+
     genai.configure(api_key=apiKey)
 
-    # Set up the model
     generation_config = {
       "temperature": 0.9,
       "top_p": 1,
@@ -58,6 +53,10 @@ def GeminiTranslate(apiKey, message_content):
         "parts": ["うう...ココアさんって、ほんといい人だよなあ...だけど...お姉ちゃんと呼ぶのって...えへへ...ちょっと恥ずかしいかも..."]
       },
     ])
-    convo.send_message(message_content)
-    
-    return convo.last.text
+
+    try:
+        convo.send_message(message_content)
+        return convo.last.text
+    except genai.exception.ApiException as e:
+        print(f"Lỗi khi gọi API Google Gemini: {e}")
+        return "Xin lỗi, hiện tại em không thể dịch được. Anh thử lại sau nhé~"

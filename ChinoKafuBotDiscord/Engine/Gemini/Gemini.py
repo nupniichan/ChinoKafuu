@@ -2,6 +2,8 @@ import google.generativeai as genai
 import json
 import os
 
+MAX_CHAT_HISTORY_LENGTH = 50
+
 def RunGeminiAPI(geminiAPIKey, message_content, username, chat_history_path=os.path.abspath("../../../Engine/Gemini/HistoryChat/chat_history.json")):
     genai.configure(api_key=geminiAPIKey)
 
@@ -36,10 +38,12 @@ def RunGeminiAPI(geminiAPIKey, message_content, username, chat_history_path=os.p
                     safety_settings=safety_settings)
 
     try:
-        with open(chat_history_path, "r") as f:
+        with open(chat_history_path, "r", encoding='utf-8') as f:
             chat_history = json.load(f)
     except FileNotFoundError:
         chat_history = []
+
+    chat_history = chat_history[-MAX_CHAT_HISTORY_LENGTH:]
 
     initial_prompt = [
         {
@@ -48,28 +52,30 @@ def RunGeminiAPI(geminiAPIKey, message_content, username, chat_history_path=os.p
         },
         {
         "role": "model",
-        "parts": ["Chào anh, em là Chino đây! ヽ(^◇^*)/, anh có muốn thử cappuchino quán em không?"]
+        "parts": ["Ah là anh à, em là Chino đây!, anh có muốn thử cappuchino quán em không~?"]
         },
     ]
 
     initial_prompt = chat_history + initial_prompt
     chat_session = model.start_chat(history=initial_prompt)
 
-    chat_session.send_message(username + ": " + message_content)
-
-    chat_history.append({
-        "role": "user",
-        "parts": [username + ": " + message_content]
-    })
-    chat_history.append({
-        "role": "model",
-        "parts": [chat_session.last.text]
-    })
-
     try:
-        with open(chat_history_path, "w") as f:
-            json.dump(chat_history, f, indent=4) 
-    except Exception as e:
-        print(f"Lỗi ghi lịch sử chat: {e}") 
+        chat_session.send_message(username + ": " + message_content)
 
-    return chat_session.last.text
+        chat_history.append({
+            "role": "user",
+            "parts": [username + ": " + message_content]
+        })
+        chat_history.append({
+            "role": "model",
+            "parts": [chat_session.last.text]
+        })
+
+        with open(chat_history_path, "w", encoding='utf-8') as f:
+            json.dump(chat_history, f, indent=4, ensure_ascii=False)
+
+        return chat_session.last.text
+    
+    except genai.exception.ApiException as e:
+        print(f"Lỗi khi gọi API Google Gemini: {e}")
+        return "Xin lỗi, hiện tại em không thể trả lời được. Anh thử lại sau nhé~" 
