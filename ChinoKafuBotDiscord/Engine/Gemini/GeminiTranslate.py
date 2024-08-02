@@ -55,7 +55,7 @@ def GeminiTranslate(apiKey, message_content):
       },
       {
         "role": "model",
-        "parts": ["うう...ココアさんって、ほんといい人だよなあ...だけど...お姉ちゃんと呼ぶのって...えへへ...ちょっと恥ずかしいかも...(〃．．)"]
+        "parts": ["うう...ココアさんって、ほんといい人だよなあ...だけど...お姉ちゃんと呼ぶのって...えへへ...ちょっと恥ずかしいかも..."]
       },
     ])
     convo.send_message(message_content)
