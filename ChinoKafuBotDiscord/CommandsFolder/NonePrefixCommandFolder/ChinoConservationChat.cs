@@ -3,10 +3,11 @@ using DSharpPlus.EventArgs;
 using DSharpPlus;
 using Python.Runtime;
 using ChinoBot.config;
-using System.Diagnostics;
 using DSharpPlus.VoiceNext;
 using NAudio.Wave;
 using System.Net.Http;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 {
@@ -33,53 +34,25 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         private async Task Client_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
         {
             if (e.Author.IsBot || e.Message.Content.StartsWith("BOT") ||
-                (e.Channel.Id != 1140906898779017268 && e.Channel.Id != jsonReader.allowChannelID_gemini))
+                (e.Channel.Id != jsonReader.allowChannelID_gemini))
             {
                 return;
             }
 
             await e.Channel.TriggerTypingAsync();
 
-            if (e.Message.Attachments.Any())
+            // Chạy xử lý tin nhắn trong một luồng riêng
+            _ = Task.Run(async () =>
             {
-                await HandleImageInputAsync(e.Message);
-            }
-            else
-            {
-                await HandleTextInputAsync(e.Message);
-            }
-        }
-
-        private string ExecuteGeminiImagePython(byte[] attachmentData)
-        {
-            try
-            {
-                Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", jsonReader.python_dll_path);
-                PythonEngine.Initialize();
-
-                using (Py.GIL())
+                if (e.Message.Attachments.Any())
                 {
-                    dynamic sys = Py.Import("sys");
-                    dynamic io = Py.Import("io");
-                    sys.path.append(jsonReader.gemini_folder_path);
-
-                    dynamic bytesIO = io.BytesIO(attachmentData);
-                    dynamic script = Py.Import("Gemini");
-                    dynamic convo = script.convo;
-                    dynamic img = script.PIL.Image.open(bytesIO);
-                    dynamic response = convo.send_message(img);
-
-                    return response.text;
+                    await HandleImageInputAsync(e.Message);
                 }
-            }
-            catch (Exception ex)
-            {
-                return $"Anh ơi có lỗi rồi nè~ : {ex.Message}";
-            }
-            finally
-            {
-                PythonEngine.Shutdown();
-            }
+                else
+                {
+                    await HandleTextInputAsync(e.Message);
+                }
+            });
         }
 
         private async Task HandleImageInputAsync(DiscordMessage message)
@@ -92,7 +65,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                 using var response = await httpClient.GetAsync(attachment.Url);
                 byte[] attachmentData = await response.Content.ReadAsByteArrayAsync();
 
-                string result = ExecuteGeminiImagePython(attachmentData);
+                string result = await ExecuteGeminiImagePython(attachmentData);
                 string translateResult = await Translator(result);
                 await SendMessageAndVoiceAsync(message, result, translateResult);
             }
@@ -194,9 +167,13 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                     connection = await channel.ConnectAsync();
                 }
 
-                await RunTTSScript(voiceMessage);
                 await message.Channel.SendMessageAsync(textMessage);
-                await PlayVoice();
+
+                _ = Task.Run(async () =>
+                {
+                    await RunTTSScript(voiceMessage);
+                    await PlayVoice();
+                });
             }
             else
             {
@@ -204,6 +181,40 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
             }
         }
 
+        private async Task<string> ExecuteGeminiImagePython(byte[] attachmentData)
+        {
+            try
+            {
+                return await Task.Run(() =>
+                {
+                    Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", jsonReader.python_dll_path);
+                    PythonEngine.Initialize();
+
+                    using (Py.GIL())
+                    {
+                        dynamic sys = Py.Import("sys");
+                        dynamic io = Py.Import("io");
+                        sys.path.append(jsonReader.gemini_folder_path);
+
+                        dynamic bytesIO = io.BytesIO(attachmentData);
+                        dynamic script = Py.Import("Gemini");
+                        dynamic convo = script.convo;
+                        dynamic img = script.PIL.Image.open(bytesIO);
+                        dynamic response = convo.send_message(img);
+
+                        return response.text;
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return $"Anh ơi có lỗi rồi nè~ : {ex.Message}";
+            }
+            finally
+            {
+                PythonEngine.Shutdown();
+            }
+        }
         private async Task PlayVoice()
         {
             var resultFilePath = jsonReader.resultApplioFilePath;
