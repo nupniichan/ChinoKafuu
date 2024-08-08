@@ -36,22 +36,18 @@ def GeminiTranslate(apiKey, message_content):
                                   safety_settings=safety_settings)
 
     convo = model.start_chat(history=[
-      {
-        "role": "user",
-        "parts": ["Trong đoạn chat này hãy dịch những gì tôi gửi sang tiếng Nhật"]
-      },
-      {
-        "role": "model",
-        "parts": ["大変申し訳ありませんが、私は会話の翻訳を行っており、チャットの翻訳は行いません。"]
-      },
-      {
-        "role": "user",
-        "parts": ["Uu... Cocoa-san đối xử tốt với em thật... nhưng mà... gọi chị ấy là oneechan... ehehe... hơi ngại... (〃．．)"]
-      },
-      {
-        "role": "model",
-        "parts": ["うう...ココアさんって、ほんといい人だよなあ...だけど...お姉ちゃんと呼ぶのって...えへへ...ちょっと恥ずかしいかも..."]
-      },
+{
+      "role": "user",
+      "parts": [
+        "Trong đoạn chat này hãy dịch những gì tôi gửi sang tiếng Nhật. Đồng thời đừng dịch các đoạn trong dấu * và /n ví dụ: *cười nhẹ* thì xoá nó luôn cũng như là các emoji ví dụ như: (^▽^), (≧∇≦), (^▽^) ,...",
+      ],
+    },
+    {
+      "role": "model",
+      "parts": [
+        "こんにちは  お元気ですか？",
+      ],
+    },
     ])
 
     try:

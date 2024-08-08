@@ -34,14 +34,13 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         private async Task Client_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
         {
             if (e.Author.IsBot || e.Message.Content.StartsWith("BOT") ||
-                (e.Channel.Id != jsonReader.allowChannelID_gemini))
+                (e.Channel.Id != 1140906898779017268 && e.Channel.Id != jsonReader.allowChannelID_gemini))
             {
                 return;
             }
 
             await e.Channel.TriggerTypingAsync();
 
-            // Chạy xử lý tin nhắn trong một luồng riêng
             _ = Task.Run(async () =>
             {
                 if (e.Message.Attachments.Any())
