@@ -21,8 +21,8 @@ jobs:
       with:
         dotnet-version: 7.0.x
     - name: Restore dependencies
-      run: dotnet restore ChinoKafuu/ChinoKafuu/ChinoKafuBot.sln
+      run: dotnet restore ChinoKafuu/ChinoKafuu/ChinoKafuu.sln
     - name: Build
-      run: dotnet build ChinoKafuu/ChinoKafuu/ChinoKafuBot.sln --no-restore
+      run: dotnet build ChinoKafuu/ChinoKafuu/ChinoKafuu.sln --no-restore
     - name: Test
-      run: dotnet test ChinoKafuu/ChinoKafuu/ChinoKafuBot.sln --no-build --verbosity normal
+      run: dotnet test ChinoKafuu/ChinoKafuu/ChinoKafuu.sln --no-build --verbosity normal
