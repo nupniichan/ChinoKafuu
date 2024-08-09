@@ -1,0 +1,14 @@
+﻿﻿{
+  "token": "Your_Discord_Token",
+  "prefix": ">",
+  "osuToken": "Your_Osu_Api",
+  "geminiAPIKey": "Your_Gemini_Api_Key",
+  "geminiTranslateAPIKey": "Your_Gemini_Translate_Api_Key",
+  "gemini_folder_path": "..\\..\\..\\Engine\\Gemini",
+  "allowChannelID_gemini": "Your_Channel_ID",
+  "python_dll_path": "C:\\Users\\{user_name}\\AppData\\Local\\Programs\\Python\\Python39\\python39.dll",
+  "userDefaultRoleName": "Your_Role_You_Want_To_Set",
+  "applioPath": "..\\..\\..\\Engine\\Applio",
+  "resultApplioFilePath": "File_Path_To_Applio",
+  "ffmpegPath": "File_Path_To_ffmpeg.exe"
+}
