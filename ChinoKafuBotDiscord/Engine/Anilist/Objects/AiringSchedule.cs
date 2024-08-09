@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ChinoBot.Engine.Anilist.Objects
+﻿namespace AnilistAPI.AnilistAPI
 {
     public class AiringSchedule
     {
@@ -12,7 +6,7 @@ namespace ChinoBot.Engine.Anilist.Objects
     }
     public class AiringScheduleNode
     {
-        public int? episode { get; set; }
-        public int? timeUntilAiring { get; set; }
+        public int episode { get; set; }
+        public int timeUntilAiring { get; set; }
     }
 }
