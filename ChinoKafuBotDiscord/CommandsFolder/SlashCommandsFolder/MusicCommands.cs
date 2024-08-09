@@ -39,6 +39,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 .AddField("/stop", "Dừng toàn bộ bài nhạc kể cả trong danh sách chờ")
                 .AddField("/nowplaying", "Xem nhạc hiện tại đang được phát")
                 .AddField("/queue", "Xem nhạc hiện tại trong danh sách chờ")
+                .AddField("/volume", "Điều chỉnh âm thanh phát nhạc")
                 .WithFooter("Để sử dụng lệnh cụ thể, nhập /tên-lệnh");
 
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
@@ -46,7 +47,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
         }
 
         [SlashCommand("play", description: "Phát nhạc từ youtube, soundcloud, local file,...")]
-        public async Task Play(InteractionContext ctx, [Option("name", "Địa chỉ bài nhạc hoặc tên bài nhạc")] string name)
+        public async Task Play(InteractionContext ctx, [Option("name", "Tên bài nhạc")] string name)
         {
             try
             {
@@ -58,6 +59,8 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 {
                     return;
                 }
+
+                await player.SetVolumeAsync(0.75f).ConfigureAwait(false);
 
                 var track = await _audioService.Tracks
                     .LoadTrackAsync(name, TrackSearchMode.YouTube)
@@ -79,16 +82,26 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 
                 if (position is 0)
                 {
+                    var embed = new DiscordEmbedBuilder()
+                        .WithTitle(":loud_sound: Nhạc đang phát")
+                        .WithDescription($"Chino hiện đang phát: [link]({track.Uri})")
+                        .WithColor(Helper.GetRandomDiscordColor());
+
                     await ctx
                         .FollowUpAsync(new DiscordFollowupMessageBuilder()
-                        .WithContent($":loud_sound: Chino hiện đang phát: {track.Uri}"))
+                        .AddEmbed(embed))
                         .ConfigureAwait(false);
                 }
                 else
                 {
+                    var embed = new DiscordEmbedBuilder()
+                        .WithTitle(":notes: Nhạc đã thêm vào hàng chờ")
+                        .WithDescription($"Chino đã thêm nhạc vào hàng chờ: [link]({track.Uri})")
+                        .WithColor(DiscordColor.Green); 
+
                     await ctx
                         .FollowUpAsync(new DiscordFollowupMessageBuilder()
-                        .WithContent($":notes: Chino đã thêm nhạc vào hàng chờ: {track.Uri}"))
+                        .AddEmbed(embed))
                         .ConfigureAwait(false);
                 }
             }
@@ -115,8 +128,13 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                     return;
                 }
 
+                var embed = new DiscordEmbedBuilder()
+                    .WithTitle(":pause_button: Nhạc đang được dừng")
+                    .WithColor(DiscordColor.White);
+
                 await ctx
-                    .FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent(":pause_button: Nhạc đang được dừng."))
+                    .FollowUpAsync(new DiscordFollowupMessageBuilder()
+                    .AddEmbed(embed))
                     .ConfigureAwait(false);
 
                 await player.PauseAsync().ConfigureAwait(false);
@@ -141,10 +159,14 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                     return;
                 }
 
-                await ctx
-                    .FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent(":arrow_forward: Nhạc đang được phát tiếp."))
-                    .ConfigureAwait(false);
+                var embed = new DiscordEmbedBuilder()
+                    .WithTitle(":arrow_forward: Nhạc đang được phát tiếp")
+                    .WithColor(DiscordColor.White);
 
+                await ctx
+                    .FollowUpAsync(new DiscordFollowupMessageBuilder()
+                    .AddEmbed(embed))
+                    .ConfigureAwait(false);
                 await player.ResumeAsync().ConfigureAwait(false);
             }
             catch (Exception e)
@@ -173,8 +195,14 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 }
                 await player.SkipAsync().ConfigureAwait(false);
 
+                var embed = new DiscordEmbedBuilder()
+                    .WithTitle(":fast_forward: Chino đã bỏ qua bài nhạc hiện tại")
+                    .WithDescription($"Đang tiến hành phát bài khác: {player.CurrentItem.Track.Uri}")
+                    .WithColor(DiscordColor.Azure); 
+
                 await ctx
-                    .FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent($":fast_forward: Chino đã bỏ qua bài nhạc hiện tại, đang tiến hành phát bài khác {player.CurrentItem.Track.Uri}"))
+                    .FollowUpAsync(new DiscordFollowupMessageBuilder()
+                    .AddEmbed(embed))
                     .ConfigureAwait(false);
 
             }
@@ -203,8 +231,13 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 var botMember = ctx.Guild.CurrentMember;
                 await botMember.ModifyAsync(properties => properties.VoiceChannel = null).ConfigureAwait(false);
 
+                var embed = new DiscordEmbedBuilder()
+                    .WithTitle(":mute: Chino đã rời voice chat")
+                    .WithColor(DiscordColor.Red);
+
                 await ctx
-                    .FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent(":mute: Chino đã rời voice chat."))
+                    .FollowUpAsync(new DiscordFollowupMessageBuilder()
+                    .AddEmbed(embed))
                     .ConfigureAwait(false);
             }
             catch (Exception e)
@@ -232,8 +265,13 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 var botMember = ctx.Guild.CurrentMember;
                 await botMember.ModifyAsync(properties => properties.VoiceChannel = null).ConfigureAwait(false);
 
+                var embed = new DiscordEmbedBuilder()
+                    .WithTitle(":mute: Chino đã dừng phát tất cả nhạc")
+                    .WithColor(DiscordColor.Red); 
+
                 await ctx
-                    .FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent(":mute: Chino đã dừng phát tất cả nhạc."))
+                    .FollowUpAsync(new DiscordFollowupMessageBuilder()
+                    .AddEmbed(embed))
                     .ConfigureAwait(false);
 
                 await player.StopAsync().ConfigureAwait(false);
@@ -311,6 +349,46 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             }
         }
 
+        [SlashCommand("volume", "Chỉnh âm lượng phát nhạc")]
+        public async Task SetVolume(InteractionContext ctx, [Option("volume", "Mức âm lượng (0-100)")] long volume)
+        {
+            try
+            {
+                await ctx.DeferAsync().ConfigureAwait(false);
+
+                var player = await GetPlayerAsync(ctx, connectToVoiceChannel: false).ConfigureAwait(false);
+
+                if (player == null)
+                {
+                    await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent(":warning: Hiện không có nhạc nào đang phát hoặc bot chưa tham gia voice channel.")).ConfigureAwait(false);
+                    return;
+                }
+
+                if (volume < 0 || volume > 100)
+                {
+                    await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent(":warning: Mức âm lượng phải nằm trong khoảng từ 0 đến 100.")).ConfigureAwait(false);
+                    return;
+                }
+
+                float volumeNormalized = volume / 100f;
+
+                await player.SetVolumeAsync(volumeNormalized).ConfigureAwait(false);
+
+                var embed = new DiscordEmbedBuilder()
+                     .WithTitle(":sound: Âm lượng đã được thay đổi")
+                     .WithDescription($"Âm lượng đã được đặt thành {volume}%")
+                     .WithColor(DiscordColor.Green); 
+
+                await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder()
+                    .AddEmbed(embed))
+                    .ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent($"Chino phát hiện lỗi rồi nè~: {e.Message}")).ConfigureAwait(false);
+            }
+        }
+
         private async ValueTask<QueuedLavalinkPlayer?> GetPlayerAsync(InteractionContext interactionContext, bool connectToVoiceChannel = true)
         {
             ArgumentNullException.ThrowIfNull(interactionContext);
@@ -343,9 +421,9 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             {
                 var errorMessage = result.Status switch
                 {
-                    PlayerRetrieveStatus.UserNotInVoiceChannel => "You are not connected to a voice channel.",
-                    PlayerRetrieveStatus.BotNotConnected => "The bot is currently not connected.",
-                    _ => "Unknown error.",
+                    PlayerRetrieveStatus.UserNotInVoiceChannel => "Bạn chưa kết nối vào voice chat",
+                    PlayerRetrieveStatus.BotNotConnected => "Chino hiện tại chưa kết nối được với node của server",
+                    _ => "Lỗi không xác định được.",
                 };
 
                 var errorResponse = new DiscordFollowupMessageBuilder()
@@ -369,7 +447,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 
             return result.Player;
         }
-        [SlashCommand("phat", description: "Phát nhạc từ youtube, soundcloud, local file,...")]
+        [SlashCommand("phat", description: "Phát audio từ lần phản hồi gần nhất của Chino")]
         public async Task Phat(InteractionContext ctx)
         {
             await ctx.DeferAsync().ConfigureAwait(false);
@@ -378,16 +456,14 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 var guild = ctx.Guild;
                 var user = ctx.Member;
 
-                // Get the voice state of the user to determine the voice channel they're in
                 var voiceState = user?.VoiceState;
 
-                // Connect to the voice channel the user is in
                 var channel = voiceState.Channel;
                 var connection = await channel.ConnectAsync();
 
                 var filePath = "G:\\Programming\\AI\\Applio-3.1.1\\result.wav";
 
-                var ffmpegPath = "G:\\Programming\\Discord\\ChinoKafu\\ffmpeg\\bin\\ffmpeg.exe"; // Provide the full path to ffmpeg.exe
+                var ffmpegPath = "G:\\Programming\\Discord\\ChinoKafu\\ffmpeg\\bin\\ffmpeg.exe"; 
 
                 var ffmpeg = Process.Start(new ProcessStartInfo
                 {
