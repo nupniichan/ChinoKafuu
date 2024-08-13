@@ -2,7 +2,7 @@
 
 **Welcome to Chino Kafu, your very own anime-loving Discord companion!**  Built with .NET 7.0, Chino offers a range of features from Osu! stats to Anilist searches, voice channel management, and even engaging conversations with Chino herself!
 
-##✨ Features ✨
+## ✨ Features ✨
 
 * **Osu! Enthusiast:**  Get detailed Osu! information using the `/ohelp` command.
 * **Anilist Explorer:**  Search for anime and manga directly (anilist) in Discord with `/anilhelp`.
