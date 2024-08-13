@@ -1,57 +1,52 @@
-# Chino Kafu Discord Bot - README
+# Chino Kafuu: A cute waitress girl for your discord server
 
-## Introduction
+**Welcome to Chino Kafu, your very own anime-loving Discord companion!**  Built with .NET 7.0, Chino offers a range of features from Osu! stats to Anilist searches, voice channel management, and even engaging conversations with Chino herself!
 
-Welcome to Chino Kafu, the Discord bot I've crafted using the .NET 7.0. As this is my first attempt at creating a bot, there might be a few errors along the way. Don't hesitate to contact me if you encounter any issues. I'll do my best to resolve them.
+##✨ Features ✨
 
-## Requirements
+* **Osu! Enthusiast:**  Get detailed Osu! information using the `/ohelp` command.
+* **Anilist Explorer:**  Search for anime and manga directly (anilist) in Discord with `/anilhelp`.
+* **Voice Channel Wizard:** Easily create voice channels with a click! Chino will even move you to the new channel. (Customization available in `Program.CS` - VoiceChannelHandler)
+* **Chat with Chino-Chan:** Converse with Chino in a dedicated channel!  She'll even join your voice channel and respond using Japanese voice synthesis!  (Response times may vary depending on hardware).
+* **Music Maestro:** Chino can play music in your voice channel!  Use `/start <url or song name>` or `/musicHelp` for more commands.
 
-- **dotnet >= 7.0 (Required)**
-- **java jar >= 17 (Required)**
-- **python 3.9 (Required)**
-- **Config the file (Required)**
+## 🚀 Getting Started
 
-## Installation Guide
+**Prerequisites:**
 
-### First run
-For the first run. You must run run-install.bat on Applio-3.2.0 folder <br>
-Then config the file on ChinoKafuRelease\ChinoKafuBotDiscord\Configs\config.json <br>
-After that open ChinoBot.csproj on any ide you like to build the file <br>
-When you got the .exe file located on ChinoKafuRelease\ChinoKafuBotDiscord\bin\Debug\net7.0\ChinoBot.exe. Run the *normalrun.bat*. <br>
-The final step is when appilo run successfully, it will direct you to its website. On that web site you have to download chino model on download tab or just simply copy [this link](https://huggingface.co/Timur04129/Chino-Kafuu/resolve/main/chino-kafuu.zip) and paste it to **Model Link** field
+* **.NET 7.0** (Required)
+* **Java 17** (Required)
+* **Python 3.9** (Required)
+* **Config the file** (Required)
 
-### Other runs
-Just simply run the normalrun.bat and Chino will work normally
+**Installation:**
 
-## New update
-I uploaded the newest version but there's a lot of thing to install. Im trying to make it "one click install" command because no-one remember all the install command (including me lol) so the full installation guide will be updated later. But if you want to use it instantly, you can contact me via my social media .. I'll help you about that so don't be hestinate for asking me ( ´ ▽ ` )ﾉ
+1. **First Time Setup:**
+   * Run `run-install.bat` inside the `Applio-3.2.0` folder.
+   * Configure `ChinoKafuRelease\ChinoKafuu\Configs\config.json` with your bot token and settings.
+   * Open `ChinoKafuu.csproj` in your IDE and build the project.
+   * Run `normalrun.bat` located in `ChinoKafuRelease\ChinoKafuu\bin\Debug\net7.0\`.
+   * Follow Applio's web interface instructions to download Chino's voice model (https://huggingface.co/Timur04129/Chino-Kafuu/resolve/main/chino-kafuu.zip)). 
 
-## Features
+2. **Subsequent Runs:**
+   * Simply use `normalrun.bat` to start Chino.
 
-Chino Kafu offers plenty of features for your Discord server:
+## 💡 What's New
 
-- **Osu Commands**: Use the command `/ohelp` to access a list of osu-related commands, providing detailed information related to the Osu! game.
+* **Enhanced Response Times:**  Enjoy snappier replies from Chino!
+* **Chat History:** Chino remembers previous conversations (up to 50 messages by default). Adjust `MAX_CHAT_HISTORY_LENGTH` in `Engine/Gemini/Gemini.py` for customization.
 
-- **Anilist Commands**: Type `/anilhelp` to receive a list of commands related to Anilist, which offer assistance in exploring anime and manga information without using browser.
+## 🛠️ Libraries Used
 
-- **Automatically Create VoiceChat Channels**: With just a click, you can create a voice chat channel. Click the channel you want to create, and a new channel will appear. The bot will automatically move you to the newly created channel. You can adjust the channel's initialization in `Program.CS` (VoiceChannelHandler).
+* [DSharpPlus](https://github.com/DSharpPlus/DSharpPlus)
+* [OsuNet](https://github.com/Blackcat76iT/OsuNet/tree/29571b5270b52c628a809225ce32c20573b65a3b)
+* [Anilist-GraphQL](https://github.com/AniList/ApiV2-GraphQL-Docs)
+* [PythonNet](https://github.com/pythonnet/pythonnet)
+* [generativeAI](https://github.com/google/generative-ai-docs)
+* [LavaLink4Net](https://github.com/angelobreuer/Lavalink4NET)
+* [Applio](https://github.com/IAHispano/Applio)
+* [FFmpeg](https://github.com/FFmpeg/FFmpeg)
 
-- **Conversation with Chino-Chan**: You can talk with Chino on your specific channel that you set id on the config file. Also, if you're on the voice chat, she will come and talk what she said with you with Japanese's voice (The result take about 20-25 seconds to response you *tested on 2-4 vps no gpu* (depend on hardware you use to host) )
-
-- **Playing music on your server**: The only thing you do is just join a voice channel and then /start (url or name of the music you want to play) then Chino will come your voice channel and start playing your music. For more information, type /musicHelp
-
-## Special Thanks
-I want to express my gratitude to ThomasAunvik for creating an API code connection to Anilist, which made it easier for me to create this bot. I have used [his file](https://github.com/ThomasAunvik/AnimeListBot/tree/master/AnimeListBot/Handler/API/Anilist) during the anilist's api development process. If i didn't find him, creating Anilist search with .NET wouldn't be possible for a beginner like me.
-
-## API Used
-- [DSharpPlus](https://github.com/DSharpPlus/DSharpPlus)
-- [OsuNet](https://github.com/Blackcat76iT/OsuNet/tree/29571b5270b52c628a809225ce32c20573b65a3b)
-- [Anilist-GraphQL](https://github.com/AniList/ApiV2-GraphQL-Docs)
-- [AnilistAPIcode by ThomasAunvik](https://github.com/ThomasAunvik/AnimeListBot/tree/master?fbclid=IwAR0mYkNMSCsnxpXPIj2hAERlldHlDFkRP1X8gxDB4zaHIncZaV5jcFXEAe8)
-- [PythonNet](https://github.com/pythonnet/pythonnet)
-- [generativeAI](https://github.com/google/generative-ai-docs)
-- [LavaLink4Net](https://github.com/angelobreuer/Lavalink4NET)
-- [Applio](https://github.com/IAHispano/Applio)
-- [FFmpeg](https://github.com/FFmpeg/FFmpeg)
-
-Thank you for using Chino Kafu! More features are coming soon~.
+## 🙌 Support
+This bot is currently on progressing, but with your help, we can make it even more awesome! I welcome contributions of all kinds - bug reports, feature suggestions, code improvements, you name it! <br>
+Interested in lending a hand?  Feel free to open an issue or submit a pull request. Let's build Chino Kafuu together!
