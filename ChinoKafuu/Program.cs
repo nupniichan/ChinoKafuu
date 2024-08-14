@@ -109,7 +109,7 @@ file sealed class ApplicationHost : BackgroundService
         await slashCommands.RefreshCommands();
         slashCommands.RegisterCommands<BasicSlashCommands>();
         slashCommands.RegisterCommands<AdministratorCommand>();
-        slashCommands.RegisterCommands<AnilistSlashCommand>(1140906898254725181);
+        slashCommands.RegisterCommands<AnilistSlashCommand>();
         slashCommands.RegisterCommands<OsuSlashCommand>();
         slashCommands.RegisterCommands<MusicCommands>();
 
