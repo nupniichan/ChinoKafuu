@@ -1,13 +1,13 @@
-﻿﻿﻿{
-  "token": "Your_Discord_Token",
-  "prefix": ">",
-  "osuToken": "Your_Osu_Api",
-  "geminiAPIKey": "Your_Gemini_Api_Key",
-  "geminiTranslateAPIKey": "Your_Gemini_Translate_Api_Key",
-  "gemini_folder_path": "..\\..\\..\\Engine\\Gemini",
-  "allowChannelID_gemini": "Your_Channel_ID",
-  "python_dll_path": "C:\\Users\\{user_name}\\AppData\\Local\\Programs\\Python\\Python39\\python39.dll",
-  "userDefaultRoleName": "Your_Role_You_Want_To_Set",
-  "applioPath": "..\\..\\..\\Engine\\Applio",
-  "resultApplioFilePath": "File_Path_To_Applio",
+﻿{
+  "token": "Your_Discord_Token", // Get your discord token at: https://discord.com/developers/applications
+  "prefix": ">", // You can change to any prefix you prefer
+  "osuToken": "Your_Osu_Api", // Get your osu token here: https://osu.ppy.sh/home/account/edit (scroll down to Old API)
+  "geminiAPIKey": "Your_Gemini_Api_Key", // Get your gemini api key here: https://aistudio.google.com/app/apikey
+  "geminiTranslateAPIKey": "Your_Gemini_Translate_Api_Key", // Get your gemini api key here: https://aistudio.google.com/app/apikey
+  "gemini_folder_path": "..\\..\\..\\Engine\\Gemini", // Dont change
+  "allowChannelID_gemini": "Your_Channel_ID (Integer only)", // For example: "1235731821"
+  "python_dll_path": "C:\\Users\\{user_name}\\AppData\\Local\\Programs\\Python\\Python39\\python39.dll", // Change {user_name} to your drive name
+  "userDefaultRoleName": "Your_Role_You_Want_To_Set", // For example "Customer" (the default role must be created before)
+  "applioPath": "..\\..\\..\\Engine\\Applio", // Dont change 
+  "resultApplioFilePath": "File_Path_To_Applio.exe" // Put full path to your result.exe at Applio-3.2.0
 }
