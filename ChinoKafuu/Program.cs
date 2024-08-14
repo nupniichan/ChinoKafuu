@@ -109,7 +109,7 @@ file sealed class ApplicationHost : BackgroundService
         await slashCommands.RefreshCommands();
         slashCommands.RegisterCommands<BasicSlashCommands>();
         slashCommands.RegisterCommands<AdministratorCommand>();
-        slashCommands.RegisterCommands<AnilistSlashCommand>();
+        slashCommands.RegisterCommands<AnilistSlashCommand>(1140906898254725181);
         slashCommands.RegisterCommands<OsuSlashCommand>();
         slashCommands.RegisterCommands<MusicCommands>();
 
@@ -150,11 +150,9 @@ file sealed class ApplicationHost : BackgroundService
             .WithDescription("Mong bạn sẽ có trải nghiệm vui vẻ ở quán của mình~")
             .WithThumbnail(e.Member.AvatarUrl)
             .WithImageUrl(welcomeGifUrl);
-        // Set default role for user when them join
         var defaultRolePair = e.Guild.Roles.FirstOrDefault(r => r.Value.Name == jsonReader.userDefaultRoleName);
         var defaultRole = defaultRolePair.Value;
         await e.Member.GrantRoleAsync(defaultRole);
-        // Send embed welcome them
         await defaultChannel.SendMessageAsync(embed: welcomeEmbed);
     }
 
@@ -162,23 +160,29 @@ file sealed class ApplicationHost : BackgroundService
     {
         if (e.Channel != null && e.Channel.Name == "Tạo Phòng" && e.Before == null)
         {
-            var userVC = await e.Guild.CreateVoiceChannelAsync($"🎙 {e.User.Username}'s Voice Channel", e.Channel.Parent);
-
+            var userVC = await e.Guild.CreateVoiceChannelAsync($"Voice chat của {e.User.Username}", e.Channel.Parent);
             voiceChannelIDs.Add(e.User.Username, userVC.Id);
-
             var member = await e.Guild.GetMemberAsync(e.User.Id);
-
             await member.ModifyAsync(x => x.VoiceChannel = userVC);
         }
-        if (e.Channel == null && e.Before != null && e.Before.Channel != null && e.Before.Channel.Name == $"🎙 {e.User.Username}'s Voice Channel")
+        if (e.Channel == null && e.Before != null && e.Before.Channel != null)
         {
-            var channelSearch = voiceChannelIDs.TryGetValue(e.User.Username, out ulong channelID);
-            var channelToDelete = e.Guild.GetChannel(channelID);
-            await channelToDelete.DeleteAsync();
-
-            voiceChannelIDs.Remove(e.User.Username);
+            var channelToDelete = e.Before.Channel;
+            if (voiceChannelIDs.ContainsValue(channelToDelete.Id) && channelToDelete.Name.StartsWith("Voice chat của "))
+            {
+                if (channelToDelete.Users.Count == 0)
+                {
+                    await channelToDelete.DeleteAsync();
+                    var key = voiceChannelIDs.FirstOrDefault(x => x.Value == channelToDelete.Id).Key;
+                    if (key != null)
+                    {
+                        voiceChannelIDs.Remove(key);
+                    }
+                }
+            }
         }
     }
+
     private async Task VoiceStateHandler(DiscordClient sender, VoiceStateUpdateEventArgs e)
     {
         var user = e.User;
