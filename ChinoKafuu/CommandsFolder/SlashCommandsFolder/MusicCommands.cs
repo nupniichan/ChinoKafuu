@@ -46,8 +46,8 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 new DiscordInteractionResponseBuilder().AddEmbed(embed));
         }
 
-        [SlashCommand("play", description: "Phát nhạc từ youtube, soundcloud, local file,...")]
-        public async Task Play(InteractionContext ctx, [Option("name", "Tên bài nhạc")] string name)
+        [SlashCommand("play", "Phát nhạc hoặc playlist từ YouTube")]
+        public async Task Play(InteractionContext ctx, [Option("input", "URL hoặc tên bài hát/playlist")] string input)
         {
             try
             {
@@ -62,42 +62,59 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 
                 await player.SetVolumeAsync(0.75f).ConfigureAwait(false);
 
-                var track = await _audioService.Tracks
-                    .LoadTrackAsync(name, TrackSearchMode.YouTube)
+                var trackLoadResult = await _audioService.Tracks
+                    .LoadTracksAsync(input, TrackSearchMode.YouTube)
                     .ConfigureAwait(false);
 
-                if (track is null)
+                if (!trackLoadResult.HasMatches)
                 {
                     var errorMessage = new DiscordEmbedBuilder()
-                            .WithTitle("Lỗi xảy ra")
-                            .WithDescription("Chino không tìm thấy kết quả mà bạn nhập")
-                            .WithColor(DiscordColor.Red);
+                        .WithTitle("Lỗi xảy ra")
+                        .WithDescription("Chino không tìm thấy kết quả mà bạn nhập")
+                        .WithColor(DiscordColor.Red);
                     await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(errorMessage));
                     return;
                 }
 
-                var position = await player
-                    .PlayAsync(track)
-                    .ConfigureAwait(false);
-
-                if (position is 0)
+                if (trackLoadResult.IsPlaylist)
                 {
-                    var embed = new DiscordEmbedBuilder()
-                        .WithTitle(":loud_sound: Nhạc đang phát")
-                        .WithDescription($"Chino hiện đang phát: [link]({track.Uri})")
-                        .WithColor(Helper.GetRandomDiscordColor());
+                    foreach (var track in trackLoadResult.Tracks)
+                    {
+                        await player.PlayAsync(track).ConfigureAwait(false);
+                    }
+
+                    var playlistEmbed = new DiscordEmbedBuilder()
+                        .WithTitle(":notes: Playlist đã được thêm vào hàng chờ")
+                        .WithDescription($"Chino đã thêm {trackLoadResult.Tracks.Count()} bài hát từ playlist vào hàng chờ")
+                        .WithColor(DiscordColor.Green);
 
                     await ctx
                         .FollowUpAsync(new DiscordFollowupMessageBuilder()
-                        .AddEmbed(embed))
+                        .AddEmbed(playlistEmbed))
                         .ConfigureAwait(false);
                 }
                 else
                 {
-                    var embed = new DiscordEmbedBuilder()
-                        .WithTitle(":notes: Nhạc đã thêm vào hàng chờ")
-                        .WithDescription($"Chino đã thêm nhạc vào hàng chờ: [link]({track.Uri})")
-                        .WithColor(DiscordColor.Green); 
+                    var track = trackLoadResult.Tracks.First();
+                    var position = await player
+                        .PlayAsync(track)
+                        .ConfigureAwait(false);
+
+                    DiscordEmbedBuilder embed;
+                    if (position is 0)
+                    {
+                        embed = new DiscordEmbedBuilder()
+                            .WithTitle(":loud_sound: Nhạc đang phát")
+                            .WithDescription($"Chino hiện đang phát: [{track.Title}]({track.Uri})")
+                            .WithColor(Helper.GetRandomDiscordColor());
+                    }
+                    else
+                    {
+                        embed = new DiscordEmbedBuilder()
+                            .WithTitle(":notes: Nhạc đã thêm vào hàng chờ")
+                            .WithDescription($"Chino đã thêm nhạc vào hàng chờ: [{track.Title}]({track.Uri})")
+                            .WithColor(DiscordColor.Green);
+                    }
 
                     await ctx
                         .FollowUpAsync(new DiscordFollowupMessageBuilder()
