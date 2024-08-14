@@ -1,6 +1,3 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
 name: .NET
 
 on:
@@ -17,16 +14,26 @@ jobs:
       run:
         working-directory: ./ChinoKafuu
 
+    env:
+      DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+
     steps:
     - uses: actions/checkout@v4
+    
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 7.0.x
+    
+    - name: Replace config placeholders with secrets
+      run: |
+        sed -i "s/Your_Discord_Token/${DISCORD_TOKEN}/g" Configs/config.json
+    
     - name: Restore dependencies
       run: dotnet restore ChinoKafuu_test.sln
+    
     - name: Build
       run: dotnet build ChinoKafuu_test.sln --no-restore
+    
     - name: Test
       run: dotnet test ChinoKafuu_test.sln --no-build --verbosity normal
-
