@@ -15,7 +15,6 @@ namespace ChinoBot.config
         public string userDefaultRoleName { get; set; }
         public string applioPath { get; set; }
         public string resultApplioFilePath { get; set; }
-        public string ffmpegPath { get; set; }
         public async Task ReadJson()
         {
             using (StreamReader sr = new StreamReader("..//..//..//Configs//config.json"))
@@ -33,7 +32,6 @@ namespace ChinoBot.config
                 this.userDefaultRoleName = data.userDefaultRoleName;
                 this.applioPath = data.applioPath;
                 this.resultApplioFilePath = data.resultApplioFilePath;
-                this.ffmpegPath = data.ffmpegPath;
             }
         }
     }
@@ -51,6 +49,5 @@ namespace ChinoBot.config
         public string userDefaultRoleName { get; set; }
         public string applioPath { get; set; }
         public string resultApplioFilePath { get; set; }
-        public string ffmpegPath { get; set; }
     }
 }

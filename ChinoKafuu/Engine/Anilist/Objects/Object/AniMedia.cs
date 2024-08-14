@@ -7,7 +7,7 @@ namespace AnilistAPI.Objects.Object
     public class AniMedia
     {
         public int id { get; set; }
-        public int idMal { get; set; }
+        public int? idMal { get; set; }
         public Title title { get; set; }
         public string type { get; set; }
         public string format { get; set; }

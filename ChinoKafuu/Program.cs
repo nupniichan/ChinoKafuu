@@ -92,7 +92,7 @@ file sealed class ApplicationHost : BackgroundService
         jsonReader = new JSONreader();
         await jsonReader.ReadJson();
 
-        var autoMessageHandler = new ChinoConservationChat(_discordClient);
+        var autoMessageHandler = new ChinoConversation(_discordClient);
         var commandsConfig = new CommandsNextConfiguration()
         {
             StringPrefixes = new string[] { jsonReader.prefix },
@@ -196,9 +196,9 @@ file sealed class ApplicationHost : BackgroundService
         {
             if (e.Before?.Channel != null && e.After.Channel == null)
             {
-                if (ChinoConservationChat.Connection != null)
+                if (ChinoConversation.Connection != null)
                 {
-                    ChinoConservationChat.Connection = null;
+                    ChinoConversation.Connection = null;
                 }
             }
         }

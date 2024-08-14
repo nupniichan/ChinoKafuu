@@ -60,7 +60,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                     return;
                 }
 
-                await player.SetVolumeAsync(0.5f).ConfigureAwait(false);
+                await player.SetVolumeAsync(0.75f).ConfigureAwait(false);
 
                 var track = await _audioService.Tracks
                     .LoadTrackAsync(name, TrackSearchMode.YouTube)
@@ -84,7 +84,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 {
                     var embed = new DiscordEmbedBuilder()
                         .WithTitle(":loud_sound: Nhạc đang phát")
-                        .WithDescription($"Chino hiện đang phát: {track.Uri}")
+                        .WithDescription($"Chino hiện đang phát: [link]({track.Uri})")
                         .WithColor(Helper.GetRandomDiscordColor());
 
                     await ctx
@@ -256,27 +256,25 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             {
                 await ctx.DeferAsync().ConfigureAwait(false);
 
-                var player = await GetPlayerAsync(ctx, connectToVoiceChannel: false).ConfigureAwait(false);
+                var player = await GetPlayerAsync(ctx, connectToVoiceChannel: true).ConfigureAwait(false);
 
                 if (player == null)
                 {
                     return;
                 }
-
-                await player.StopAsync().ConfigureAwait(false); 
-
                 var botMember = ctx.Guild.CurrentMember;
                 await botMember.ModifyAsync(properties => properties.VoiceChannel = null).ConfigureAwait(false);
 
                 var embed = new DiscordEmbedBuilder()
                     .WithTitle(":mute: Chino đã dừng phát tất cả nhạc")
-                    .WithColor(DiscordColor.Red);
+                    .WithColor(DiscordColor.Red); 
 
                 await ctx
                     .FollowUpAsync(new DiscordFollowupMessageBuilder()
                     .AddEmbed(embed))
                     .ConfigureAwait(false);
 
+                await player.StopAsync().ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -448,6 +446,40 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             }
 
             return result.Player;
+        }
+        [SlashCommand("phat", description: "Phát audio từ lần phản hồi gần nhất của Chino")]
+        public async Task Phat(InteractionContext ctx)
+        {
+            await ctx.DeferAsync().ConfigureAwait(false);
+            try
+            {
+                var guild = ctx.Guild;
+                var user = ctx.Member;
+
+                var voiceState = user?.VoiceState;
+
+                var channel = voiceState.Channel;
+                var connection = await channel.ConnectAsync();
+
+                var filePath = "G:\\Programming\\AI\\Applio-3.1.1\\result.wav";
+
+                var ffmpegPath = "G:\\Programming\\Discord\\ChinoKafu\\ffmpeg\\bin\\ffmpeg.exe"; 
+
+                var ffmpeg = Process.Start(new ProcessStartInfo
+                {
+                    FileName = ffmpegPath,
+                    Arguments = $@"-i ""{filePath}"" -ac 2 -f s16le -ar 48000 pipe:1",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false
+                });
+                using var pcm = ffmpeg.StandardOutput.BaseStream;
+                var transmit = connection.GetTransmitSink();
+                await pcm.CopyToAsync(transmit);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
     }
 }

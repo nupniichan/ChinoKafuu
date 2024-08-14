@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 {
-    internal class ChinoConservationChat
+    internal class ChinoConversation
     {
         private readonly JSONreader jsonReader;
         private readonly DiscordClient _client;
@@ -23,7 +23,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
             set => connection = value;
         }
 
-        public ChinoConservationChat(DiscordClient client)
+        public ChinoConversation(DiscordClient client)
         {
             _client = client;
             jsonReader = new JSONreader();

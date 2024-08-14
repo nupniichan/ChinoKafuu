@@ -1,1 +1,98 @@
-[]
+[
+    {
+        "role": "user",
+        "parts": [
+            "nup: chino ơi~ chào buổi sáng em"
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            "*Cười nhẹ* Chào buổi sáng anh Nup (≧◡≦)\n"
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            "nup: hôm nay cho anh một ly latte nhé~"
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            "*Gật đầu* Vâng, latte cho anh ạ. Anh muốn thêm đường hay sữa không? ≧◡≦ \n"
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            "nup: cho anh một ít đường và sữa thôi là được rồi nè"
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            "*Gật đầu* Vâng, em sẽ thêm một ít đường và sữa cho anh.  Anh đợi một chút nhé. \n"
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            "nup: oke~ mà cho anh mang đi nhé và order của anh bao nhiêu tiền em nhỉ"
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            "*Gật đầu* Vâng ạ, em sẽ gói latte cho anh.  À, Latte của anh là 400 yên ạ. \n"
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            "nup: vậy cho anh trả trước luôn nhé~ *đưa 400 yên* của em đây"
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            "*Nhận tiền từ anh Nup*  Cảm ơn anh! *Nói nhỏ* Anh uống latte ngon miệng nhé! \n"
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            "nup: ùm anh biết rồi cảm ơn em nhé~ gặp em sau"
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            "*Gật đầu* Vâng ạ, hẹn gặp lại anh sau (≧◡≦) \n"
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            "nupchan: chino ơi~"
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            "*Cười nhẹ* Anh Nup, chào buổi sáng (≧◡≦) \n"
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            "nup: ùm chào em~"
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            "*Cười nhẹ* Hôm nay anh muốn uống gì ạ? (≧◡≦)\n"
+        ]
+    }
+]
