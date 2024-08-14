@@ -1,4 +1,4 @@
-﻿﻿{
+﻿﻿﻿{
   "token": "Your_Discord_Token",
   "prefix": ">",
   "osuToken": "Your_Osu_Api",
@@ -10,5 +10,4 @@
   "userDefaultRoleName": "Your_Role_You_Want_To_Set",
   "applioPath": "..\\..\\..\\Engine\\Applio",
   "resultApplioFilePath": "File_Path_To_Applio",
-  "ffmpegPath": "File_Path_To_ffmpeg.exe"
 }

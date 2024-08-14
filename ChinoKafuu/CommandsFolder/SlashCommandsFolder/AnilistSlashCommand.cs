@@ -111,18 +111,26 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 
         private async Task SearchMediaCommand(InteractionContext ctx, string search, AniMediaType type)
         {
-            await ctx.DeferAsync();
-            var query = type == AniMediaType.ANIME ? AniQuery.AnimeNameQuery : AniQuery.MangaNameQuery;
-            var media = await AnilistGraphQL.GetMediaAsync(query, new { search, type = Enum.GetName(typeof(AniMediaType), type), asHtml = true });
-
-            if (media == null)
+            try
             {
-                await SendErrorEmbed(ctx, $"Không tìm thấy {(type == AniMediaType.ANIME ? "anime" : "manga")}: {search}");
+                await ctx.DeferAsync();
+                var query = type == AniMediaType.ANIME ? AniQuery.AnimeNameQuery : AniQuery.MangaNameQuery;
+                var media = await AnilistGraphQL.GetMediaAsync(query, new { search, type = Enum.GetName(typeof(AniMediaType), type), asHtml = true });
+
+                if (media == null)
+                {
+                    await SendErrorEmbed(ctx, $"Không tìm thấy {(type == AniMediaType.ANIME ? "anime" : "manga")}: {search}");
+                    return;
+                }
+
+                var embed = CreateMediaEmbed(media, type == AniMediaType.ANIME);
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+            }
+            catch (Exception e)
+            {
+                await Console.Out.WriteLineAsync(e.Message);
                 return;
             }
-
-            var embed = CreateMediaEmbed(media, type == AniMediaType.ANIME);
-            await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
         }
 
         private DiscordEmbed CreateUserEmbed(AniUser user)
@@ -156,13 +164,17 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             string animeFavorites = string.Join("\n", user.favourites.anime.nodes.Select(a => $"[{a.title.english}]({a.siteUrl})"));
             string mangaFavorites = string.Join("\n", user.favourites.manga.nodes.Select(m => $"[{m.title.english}]({m.siteUrl})"));
             string characterFavorites = string.Join("\n", user.favourites.characters.nodes.Select(c => $"[{c.name.first} {c.name.last}]({c.siteUrl})"));
+            string staffFavorites = string.Join("\n", user.favourites.staff.nodes.Select(c => $"[{c.name.first} {c.name.last}]({c.siteUrl})"));
+            string studioFavorites = string.Join("\n", user.favourites.studios.nodes.Select(c => $"[{c.name}]({c.siteUrl})"));
 
             return new DiscordEmbedBuilder()
                 .WithAuthor("AniList Favorite", null, ANILIST_LOGO)
                 .WithTitle(user.name)
-                .AddField(":star: Favorite Anime", animeFavorites)
-                .AddField(":star: Favorite Manga", mangaFavorites)
-                .AddField(":star: Favorite Characters", characterFavorites)
+                .AddField(":star: Favorite Anime", string.IsNullOrEmpty(animeFavorites) ? "N/A" : animeFavorites)
+                .AddField(":star: Favorite Manga", string.IsNullOrEmpty(mangaFavorites) ? "N/A" : mangaFavorites)
+                .AddField(":star: Favorite Characters", string.IsNullOrEmpty(characterFavorites) ? "N/A" : characterFavorites)
+                .AddField(":star: Favorite Staffs", string.IsNullOrEmpty(staffFavorites) ? "N/A" : staffFavorites)
+                .AddField(":star: Favorite Studios", string.IsNullOrEmpty(studioFavorites) ? "N/A" : studioFavorites)
                 .AddField("Xem thêm tại đây", $"[Anilist]({user.siteUrl})")
                 .WithColor(DiscordColor.Azure)
                 .WithFooter($"{ANILIST_URL}")
@@ -178,6 +190,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             {
                 AniMediaStatus.FINISHED => "Đã hoàn thành",
                 AniMediaStatus.RELEASING => "Đang phát sóng",
+                AniMediaStatus.CANCELLED => "Đã bị huỷ",
                 _ => "Chưa phát sóng"
             };
 
@@ -241,6 +254,18 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                              .AddField("🌐 Tên gốc", media.title.native, false)
                              .AddField("🛈 Thông tin thêm", $"[Anilist]({media.siteUrl})");
                     }
+                }
+                else
+                {
+                    embed.AddField(":calendar_spiral: Phát sóng", $"{startDate} -> N/A", true)
+                             .AddField(":hourglass_flowing_sand: Trạng thái", status, true)
+                             .AddField("⏱ Thời lượng tập", $"{media.duration} phút", false)
+                             .AddField(":file_folder: Nguồn", char.ToUpper(media.source[0]) + media.source.Substring(1).ToLower(), false)
+                             .AddField(":star: Điểm trung bình", $"{media.averageScore}/100", true)
+                             .AddField(":star: Điểm trung vị", $"{media.meanScore}/100", true)
+                             .AddField(":arrow_right: Thể loại", string.Join(", ", media.genres), false)
+                             .AddField("🌐 Tên gốc", media.title.native, false)
+                             .AddField("🛈 Thông tin thêm", $"[Anilist]({media.siteUrl})");
                 }
             }
             else
