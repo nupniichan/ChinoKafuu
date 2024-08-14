@@ -447,39 +447,5 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 
             return result.Player;
         }
-        [SlashCommand("phat", description: "Phát audio từ lần phản hồi gần nhất của Chino")]
-        public async Task Phat(InteractionContext ctx)
-        {
-            await ctx.DeferAsync().ConfigureAwait(false);
-            try
-            {
-                var guild = ctx.Guild;
-                var user = ctx.Member;
-
-                var voiceState = user?.VoiceState;
-
-                var channel = voiceState.Channel;
-                var connection = await channel.ConnectAsync();
-
-                var filePath = "G:\\Programming\\AI\\Applio-3.1.1\\result.wav";
-
-                var ffmpegPath = "G:\\Programming\\Discord\\ChinoKafu\\ffmpeg\\bin\\ffmpeg.exe"; 
-
-                var ffmpeg = Process.Start(new ProcessStartInfo
-                {
-                    FileName = ffmpegPath,
-                    Arguments = $@"-i ""{filePath}"" -ac 2 -f s16le -ar 48000 pipe:1",
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false
-                });
-                using var pcm = ffmpeg.StandardOutput.BaseStream;
-                var transmit = connection.GetTransmitSink();
-                await pcm.CopyToAsync(transmit);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
-        }
     }
 }
