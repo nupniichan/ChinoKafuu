@@ -34,7 +34,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             embed.AddField("/mstop", "Dừng phát nhạc và thoát khỏi kênh thoại.", true);
             embed.AddField("/mskip", "Bỏ qua bài nhạc hiện tại và phát bài tiếp theo.", true);
             embed.AddField("/mqueue", "Hiển thị danh sách các bài nhạc đang chờ.", true);
-            embed.AddField("/mloop [track/queue]", "Lặp lại bài nhạc hiện tại hoặc toàn bộ danh sách hàng đợi.", true);
+            embed.AddField("/mloop [track/queue/off]", "Lặp lại bài nhạc hiện tại hoặc toàn bộ danh sách hàng đợi.", true);
             embed.AddField("/mshuffle", "Xáo trộn thứ tự các bài nhạc trong hàng đợi.", true);
             embed.AddField("/mseek [mm:ss]", "Tua đến một thời điểm cụ thể trong bài nhạc.", true);
             embed.AddField("/mremove [index]", "Xóa bài nhạc tại vị trí chỉ định trong hàng đợi.", true);
@@ -427,24 +427,63 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             }
         }
 
-        // errors (fixing...)
-        [SlashCommand("mloop", "Bật/tắt chế độ lặp lại")]
-        public async Task Loop(InteractionContext ctx)
+        [SlashCommand("mloop", "Lặp lại bài nhạc hiện tại hoặc toàn bộ danh sách hàng đợi")]
+        public async Task Loop(InteractionContext ctx, [Option("mode", "Chế độ lặp lại (track/queue/off)")] string mode)
         {
-            
             try
             {
                 await ctx.DeferAsync().ConfigureAwait(false);
+
                 var player = await GetPlayerAsync(ctx, connectToVoiceChannel: false).ConfigureAwait(false);
+
                 if (player == null)
                 {
                     return;
                 }
-                _isLooping = !_isLooping; 
-                var embed = new DiscordEmbedBuilder()
-                    .WithTitle(_isLooping ? ":repeat: Chế độ lặp lại đã bật" : ":arrow_forward: Chế độ lặp lại đã tắt")
-                    .WithColor(_isLooping ? DiscordColor.Green : DiscordColor.Red);
-                await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(embed)).ConfigureAwait(false);
+
+                switch (mode.ToLower())
+                {
+                    case "track":
+                        player.RepeatMode = TrackRepeatMode.Track;
+                        var trackEmbed = new DiscordEmbedBuilder()
+                            .WithTitle(":repeat_one: Chế độ lặp lại")
+                            .WithDescription("Chino sẽ lặp lại bài hát hiện tại")
+                            .WithColor(DiscordColor.Green);
+                        await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(trackEmbed)).ConfigureAwait(false);
+                        break;
+                    case "queue":
+                        if (player.Queue.Count == 0)
+                        {
+                            var queueErrorEmbed = new DiscordEmbedBuilder()
+                                    .WithTitle(":repeat: Chế độ lặp lại")
+                                    .WithDescription("Hiện không có bài hát nào trong hàng đợi")
+                                    .WithColor(DiscordColor.Red);
+                            await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(queueErrorEmbed)).ConfigureAwait(false);
+                            return;
+                        }
+                        player.RepeatMode = TrackRepeatMode.Queue;
+                        var queueEmbed = new DiscordEmbedBuilder()
+                            .WithTitle(":repeat: Chế độ lặp lại")
+                            .WithDescription("Chino sẽ lặp lại toàn bộ danh sách hàng đợi")
+                            .WithColor(DiscordColor.Green);
+                        await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(queueEmbed)).ConfigureAwait(false);
+                        break;
+                    case "off":
+                        player.RepeatMode = TrackRepeatMode.None;
+                        var offEmbed = new DiscordEmbedBuilder()
+                            .WithTitle(":arrow_forward: Chế độ lặp lại")
+                            .WithDescription("Chino đã tắt chế độ lặp lại")
+                            .WithColor(DiscordColor.Red);
+                        await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(offEmbed)).ConfigureAwait(false);
+                        break;
+                    default:
+                        var errorEmbed = new DiscordEmbedBuilder()
+                            .WithTitle("Lỗi: Chế độ lặp lại không hợp lệ")
+                            .WithDescription("Vui lòng sử dụng `track`, `queue`, hoặc `off`.")
+                            .WithColor(DiscordColor.Red);
+                        await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(errorEmbed)).ConfigureAwait(false);
+                        break;
+                }
             }
             catch (Exception e)
             {
