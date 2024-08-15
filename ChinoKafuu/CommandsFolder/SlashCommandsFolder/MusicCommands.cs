@@ -5,18 +5,14 @@ using Lavalink4NET.Players.Queued;
 using Lavalink4NET.Players;
 using Lavalink4NET.Rest.Entities.Tracks;
 using Microsoft.Extensions.Options;
-using DSharpPlus;
 using System.Text;
-using System.Runtime.InteropServices;
-using DSharpPlus.VoiceNext;
-using System.Diagnostics;
 
 namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 {
     public class MusicCommands : ApplicationCommandModule
     {
         private readonly IAudioService _audioService;
-
+        private bool _isLooping = false;
         public MusicCommands(IAudioService audioService)
         {
             ArgumentNullException.ThrowIfNull(audioService);
@@ -24,29 +20,31 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             _audioService = audioService;
         }
 
-        [SlashCommand("musicHelp", "Hiển thị trợ giúp về các lệnh điều khiển nhạc")]
-        public async Task AniHelpCommand(InteractionContext ctx)
+        [SlashCommand("mhelp", "Hiển thị danh sách các lệnh và mô tả của chúng")]
+        public async Task Help(InteractionContext ctx)
         {
             var embed = new DiscordEmbedBuilder()
-                .WithTitle("Danh sách các lệnh điều khiển nhạc")
-                .WithDescription("Dưới đây là danh sách các lệnh điều khiển nhạc có sẵn:")
-                .WithColor(DiscordColor.Azure)
-                .AddField("/play", "Phát một bài nhạc mà bạn cung cấp url hoặc tên bài nhạc đó")
-                .AddField("/pause", "Tạm thời dừng bài nhạc đang phát")
-                .AddField("/resume", "Tiếp tục phát bài nhạc đó")
-                .AddField("/skip", "Bỏ qua bài nhạc hiện tại và phát bài nhạc kế tiếp (nếu có)")
-                .AddField("/leave", "Chino sẽ ngừng phát nhạc và rời khỏi voice chat")
-                .AddField("/stop", "Dừng toàn bộ bài nhạc kể cả trong danh sách chờ")
-                .AddField("/nowplaying", "Xem nhạc hiện tại đang được phát")
-                .AddField("/queue", "Xem nhạc hiện tại trong danh sách chờ")
-                .AddField("/volume", "Điều chỉnh âm thanh phát nhạc")
-                .WithFooter("Để sử dụng lệnh cụ thể, nhập /tên-lệnh");
+                .WithTitle("Hướng dẫn sử dụng để nghe nhạc")
+                .WithDescription("Dưới đây là danh sách các lệnh mà Chino hỗ trợ:")
+                .WithColor(DiscordColor.Azure);
 
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder().AddEmbed(embed));
+            embed.AddField("/mplay [url/tên bài nhạc]", "Phát nhạc từ URL hoặc tên bài nhạc/playlist.", true);
+            embed.AddField("/mpause", "Tạm dừng phát nhạc hiện tại.", true);
+            embed.AddField("/mresume", "Tiếp tục phát nhạc đã tạm dừng.", true);
+            embed.AddField("/mstop", "Dừng phát nhạc và thoát khỏi kênh thoại.", true);
+            embed.AddField("/mskip", "Bỏ qua bài nhạc hiện tại và phát bài tiếp theo.", true);
+            embed.AddField("/mqueue", "Hiển thị danh sách các bài nhạc đang chờ.", true);
+            embed.AddField("/mloop [track/queue]", "Lặp lại bài nhạc hiện tại hoặc toàn bộ danh sách hàng đợi.", true);
+            embed.AddField("/mshuffle", "Xáo trộn thứ tự các bài nhạc trong hàng đợi.", true);
+            embed.AddField("/mseek [mm:ss]", "Tua đến một thời điểm cụ thể trong bài nhạc.", true);
+            embed.AddField("/mremove [index]", "Xóa bài nhạc tại vị trí chỉ định trong hàng đợi.", true);
+            embed.AddField("/mmove [from] [to]", "Di chuyển một bài nhạc từ vị trí này sang vị trí khác trong hàng đợi.", true);
+            embed.AddField("/mclearqueue", "Xóa toàn bộ danh sách hàng đợi.", true);
+
+            await ctx.CreateResponseAsync(embed: embed);
         }
 
-        [SlashCommand("play", "Phát nhạc hoặc playlist từ YouTube")]
+        [SlashCommand("mplay", "Phát nhạc hoặc playlist từ YouTube")]
         public async Task Play(InteractionContext ctx, [Option("input", "URL hoặc tên bài hát/playlist")] string input)
         {
             try
@@ -105,14 +103,14 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                     {
                         embed = new DiscordEmbedBuilder()
                             .WithTitle(":loud_sound: Nhạc đang phát")
-                            .WithDescription($"Chino hiện đang phát: [{track.Title}]({track.Uri})")
+                            .WithDescription($"Chino hiện đang phát: [{track.Title}]({track.Uri}) - {track.Duration}")
                             .WithColor(Helper.GetRandomDiscordColor());
                     }
                     else
                     {
                         embed = new DiscordEmbedBuilder()
                             .WithTitle(":notes: Nhạc đã thêm vào hàng chờ")
-                            .WithDescription($"Chino đã thêm nhạc vào hàng chờ: [{track.Title}]({track.Uri})")
+                            .WithDescription($"Chino đã thêm nhạc vào hàng chờ: [{track.Title}]({track.Uri}) - {track.Duration}")
                             .WithColor(DiscordColor.Green);
                     }
 
@@ -131,7 +129,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             }
         }
 
-        [SlashCommand("pause", "Dừng phát nhạc")]
+        [SlashCommand("mpause", "Dừng phát nhạc")]
         public async Task Pause(InteractionContext ctx)
         {
             try
@@ -162,7 +160,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             }
         }
 
-        [SlashCommand("resume", "Tiếp tục phát nhạc")]
+        [SlashCommand("mresume", "Tiếp tục phát nhạc")]
         public async Task Resume(InteractionContext ctx)
         {
             try
@@ -191,7 +189,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 Console.WriteLine(e.Message);
             }
         }
-        [SlashCommand("skip", "Bỏ qua bài nhạc hiện tại")]
+        [SlashCommand("mskip", "Bỏ qua bài nhạc hiện tại")]
         public async Task Skip(InteractionContext ctx)
         {
             try
@@ -210,18 +208,21 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                         .FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent($":fast_forward: Chino không thể xử lý vì không có bài nhạc nào trong hàng đợi"))
                         .ConfigureAwait(false);
                 }
-                await player.SkipAsync().ConfigureAwait(false);
+                else
+                {
+                    await player.SkipAsync().ConfigureAwait(false);
 
-                var embed = new DiscordEmbedBuilder()
-                    .WithTitle(":fast_forward: Chino đã bỏ qua bài nhạc hiện tại")
-                    .WithDescription($"Đang tiến hành phát bài khác: {player.CurrentItem.Track.Uri}")
-                    .WithColor(DiscordColor.Azure); 
+                    var embed = new DiscordEmbedBuilder()
+                        .WithTitle(":fast_forward: Chino đã bỏ qua bài nhạc hiện tại")
+                        .WithDescription($"Đang tiến hành phát bài khác: [{player.CurrentTrack.Title}]({player.CurrentItem.Track.Uri})")
+                        .WithColor(DiscordColor.Azure);
 
-                await ctx
-                    .FollowUpAsync(new DiscordFollowupMessageBuilder()
-                    .AddEmbed(embed))
-                    .ConfigureAwait(false);
+                    await ctx
+                        .FollowUpAsync(new DiscordFollowupMessageBuilder()
+                        .AddEmbed(embed))
+                        .ConfigureAwait(false);
 
+                }
             }
             catch (Exception e)
             {
@@ -232,7 +233,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             }
         }
 
-        [SlashCommand("leave", "Chino rời khỏi voice chat")]
+        [SlashCommand("mleave", "Chino rời khỏi voice chat")]
         public async Task Leave(InteractionContext ctx)
         {
             try
@@ -250,6 +251,42 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 
                 var embed = new DiscordEmbedBuilder()
                     .WithTitle(":mute: Chino đã rời voice chat")
+                    .WithColor(DiscordColor.Green);
+
+                await ctx
+                    .FollowUpAsync(new DiscordFollowupMessageBuilder()
+                    .AddEmbed(embed))
+                    .ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                await ctx
+                    .FollowUpAsync(new DiscordFollowupMessageBuilder()
+                    .WithContent($"Chino phát hiện lỗi rồi nè~: {e.Message}"))
+                    .ConfigureAwait(false);
+            }
+        }
+
+        [SlashCommand("mstop", "Dừng phát nhạc hoàn toàn")]
+        public async Task Stop(InteractionContext ctx)
+        {
+            try
+            {
+                await ctx.DeferAsync().ConfigureAwait(false);
+
+                var player = await GetPlayerAsync(ctx, connectToVoiceChannel: false).ConfigureAwait(false);
+                if (player == null)
+                {
+                    await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent("Không có phiên phát nhạc nào đang hoạt động.")).ConfigureAwait(false);
+                    return;
+                }
+
+                await player.StopAsync().ConfigureAwait(false);
+                var botMember = ctx.Guild.CurrentMember;
+                await botMember.ModifyAsync(properties => properties.VoiceChannel = null).ConfigureAwait(false);
+
+                var embed = new DiscordEmbedBuilder()
+                    .WithTitle(":mute: Chino đã dừng phát nhạc")
                     .WithColor(DiscordColor.Red);
 
                 await ctx
@@ -266,43 +303,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             }
         }
 
-        [SlashCommand("stop", "Dừng phát nhạc hoàn toàn")]
-        public async Task Stop(InteractionContext ctx)
-        {
-            try
-            {
-                await ctx.DeferAsync().ConfigureAwait(false);
-
-                var player = await GetPlayerAsync(ctx, connectToVoiceChannel: true).ConfigureAwait(false);
-
-                if (player == null)
-                {
-                    return;
-                }
-                var botMember = ctx.Guild.CurrentMember;
-                await botMember.ModifyAsync(properties => properties.VoiceChannel = null).ConfigureAwait(false);
-
-                var embed = new DiscordEmbedBuilder()
-                    .WithTitle(":mute: Chino đã dừng phát tất cả nhạc")
-                    .WithColor(DiscordColor.Red); 
-
-                await ctx
-                    .FollowUpAsync(new DiscordFollowupMessageBuilder()
-                    .AddEmbed(embed))
-                    .ConfigureAwait(false);
-
-                await player.StopAsync().ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                await ctx
-                    .FollowUpAsync(new DiscordFollowupMessageBuilder()
-                    .WithContent($"Chino phát hiện lỗi rồi nè~: {e.Message}"))
-                    .ConfigureAwait(false);
-            }
-        }
-
-        [SlashCommand("nowplaying", "Xem bài nhạc đang phát là gì")]
+        [SlashCommand("mnowplaying", "Xem bài nhạc đang phát là gì")]
         public async Task NowPlaying(InteractionContext ctx)
         {
             try
@@ -319,8 +320,13 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                     return;
                 }
 
+                var embed = new DiscordEmbedBuilder()
+                    .WithTitle($":musical_note: Nhạc hiện tại đang được phát là:")
+                    .WithDescription($"- [{player.CurrentTrack.Title}]({player.CurrentTrack.Uri}) - {player.CurrentTrack.Duration}")
+                    .WithColor(DiscordColor.Azure);
+
                 await ctx
-                    .FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent($":musical_note: Nhạc hiện tại đang được phát là: {player.CurrentTrack.Uri}"))
+                    .FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(embed))
                     .ConfigureAwait(false);
             }
             catch (Exception e)
@@ -331,7 +337,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             }
         }
 
-        [SlashCommand("queue", "Xem danh sách nhạc đang chờ được phát")]
+        [SlashCommand("mqueue", "Xem danh sách nhạc đang chờ được phát")]
         public async Task musicQueue(InteractionContext ctx)
         {
             try
@@ -348,14 +354,29 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                     return;
                 }
 
-                StringBuilder queueContent = new StringBuilder(":musical_note: Danh sách các bài nhạc đang chờ:\n");
+                StringBuilder queueContent = new StringBuilder();
+                int index = 0;
+
                 foreach (var track in player.Queue)
                 {
-                    queueContent.AppendLine($"- {track.Track.Uri}");
+                    string title = track.Track.Title.ToString();
+                    if (Uri.TryCreate(title, UriKind.Absolute, out Uri uri))
+                    {
+                        title = System.Web.HttpUtility.UrlDecode(Path.GetFileNameWithoutExtension(uri.AbsolutePath));
+                    }
+
+                    queueContent.AppendLine($"{index}: [{title}]({track.Track.Uri})");
+                    index++; 
                 }
 
+                var embed = new DiscordEmbedBuilder()
+                    .WithTitle(":musical_note: Danh sách các bài nhạc đang chờ:")
+                    .WithDescription(queueContent.ToString())
+                    .WithColor(DiscordColor.Azure);
+
                 await ctx
-                    .FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent(queueContent.ToString()))
+                    .FollowUpAsync(new DiscordFollowupMessageBuilder()
+                    .AddEmbed(embed))
                     .ConfigureAwait(false);
             }
             catch (Exception e)
@@ -366,7 +387,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             }
         }
 
-        [SlashCommand("volume", "Chỉnh âm lượng phát nhạc")]
+        [SlashCommand("mvolume", "Chỉnh âm lượng phát nhạc")]
         public async Task SetVolume(InteractionContext ctx, [Option("volume", "Mức âm lượng (0-100)")] long volume)
         {
             try
@@ -406,6 +427,230 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             }
         }
 
+        // errors (fixing...)
+        [SlashCommand("mloop", "Bật/tắt chế độ lặp lại")]
+        public async Task Loop(InteractionContext ctx)
+        {
+            
+            try
+            {
+                await ctx.DeferAsync().ConfigureAwait(false);
+                var player = await GetPlayerAsync(ctx, connectToVoiceChannel: false).ConfigureAwait(false);
+                if (player == null)
+                {
+                    return;
+                }
+                _isLooping = !_isLooping; 
+                var embed = new DiscordEmbedBuilder()
+                    .WithTitle(_isLooping ? ":repeat: Chế độ lặp lại đã bật" : ":arrow_forward: Chế độ lặp lại đã tắt")
+                    .WithColor(_isLooping ? DiscordColor.Green : DiscordColor.Red);
+                await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(embed)).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent($"Chino phát hiện lỗi rồi nè~: {e.Message}")).ConfigureAwait(false);
+            }
+        }
+
+        [SlashCommand("mshuffle", "Xáo trộn danh sách phát")]
+        public async Task Shuffle(InteractionContext ctx)
+        {
+            try
+            {
+                await ctx.DeferAsync().ConfigureAwait(false);
+
+                var player = await GetPlayerAsync(ctx, connectToVoiceChannel: false).ConfigureAwait(false);
+
+                if (player == null)
+                {
+                    return;
+                }
+
+                var shuffledList = player.Queue.ToList();
+                var random = new Random();
+                int n = shuffledList.Count;
+                while (n > 1)
+                {
+                    n--;
+                    int k = random.Next(n + 1);
+                    var value = shuffledList[k];
+                    shuffledList[k] = shuffledList[n];
+                    shuffledList[n] = value;
+                }
+
+                player.Queue.ClearAsync();
+                foreach (var item in shuffledList)
+                {
+                    player.Queue.AddAsync(item);
+                }
+
+                var embed = new DiscordEmbedBuilder()
+                    .WithTitle(":twisted_rightwards_arrows: Danh sách phát đã được xáo trộn")
+                    .WithColor(DiscordColor.Green);
+
+                await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(embed)).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent($"Chino phát hiện lỗi rồi nè~: {e.Message}")).ConfigureAwait(false);
+            }
+        }
+
+        [SlashCommand("mseek", "Tua đến một vị trí cụ thể trong bài hát")]
+        public async Task Seek(InteractionContext ctx, [Option("time", "Thời gian (ví dụ: 00:01:30)")] string timeString)
+        {
+            try
+            {
+                await ctx.DeferAsync().ConfigureAwait(false);
+
+                var player = await GetPlayerAsync(ctx, connectToVoiceChannel: false).ConfigureAwait(false);
+
+                if (player == null || player.CurrentTrack == null)
+                {
+                    await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent("Không có bài hát nào đang phát.")).ConfigureAwait(false);
+                    return;
+                }
+
+                if (TimeSpan.Parse(timeString) > player.CurrentTrack.Duration)
+                {
+                    await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent("Không thể tua quá thời lượng bài ")).ConfigureAwait(false);
+                    return;
+                }
+
+                if (TimeSpan.TryParse(timeString, out TimeSpan time))
+                {
+                    await player.SeekAsync(time).ConfigureAwait(false);
+
+                    var embed = new DiscordEmbedBuilder()
+                        .WithTitle(":fast_forward: Đã tua đến vị trí mới")
+                        .WithDescription($"Vị trí hiện tại: {time:mm\\:ss}")
+                        .WithColor(DiscordColor.Green);
+
+                    await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(embed)).ConfigureAwait(false);
+                }
+                else
+                {
+                    await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent("Định dạng thời gian không hợp lệ. Vui lòng sử dụng định dạng mm:ss.")).ConfigureAwait(false);
+                }
+            }
+            catch (Exception e)
+            {
+                await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent($"Chino phát hiện lỗi rồi nè~: {e.Message}")).ConfigureAwait(false);
+            }
+        }
+
+        [SlashCommand("mremove", "Xóa một bài hát khỏi hàng đợi")]
+        public async Task Remove(InteractionContext ctx, [Option("position", "Vị trí của bài hát trong hàng đợi")] long position)
+        {
+            try
+            {
+                await ctx.DeferAsync().ConfigureAwait(false);
+
+                var player = await GetPlayerAsync(ctx, connectToVoiceChannel: false).ConfigureAwait(false);
+
+                if (player == null)
+                {
+                    return;
+                }
+
+                if (position < 1 || position > player.Queue.Count)
+                {
+                    await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent("Vị trí không hợp lệ.")).ConfigureAwait(false);
+                    return;
+                }
+
+                var trackToRemove = player.Queue.ElementAt((int)position - 1);
+                var newQueue = player.Queue.Where((_, index) => index != position - 1).ToList();
+                player.Queue.ClearAsync();
+                foreach (var track in newQueue)
+                {
+                    player.Queue.AddAsync(track);
+                }
+
+                var embed = new DiscordEmbedBuilder()
+                    .WithTitle(":wastebasket: Đã xóa bài hát khỏi hàng đợi")
+                    .WithDescription($"Đã xóa: [{trackToRemove.Track.Title}]({trackToRemove.Track.Uri})")
+                    .WithColor(DiscordColor.Red);
+
+                await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(embed)).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent($"Chino phát hiện lỗi rồi nè~: {e.Message}")).ConfigureAwait(false);
+            }
+        }
+
+        [SlashCommand("mmove", "Di chuyển một bài hát trong hàng đợi")]
+        public async Task Move(InteractionContext ctx, [Option("from", "Vị trí hiện tại của bài hát")] long from, [Option("to", "Vị trí mới của bài hát")] long to)
+        {
+            try
+            {
+                await ctx.DeferAsync().ConfigureAwait(false);
+
+                var player = await GetPlayerAsync(ctx, connectToVoiceChannel: false).ConfigureAwait(false);
+
+                if (player == null)
+                {
+                    return;
+                }
+
+                if (from < 1 || from > player.Queue.Count || to < 1 || to > player.Queue.Count)
+                {
+                    await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent("Vị trí không hợp lệ.")).ConfigureAwait(false);
+                    return;
+                }
+                var trackList = player.Queue.ToList();
+                var trackToMove = trackList[(int)from - 1];
+                trackList.RemoveAt((int)from - 1);
+                trackList.Insert((int)to - 1, trackToMove);
+
+                player.Queue.ClearAsync();
+                foreach (var track in trackList)
+                {
+                    player.Queue.AddAsync(track);
+                }
+
+                var embed = new DiscordEmbedBuilder()
+                    .WithTitle(":arrow_right_hook: Đã di chuyển bài hát")
+                    .WithDescription($"Đã di chuyển [{trackToMove.Track.Title}]({trackToMove.Track.Uri}) từ vị trí {from} đến {to}")
+                    .WithColor(DiscordColor.Green);
+
+                await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(embed)).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent($"Chino phát hiện lỗi rồi nè~: {e.Message}")).ConfigureAwait(false);
+            }
+        }
+
+        [SlashCommand("mclear", "Xóa toàn bộ hàng đợi")]
+        public async Task Clear(InteractionContext ctx)
+        {
+            try
+            {
+                await ctx.DeferAsync().ConfigureAwait(false);
+
+                var player = await GetPlayerAsync(ctx, connectToVoiceChannel: false).ConfigureAwait(false);
+
+                if (player == null)
+                {
+                    return;
+                }
+
+                player.Queue.ClearAsync();
+
+                var embed = new DiscordEmbedBuilder()
+                    .WithTitle(":broom: Đã xóa hàng đợi")
+                    .WithDescription("Toàn bộ hàng đợi đã được xóa.")
+                    .WithColor(DiscordColor.Red);
+
+                await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(embed)).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent($"Chino phát hiện lỗi rồi nè~: {e.Message}")).ConfigureAwait(false);
+            }
+        }
         private async ValueTask<QueuedLavalinkPlayer?> GetPlayerAsync(InteractionContext interactionContext, bool connectToVoiceChannel = true)
         {
             ArgumentNullException.ThrowIfNull(interactionContext);
