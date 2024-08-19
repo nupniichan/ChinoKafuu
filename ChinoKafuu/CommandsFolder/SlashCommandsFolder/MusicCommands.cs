@@ -571,7 +571,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
         }
 
         [SlashCommand("mseek", "Tua đến một vị trí cụ thể trong bài hát")]
-        public async Task Seek(InteractionContext ctx, [Option("time", "Thời gian (ví dụ: 00:01:30)")] string timeString)
+        public async Task Seek(InteractionContext ctx, [Option("time", "Thời gian (ví dụ: 01:30)")] string timeString)
         {
             try
             {
@@ -585,27 +585,26 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                     return;
                 }
 
-                if (TimeSpan.Parse(timeString) > player.CurrentTrack.Duration)
+                if (!TimeSpan.TryParseExact(timeString, "mm\\:ss", null, out TimeSpan time))
                 {
-                    await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent("Không thể tua quá thời lượng bài ")).ConfigureAwait(false);
+                    await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent("Định dạng thời gian không hợp lệ. Vui lòng sử dụng định dạng mm:ss.")).ConfigureAwait(false);
                     return;
                 }
 
-                if (TimeSpan.TryParse(timeString, out TimeSpan time))
+                if (time > player.CurrentTrack.Duration)
                 {
-                    await player.SeekAsync(time).ConfigureAwait(false);
-
-                    var embed = new DiscordEmbedBuilder()
-                        .WithTitle(":fast_forward: Đã tua đến vị trí mới")
-                        .WithDescription($"Vị trí hiện tại: {time:mm\\:ss}")
-                        .WithColor(DiscordColor.Green);
-
-                    await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(embed)).ConfigureAwait(false);
+                    await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent("Không thể tua quá thời lượng bài hát.")).ConfigureAwait(false);
+                    return;
                 }
-                else
-                {
-                    await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent("Định dạng thời gian không hợp lệ. Vui lòng sử dụng định dạng mm:ss.")).ConfigureAwait(false);
-                }
+
+                await player.SeekAsync(time).ConfigureAwait(false);
+
+                var embed = new DiscordEmbedBuilder()
+                    .WithTitle(":fast_forward: Đã tua đến vị trí mới")
+                    .WithDescription($"Vị trí hiện tại: {time:mm\\:ss}")
+                    .WithColor(DiscordColor.Green);
+
+                await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(embed)).ConfigureAwait(false);
             }
             catch (Exception e)
             {
