@@ -28,10 +28,10 @@ jobs:
         sed -i 's/"allowChannelID_gemini": "Your_Channel_ID (Integer only)"/"allowChannelID_gemini": "'${ALLOW_CHANNEL_ID_GEMINI}'"/g' Configs/config.json
     
     - name: Restore dependencies
-      run: dotnet restore ChinoKafuu.proj
+      run: dotnet restore
     
     - name: Build
-      run: dotnet build ChinoKafuu.proj --no-restore
+      run: dotnet build --no-restore
     
     - name: Test
-      run: dotnet test ChinoKafuu.proj --no-build --verbosity normal
+      run: dotnet test --no-build --verbosity normal
