@@ -5,18 +5,15 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
 jobs:
   build:
-
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./ChinoKafuu
-
     env:
       DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-
+      ALLOW_CHANNEL_ID_GEMINI: ${{ secrets.ALLOW_CHANNEL_ID_GEMINI }}
     steps:
     - uses: actions/checkout@v4
     
@@ -28,12 +25,13 @@ jobs:
     - name: Replace config placeholders with secrets
       run: |
         sed -i "s/Your_Discord_Token/${DISCORD_TOKEN}/g" Configs/config.json
+        sed -i 's/"allowChannelID_gemini": "Your_Channel_ID (Integer only)"/"allowChannelID_gemini": "'${ALLOW_CHANNEL_ID_GEMINI}'"/g' Configs/config.json
     
     - name: Restore dependencies
-      run: dotnet restore ChinoKafuu_test.sln
+      run: dotnet restore ChinoKafuu.proj
     
     - name: Build
-      run: dotnet build ChinoKafuu_test.sln --no-restore
+      run: dotnet build ChinoKafuu.proj --no-restore
     
     - name: Test
-      run: dotnet test ChinoKafuu_test.sln --no-build --verbosity normal
+      run: dotnet test ChinoKafuu.proj --no-build --verbosity normal
