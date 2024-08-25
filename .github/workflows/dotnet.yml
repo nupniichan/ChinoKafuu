@@ -35,4 +35,4 @@ jobs:
 
     - name: Run for a short time
       run: |
-        timeout 30s dotnet run --no-build --configuration Release
+        timeout 20s dotnet run --no-build --configuration Release
