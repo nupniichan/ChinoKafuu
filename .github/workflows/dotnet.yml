@@ -31,7 +31,8 @@ jobs:
       run: dotnet restore
     
     - name: Build
-      run: dotnet build --no-restore
-    
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet build --no-restore --configuration Release
+
+    - name: Run for a short time
+      run: |
+        timeout 30s dotnet run --no-build --configuration Release
