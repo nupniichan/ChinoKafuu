@@ -17,21 +17,36 @@ namespace ChinoBot.config
         public string resultApplioFilePath { get; set; }
         public async Task ReadJson()
         {
-            using (StreamReader sr = new StreamReader("..//..//..//Configs//config.json"))
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string relativePath = Path.Combine(baseDirectory, "..", "..", "..", "Configs", "config.json");
+
+            try
             {
-                string json = await sr.ReadToEndAsync();
-                JsonStructer data = JsonConvert.DeserializeObject<JsonStructer>(json);
-                this.token = data.token;
-                this.prefix = data.prefix;
-                this.osuToken = data.osuToken;
-                this.geminiAPIKey = data.geminiAPIKey;
-                this.geminiTranslateAPIKey = data.geminiTranslateAPIKey;
-                this.gemini_folder_path = data.gemini_folder_path;
-                this.allowChannelID_gemini = data.allowChannelID_gemini;
-                this.python_dll_path = data.python_dll_path;
-                this.userDefaultRoleName = data.userDefaultRoleName;
-                this.applioPath = data.applioPath;
-                this.resultApplioFilePath = data.resultApplioFilePath;
+                using (StreamReader sr = new StreamReader(relativePath))
+                {
+                    string json = await sr.ReadToEndAsync();
+                    JsonStructer data = JsonConvert.DeserializeObject<JsonStructer>(json);
+
+                    this.token = data.token;
+                    this.prefix = data.prefix;
+                    this.osuToken = data.osuToken;
+                    this.geminiAPIKey = data.geminiAPIKey;
+                    this.geminiTranslateAPIKey = data.geminiTranslateAPIKey;
+                    this.gemini_folder_path = data.gemini_folder_path;
+                    this.allowChannelID_gemini = data.allowChannelID_gemini;
+                    this.python_dll_path = data.python_dll_path;
+                    this.userDefaultRoleName = data.userDefaultRoleName;
+                    this.applioPath = data.applioPath;
+                    this.resultApplioFilePath = data.resultApplioFilePath;
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                Console.WriteLine("Không tìm thấy file config.json");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi khi đọc file config: " + ex.Message);
             }
         }
     }
