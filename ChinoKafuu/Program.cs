@@ -45,7 +45,14 @@ internal sealed class Program
         {
             Console.WriteLine("Skipping Lavalink initialization in CI environment");
         }
-        builder.Build().Run();
+        try
+        {
+            builder.Build().Run();
+        }
+        catch (TaskCanceledException)
+        {
+            Console.WriteLine("Application shutdown gracefully.");
+        }
     }
 }
 file sealed class ApplicationHost : BackgroundService
@@ -135,6 +142,17 @@ file sealed class ApplicationHost : BackgroundService
         _discordClient.Ready += SetResult;
         await readyTaskCompletionSource.Task.ConfigureAwait(false);
         _discordClient.Ready -= SetResult;
+
+        if (Environment.GetEnvironmentVariable("CI") == "true")
+        {
+            Console.WriteLine("Detected CI environment. Bot will auto-shutdown after 30 seconds.");
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(TimeSpan.FromSeconds(30));
+                await _discordClient.DisconnectAsync();
+                Environment.Exit(0); 
+            });
+        }
 
         await Task.Delay(Timeout.InfiniteTimeSpan, stoppingToken).ConfigureAwait(false);
     }
