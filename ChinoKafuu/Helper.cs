@@ -12,6 +12,7 @@ namespace ChinoBot
 {
     public class Helper
     {
+        public static bool SkipLavalink => System.Environment.GetEnvironmentVariable("SKIP_LAVALINK") == "true";
         public static DiscordColor GetRandomDiscordColor()
         {
             Random random = new Random();

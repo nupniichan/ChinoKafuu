@@ -37,7 +37,14 @@ internal sealed class Program
             AutoReconnect = true
         });
 
-        builder.Services.AddLavalink();
+        if (!Helper.SkipLavalink)
+        {
+            builder.Services.AddLavalink();
+        }
+        else
+        {
+            Console.WriteLine("Skipping Lavalink initialization in CI environment");
+        }
         builder.Build().Run();
     }
 }
@@ -111,7 +118,11 @@ file sealed class ApplicationHost : BackgroundService
         slashCommands.RegisterCommands<AdministratorCommand>();
         slashCommands.RegisterCommands<AnilistSlashCommand>();
         slashCommands.RegisterCommands<OsuSlashCommand>();
-        slashCommands.RegisterCommands<MusicCommands>();
+
+        if (!Helper.SkipLavalink)
+        {
+            slashCommands.RegisterCommands<MusicCommands>();
+        }
 
         await _discordClient.ConnectAsync().ConfigureAwait(false);
 
