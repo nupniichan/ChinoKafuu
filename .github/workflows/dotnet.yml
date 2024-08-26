@@ -2,9 +2,9 @@ name: .NET
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
@@ -12,11 +12,12 @@ jobs:
     defaults:
       run:
         working-directory: ./ChinoKafuu
+
     env:
       DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
       ALLOW_CHANNEL_ID_GEMINI: ${{ secrets.ALLOW_CHANNEL_ID_GEMINI }}
       SKIP_LAVALINK: "true"
-      
+
     steps:
     - uses: actions/checkout@v4
     
@@ -34,8 +35,7 @@ jobs:
       run: dotnet restore
     
     - name: Build
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet build --no-restore
     
-    - name: Run application to test if the main code work
-      run: |
-        timeout 20s dotnet run --no-build --configuration Release
+    - name: Run application
+      run: timeout 30s dotnet run --no-build --configuration Release
