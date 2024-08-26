@@ -34,7 +34,8 @@ jobs:
       run: dotnet restore
     
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build --no-restore --configuration Release
     
-    - name: Run application
-      run: timeout 15s dotnet run --no-build --configuration Release
+    - name: Run application to test if the main code work
+      run: |
+        timeout 20s dotnet run --no-build --configuration Release
