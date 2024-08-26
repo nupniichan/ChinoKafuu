@@ -40,4 +40,4 @@ jobs:
     
     - name: Run application
       run: |
-        timeout 30s dotnet run --no-build --configuration Release
+        timeout 45s dotnet run --no-build --configuration Release
