@@ -59,7 +59,7 @@ def RunGeminiAPI(geminiAPIKey, message_content, username, chat_history_path=os.p
         },
     ]
     
-    initial_prompt = chat_history + initial_prompt
+    initial_prompt = initial_prompt + chat_history 
     chat_session = model.start_chat(history=initial_prompt)
     
     try:
