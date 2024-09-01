@@ -5,9 +5,7 @@ using Python.Runtime;
 using ChinoBot.config;
 using DSharpPlus.VoiceNext;
 using NAudio.Wave;
-using System.Net.Http;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 {
@@ -15,13 +13,11 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
     {
         private readonly JSONreader jsonReader;
         private readonly DiscordClient _client;
-        private static VoiceNextConnection connection;
-
-        public static VoiceNextConnection Connection
-        {
-            get => connection;
-            set => connection = value;
-        }
+        private readonly ConcurrentDictionary<ulong, VoiceNextConnection> _connections = new ConcurrentDictionary<ulong, VoiceNextConnection>();
+        private readonly SemaphoreSlim _pythonLock = new SemaphoreSlim(1, 1);
+        private readonly ConcurrentDictionary<ulong, SemaphoreSlim> _voiceLocks = new ConcurrentDictionary<ulong, SemaphoreSlim>();
+        private readonly ConcurrentDictionary<ulong, Queue<string>> _audioQueues = new ConcurrentDictionary<ulong, Queue<string>>();
+        private readonly HttpClient _httpClient = new HttpClient();
 
         public ChinoConversation(DiscordClient client)
         {
@@ -31,6 +27,10 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
             _client.MessageCreated += Client_MessageCreated;
         }
 
+        public bool TryRemoveConnection(ulong guildId, out VoiceNextConnection connection)
+        {
+            return _connections.TryRemove(guildId, out connection);
+        }
         private async Task Client_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
         {
             if (e.Author.IsBot || e.Message.Content.StartsWith("BOT") ||
@@ -60,13 +60,20 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 
             try
             {
-                using var httpClient = new HttpClient();
-                using var response = await httpClient.GetAsync(attachment.Url);
+                using var response = await _httpClient.GetAsync(attachment.Url);
                 byte[] attachmentData = await response.Content.ReadAsByteArrayAsync();
 
-                string result = await ExecuteGeminiImagePython(attachmentData);
-                string translateResult = await Translator(result);
-                await SendMessageAndVoiceAsync(message, result, translateResult);
+                await _pythonLock.WaitAsync();
+                try
+                {
+                    string result = await ExecuteGeminiImagePython(attachmentData);
+                    string translateResult = await Translator(result);
+                    await SendMessageAndVoiceAsync(message, result, translateResult);
+                }
+                finally
+                {
+                    _pythonLock.Release();
+                }
             }
             catch (Exception ex)
             {
@@ -76,23 +83,31 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 
         private async Task HandleTextInputAsync(DiscordMessage message)
         {
-            string chinoMessage = await ExecuteGeminiTextPython(message);
-
-            if (message.Content.ToLower().Contains("rời voice") || message.Content.ToLower().Contains("out voice") || message.Content.ToLower().Contains("leave voice"))
-            {
-                connection?.Disconnect();
-                await message.Channel.SendMessageAsync(chinoMessage);
-                return;
-            }
-
+            await _pythonLock.WaitAsync();
             try
             {
+                string chinoMessage = await ExecuteGeminiTextPython(message);
+
+                if (message.Content.ToLower().Contains("rời voice") || message.Content.ToLower().Contains("out voice") || message.Content.ToLower().Contains("leave voice"))
+                {
+                    if (_connections.TryRemove(message.Channel.GuildId.Value, out var connection))
+                    {
+                        connection.Disconnect();
+                    }
+                    await message.Channel.SendMessageAsync(chinoMessage);
+                    return;
+                }
+
                 string translateResult = await Translator(chinoMessage);
                 await SendMessageAndVoiceAsync(message, chinoMessage, translateResult);
             }
             catch (Exception e)
             {
                 await message.Channel.SendMessageAsync("Híc, có lỗi rồi ;-; " + e.Message);
+            }
+            finally
+            {
+                _pythonLock.Release();
             }
         }
 
@@ -161,17 +176,32 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 
             if (channel != null)
             {
-                if (connection == null)
+                if (!_connections.TryGetValue(guild.Id, out var connection))
                 {
                     connection = await channel.ConnectAsync();
+                    _connections[guild.Id] = connection;
                 }
 
                 await message.Channel.SendMessageAsync(textMessage);
 
                 _ = Task.Run(async () =>
                 {
-                    await RunTTSScript(voiceMessage);
-                    await PlayVoice();
+                    string audioFile = await RunTTSScript(voiceMessage, guild.Id);
+
+                    if (!_audioQueues.TryGetValue(guild.Id, out var queue))
+                    {
+                        queue = new Queue<string>();
+                        _audioQueues[guild.Id] = queue;
+                    }
+
+                    queue.Enqueue(audioFile);
+
+                    // Start playing if nothing is currently playing
+                    if (queue.Count == 1)
+                    {
+                        string resultFilePath = jsonReader.resultAudioFilePath + audioFile;
+                        await PlayVoice(resultFilePath, connection, guild.Id);
+                    }
                 });
             }
             else
@@ -214,44 +244,88 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                 PythonEngine.Shutdown();
             }
         }
-        private async Task PlayVoice()
+        private async Task PlayVoice(string filePath, VoiceNextConnection connection, ulong guildId, float volume = 0.5f)
         {
-            var resultFilePath = jsonReader.resultApplioFilePath;
+            var voiceLock = GetVoiceLock(guildId);
+            await voiceLock.WaitAsync();
 
-            using (var audioFile = new AudioFileReader(resultFilePath))
-            using (var outputDevice = new WaveOutEvent())
+            try
             {
-                outputDevice.Init(audioFile);
-                outputDevice.Play();
-
-                while (outputDevice.PlaybackState == PlaybackState.Playing)
-                {
-                    await Task.Delay(100);
-                }
+                await PlayAudioFileAsync(filePath, connection, volume);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error playing voice: {ex.Message}");
+            }
+            finally
+            {
+                voiceLock.Release(); 
+                ProcessNextInQueue(guildId, connection); 
             }
         }
 
-        public async Task RunTTSScript(string message)
+        private SemaphoreSlim GetVoiceLock(ulong guildId)
         {
+            if (!_voiceLocks.TryGetValue(guildId, out var voiceLock))
+            {
+                voiceLock = new SemaphoreSlim(1, 1);
+                _voiceLocks[guildId] = voiceLock;
+            }
+            return voiceLock;
+        }
+
+        private async Task PlayAudioFileAsync(string filePath, VoiceNextConnection connection, float volume)
+        {
+            using var audioFile = new AudioFileReader(filePath);
+            using var volumeStream = new WaveChannel32(audioFile) { Volume = volume };
+            using var resampler = new MediaFoundationResampler(volumeStream, new WaveFormat(48000, 16, 2))
+            {
+                ResamplerQuality = 60
+            };
+
+            var buffer = new byte[resampler.WaveFormat.AverageBytesPerSecond / 25]; 
+            var transmitStream = connection.GetTransmitSink();
+
+            int bytesRead;
+            while ((bytesRead = resampler.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                await transmitStream.WriteAsync(buffer, 0, bytesRead);
+                await Task.Delay(20);
+            }
+
+            await transmitStream.FlushAsync();
+        }
+
+        private void ProcessNextInQueue(ulong guildId, VoiceNextConnection connection)
+        {
+            if (_audioQueues.TryGetValue(guildId, out var queue) && queue.TryDequeue(out var nextAudioFile))
+            {
+                _ = PlayVoice(nextAudioFile, connection, guildId);
+            }
+        }
+
+        private async Task<string> RunTTSScript(string message, ulong guildId)
+        {
+            string audioFile = $"result_{guildId}_{DateTime.Now.Ticks}.wav";
+            await _pythonLock.WaitAsync();
             try
             {
-                await Task.Run(() =>
-                {
-                    Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", jsonReader.python_dll_path);
-                    PythonEngine.Initialize();
+                Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", jsonReader.python_dll_path);
+                PythonEngine.Initialize();
 
-                    using (Py.GIL())
-                    {
-                        dynamic sys = Py.Import("sys");
-                        sys.path.append(jsonReader.applioPath);
-                        dynamic script = Py.Import("TTSApi");
-                        script.TTS(message);
-                    }
-                });
+                using (Py.GIL())
+                {
+                    dynamic sys = Py.Import("sys");
+                    sys.path.append(jsonReader.applioPath);
+                    dynamic script = Py.Import("TTSApi");
+                    script.TTS(message, jsonReader.resultAudioFilePath ,audioFile);
+                }
+                return audioFile;
             }
             finally
             {
                 PythonEngine.Shutdown();
+                _pythonLock.Release();
             }
         }
     }

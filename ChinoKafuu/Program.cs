@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Lavalink4NET.Extensions;
 using System.Data;
 using DSharpPlus.VoiceNext;
+using System.Collections.Concurrent;
 
 internal sealed class Program
 {
@@ -55,11 +56,13 @@ internal sealed class Program
         }
     }
 }
+
 file sealed class ApplicationHost : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly DiscordClient _discordClient;
     private static JSONreader jsonReader;
+    private ChinoConversation _chinoConversation;
 
     private static Dictionary<string, ulong> voiceChannelIDs = new Dictionary<string, ulong>();
 
@@ -70,6 +73,7 @@ file sealed class ApplicationHost : BackgroundService
 
         _serviceProvider = serviceProvider;
         _discordClient = discordClient;
+        _chinoConversation = new ChinoConversation(discordClient);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -106,7 +110,6 @@ file sealed class ApplicationHost : BackgroundService
         jsonReader = new JSONreader();
         await jsonReader.ReadJson();
 
-        var autoMessageHandler = new ChinoConversation(_discordClient);
         var commandsConfig = new CommandsNextConfiguration()
         {
             StringPrefixes = new string[] { jsonReader.prefix },
@@ -150,13 +153,14 @@ file sealed class ApplicationHost : BackgroundService
             {
                 await Task.Delay(TimeSpan.FromSeconds(30));
                 await _discordClient.DisconnectAsync();
-                Environment.Exit(0); 
+                Environment.Exit(0);
             });
         }
 
         await Task.Delay(Timeout.InfiniteTimeSpan, stoppingToken).ConfigureAwait(false);
     }
-    private static async Task UserLeaveHandler(DiscordClient sender, DSharpPlus.EventArgs.GuildMemberRemoveEventArgs e)
+
+    private static async Task UserLeaveHandler(DiscordClient sender, GuildMemberRemoveEventArgs e)
     {
         var defaultChannel = e.Guild.GetDefaultChannel();
         string goodByeImage = "https://cdn.discordapp.com/attachments/1023808975185133638/1143429728901021747/Is-the-Order-a-Rabbit-BLOOM-Season-2-1.png";
@@ -169,7 +173,7 @@ file sealed class ApplicationHost : BackgroundService
         await defaultChannel.SendMessageAsync(embed: goodByeEmbed);
     }
 
-    private static async Task UserJoinHandler(DiscordClient sender, DSharpPlus.EventArgs.GuildMemberAddEventArgs e)
+    private static async Task UserJoinHandler(DiscordClient sender, GuildMemberAddEventArgs e)
     {
         var defaultChannel = e.Guild.GetDefaultChannel();
         string welcomeGifUrl = "https://cdn.discordapp.com/attachments/1023808975185133638/1143428547642409080/gochiusa-welcome.gif";
@@ -185,7 +189,7 @@ file sealed class ApplicationHost : BackgroundService
         await defaultChannel.SendMessageAsync(embed: welcomeEmbed);
     }
 
-    private static async Task VoiceChannelHandler(DiscordClient sender, DSharpPlus.EventArgs.VoiceStateUpdateEventArgs e)
+    private static async Task VoiceChannelHandler(DiscordClient sender, VoiceStateUpdateEventArgs e)
     {
         if (e.Channel != null && e.Channel.Name == "Tạo Phòng" && e.Before == null)
         {
@@ -215,24 +219,22 @@ file sealed class ApplicationHost : BackgroundService
     private async Task VoiceStateHandler(DiscordClient sender, VoiceStateUpdateEventArgs e)
     {
         var user = e.User;
-        bool isBot = user.IsBot;
-
-        if (isBot)
+        if (user.IsBot)
         {
             return;
         }
-        if (e.After != null)
+
+        if (e.Before?.Channel != null && e.After?.Channel == null)
         {
-            if (e.Before?.Channel != null && e.After.Channel == null)
+            var guildId = e.Guild.Id;
+            if (_chinoConversation.TryRemoveConnection(guildId, out var connection))
             {
-                if (ChinoConversation.Connection != null)
-                {
-                    ChinoConversation.Connection = null;
-                }
+                await Task.Run(() => connection.Disconnect());
             }
         }
     }
-    private async Task Client_Ready(DiscordClient sender, DSharpPlus.EventArgs.ReadyEventArgs args)
+
+    private async Task Client_Ready(DiscordClient sender, ReadyEventArgs args)
     {
         await _discordClient.UpdateStatusAsync(new DiscordActivity("with Cocoa and Rize~", ActivityType.Playing));
     }
