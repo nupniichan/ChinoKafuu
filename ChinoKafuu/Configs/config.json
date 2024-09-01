@@ -9,5 +9,5 @@
   "python_dll_path": "C:\\Users\\{user_name}\\AppData\\Local\\Programs\\Python\\Python39\\python39.dll", // Change {user_name} to your drive name
   "userDefaultRoleName": "Your_Role_You_Want_To_Set", // For example "Customer" (the default role must be created before)
   "applioPath": "..\\..\\..\\Engine\\Applio", // Dont change 
-  "resultApplioFilePath": "File_Path_To_Applio.exe" // Put full path to your result.exe at Applio-3.2.0
+  "resultAudioFilePath": "..\\..\\..\\AudioResult\\" // Dont change 
 }
