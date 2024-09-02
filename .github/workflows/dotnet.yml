@@ -26,7 +26,10 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 7.0.x
-    
+        
+    - name: List Configs directory contents
+      run: ls -al Configs/
+      
     - name: Replace config placeholders with secrets
       run: |
         sed -i "s/Your_Discord_Token/${DISCORD_TOKEN}/g" Configs/config.json
