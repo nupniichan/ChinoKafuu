@@ -1,4 +1,4 @@
-﻿﻿{
+﻿{
   "token": "Your_Discord_Token", // Get your discord token at: https://discord.com/developers/applications
   "prefix": ">", // You can change to any prefix you prefer
   "osuToken": "Your_Osu_Api", // Get your osu token here: https://osu.ppy.sh/home/account/edit (scroll down to Old API)
