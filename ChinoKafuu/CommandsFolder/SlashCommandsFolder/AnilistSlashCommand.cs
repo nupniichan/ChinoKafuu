@@ -272,10 +272,10 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             {
                 if (media.status == AniMediaStatus.FINISHED)
                 {
-                    embed.AddField(":hourglass_flowing_sand: Trạng thái: ", "Đã hoàn thành", true)
-                         .AddField(":calendar_spiral: Phát hành", $"{startDate} -> N/A", true)
+                    embed.AddField(":hourglass_flowing_sand: Trạng thái: ", status, true)
+                         .AddField(":calendar_spiral: Phát hành", $"{startDate} -> {endDate}", true)
                          .AddField(":arrow_right: Thể loại", string.Join(", ", media.genres), false)
-                         .AddField(":file_folder: Nguồn", "Original", false)
+                         .AddField(":file_folder: Nguồn", char.ToUpper(media.source[0]) + media.source.Substring(1).ToLower(), false)
                          .AddField(":star: Điểm trung bình", $"{media.averageScore}/100", true)
                          .AddField(":star: Điểm trung vị", $"{media.meanScore}/100", true)
                          .AddField("🌐 Tên gốc", media.title.native, false)
@@ -283,17 +283,27 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 }
                 else if (media.status == AniMediaStatus.RELEASING)
                 {
-                    embed.AddField(":hourglass_flowing_sand: Trạng thái", "Đang phát hành", true)
+                    embed.AddField(":hourglass_flowing_sand: Trạng thái", status, true)
                          .AddField(":calendar_spiral: Phát hành", $"{startDate} -> N/A", true)
                          .AddField(":arrow_right: Thể loại", string.Join(", ", media.genres), false)
-                         .AddField(":file_folder: Nguồn", "Original", false)
+                         .AddField(":file_folder: Nguồn", char.ToUpper(media.source[0]) + media.source.Substring(1).ToLower(), false)
+                         .AddField(":star: Điểm trung bình", $"{media.averageScore}/100", true)
+                         .AddField(":star: Điểm trung vị", $"{media.meanScore}/100", true)
+                         .AddField("🌐 Tên gốc", media.title.native, false)
+                         .AddField("🛈 Thông tin thêm", $"[Anilist]({media.siteUrl})");
+                }
+                else
+                {
+                    embed.AddField(":hourglass_flowing_sand: Trạng thái", status, true)
+                         .AddField(":calendar_spiral: Phát hành", $"{startDate} -> {(endDate != null ? endDate.ToString() : "N/A")}", true)
+                         .AddField(":arrow_right: Thể loại", string.Join(", ", media.genres), false)
+                         .AddField(":file_folder: Nguồn", char.ToUpper(media.source[0]) + media.source.Substring(1).ToLower(), false)
                          .AddField(":star: Điểm trung bình", $"{media.averageScore}/100", true)
                          .AddField(":star: Điểm trung vị", $"{media.meanScore}/100", true)
                          .AddField("🌐 Tên gốc", media.title.native, false)
                          .AddField("🛈 Thông tin thêm", $"[Anilist]({media.siteUrl})");
                 }
             }
-
             return embed;
         }
 

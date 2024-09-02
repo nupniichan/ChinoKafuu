@@ -1,11 +1,12 @@
 ﻿using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using DSharpPlus;
-using Python.Runtime;
-using ChinoBot.config;
 using DSharpPlus.VoiceNext;
+using DSharpPlus;
 using NAudio.Wave;
+using Python.Runtime;
 using System.Collections.Concurrent;
+using ChinoBot.config;
+using GraphQL.Types.Relay.DataObjects;
 
 namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 {
@@ -196,7 +197,6 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 
                     queue.Enqueue(audioFile);
 
-                    // Start playing if nothing is currently playing
                     if (queue.Count == 1)
                     {
                         string resultFilePath = jsonReader.resultAudioFilePath + audioFile;
@@ -248,7 +248,6 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         {
             var voiceLock = GetVoiceLock(guildId);
             await voiceLock.WaitAsync();
-
             try
             {
                 await PlayAudioFileAsync(filePath, connection, volume);
@@ -259,8 +258,20 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
             }
             finally
             {
-                voiceLock.Release(); 
-                ProcessNextInQueue(guildId, connection); 
+                voiceLock.Release();
+
+                if (_audioQueues.TryGetValue(guildId, out var queue))
+                {
+                    if (queue.TryPeek(out var nextAudioFile))
+                    {
+                        string currentFilePath = jsonReader.resultAudioFilePath + nextAudioFile;
+                        if (currentFilePath == filePath)
+                        {
+                            queue.TryDequeue(out _);
+                        }
+                    }
+                }
+                await ProcessNextInQueue(guildId, connection);
             }
         }
 
@@ -274,39 +285,48 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
             return voiceLock;
         }
 
-        private async Task PlayAudioFileAsync(string filePath, VoiceNextConnection connection, float volume)
+        private async Task PlayAudioFileAsync(string filePath, VoiceNextConnection connection, float volume = 0.5f)
         {
-            using var audioFile = new AudioFileReader(filePath);
-            using var volumeStream = new WaveChannel32(audioFile) { Volume = volume };
-            using var resampler = new MediaFoundationResampler(volumeStream, new WaveFormat(48000, 16, 2))
+            try
             {
-                ResamplerQuality = 60
-            };
+                using (var audioFile = new AudioFileReader(filePath))
+                using (var outputDevice = new WaveOutEvent())
+                {
+                    outputDevice.Init(audioFile);
+                    outputDevice.Play();
 
-            var buffer = new byte[resampler.WaveFormat.AverageBytesPerSecond / 25]; 
-            var transmitStream = connection.GetTransmitSink();
-
-            int bytesRead;
-            while ((bytesRead = resampler.Read(buffer, 0, buffer.Length)) > 0)
-            {
-                await transmitStream.WriteAsync(buffer, 0, bytesRead);
-                await Task.Delay(20);
+                    while (outputDevice.PlaybackState == PlaybackState.Playing)
+                    {
+                        await Task.Delay(20);
+                    }
+                }
             }
-
-            await transmitStream.FlushAsync();
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error playing audio: {ex.Message}");
+            }
         }
 
-        private void ProcessNextInQueue(ulong guildId, VoiceNextConnection connection)
+        private async Task ProcessNextInQueue(ulong guildId, VoiceNextConnection connection)
         {
-            if (_audioQueues.TryGetValue(guildId, out var queue) && queue.TryDequeue(out var nextAudioFile))
+            if (_audioQueues.TryGetValue(guildId, out var queue))
             {
-                _ = PlayVoice(nextAudioFile, connection, guildId);
+                if (queue.TryDequeue(out var nextAudioFile))
+                {
+                    string resultFilePath = jsonReader.resultAudioFilePath + nextAudioFile;
+                    await PlayVoice(resultFilePath, connection, guildId);
+                }
+                if (queue.Count == 0)
+                {
+                    _audioQueues.TryRemove(guildId, out _);
+                }
             }
         }
 
         private async Task<string> RunTTSScript(string message, ulong guildId)
         {
             string audioFile = $"result_{guildId}_{DateTime.Now.Ticks}.wav";
+            string audioPath = Path.GetFullPath(jsonReader.resultAudioFilePath);
             await _pythonLock.WaitAsync();
             try
             {
@@ -318,7 +338,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                     dynamic sys = Py.Import("sys");
                     sys.path.append(jsonReader.applioPath);
                     dynamic script = Py.Import("TTSApi");
-                    script.TTS(message, jsonReader.resultAudioFilePath ,audioFile);
+                    script.TTS(message, audioPath, audioFile);
                 }
                 return audioFile;
             }
