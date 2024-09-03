@@ -6,7 +6,6 @@ using NAudio.Wave;
 using Python.Runtime;
 using System.Collections.Concurrent;
 using ChinoBot.config;
-using GraphQL.Types.Relay.DataObjects;
 
 namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 {
@@ -116,11 +115,13 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         {
             string username = message.Author.Username;
             var member = await message.Channel.Guild.GetMemberAsync(message.Author.Id);
-
             if (member != null && !string.IsNullOrEmpty(member.Nickname))
             {
                 username = member.Nickname;
             }
+
+            ulong serverId = message.Channel.Guild.Id;
+            string chatHistoryPath = Path.Combine(jsonReader.conversationHistory, "HistoryChat", serverId.ToString(), "chat_history.json");
 
             try
             {
@@ -134,7 +135,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                         dynamic sys = Py.Import("sys");
                         sys.path.append(jsonReader.gemini_folder_path);
                         dynamic script = Py.Import("Gemini");
-                        return script.RunGeminiAPI(jsonReader.geminiAPIKey, message.Content, username);
+                        return script.RunGeminiAPI(jsonReader.geminiAPIKey, message.Content, username, chatHistoryPath); 
                     }
                 });
             }
@@ -199,7 +200,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 
                     if (queue.Count == 1)
                     {
-                        string resultFilePath = jsonReader.resultAudioFilePath + audioFile;
+                        string resultFilePath = Path.Combine(jsonReader.conversationHistory, "VoiceHistory", guild.Id.ToString(),audioFile);
                         await PlayVoice(resultFilePath, connection, guild.Id);
                     }
                 });
@@ -264,7 +265,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                 {
                     if (queue.TryPeek(out var nextAudioFile))
                     {
-                        string currentFilePath = jsonReader.resultAudioFilePath + nextAudioFile;
+                        string currentFilePath = Path.Combine(jsonReader.conversationHistory, "VoiceHistory", guildId.ToString(),nextAudioFile);
                         if (currentFilePath == filePath)
                         {
                             queue.TryDequeue(out _);
@@ -313,7 +314,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
             {
                 if (queue.TryDequeue(out var nextAudioFile))
                 {
-                    string resultFilePath = jsonReader.resultAudioFilePath + nextAudioFile;
+                    string resultFilePath = Path.Combine(jsonReader.conversationHistory, "VoiceHistory", guildId.ToString(), nextAudioFile);
                     await PlayVoice(resultFilePath, connection, guildId);
                 }
                 if (queue.Count == 0)
@@ -326,19 +327,24 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         private async Task<string> RunTTSScript(string message, ulong guildId)
         {
             string audioFile = $"result_{guildId}_{DateTime.Now.Ticks}.wav";
-            string audioPath = Path.GetFullPath(jsonReader.resultAudioFilePath);
+            string audioResultFilePath = Path.GetFullPath(jsonReader.conversationHistory);
+            string audioServerSpecificPath = Path.Combine(audioResultFilePath, "VoiceHistory" , guildId.ToString());
+            if (!Directory.Exists(audioServerSpecificPath))
+            {
+                Directory.CreateDirectory(audioServerSpecificPath);
+            }
             await _pythonLock.WaitAsync();
             try
             {
                 Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", jsonReader.python_dll_path);
                 PythonEngine.Initialize();
 
-                using (Py.GIL())
+                using (Py.GIL())    
                 {
                     dynamic sys = Py.Import("sys");
                     sys.path.append(jsonReader.applioPath);
                     dynamic script = Py.Import("TTSApi");
-                    script.TTS(message, audioPath, audioFile);
+                    script.TTS(message, audioServerSpecificPath, audioFile);
                 }
                 return audioFile;
             }

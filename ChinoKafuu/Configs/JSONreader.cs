@@ -14,7 +14,7 @@ namespace ChinoBot.config
         public string python_dll_path { get; set; }
         public string userDefaultRoleName { get; set; }
         public string applioPath { get; set; }
-        public string resultAudioFilePath { get; set; }
+        public string conversationHistory { get; set; }
         public async Task ReadJson()
         {
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
@@ -37,7 +37,7 @@ namespace ChinoBot.config
                     this.python_dll_path = data.python_dll_path;
                     this.userDefaultRoleName = data.userDefaultRoleName;
                     this.applioPath = data.applioPath;
-                    this.resultAudioFilePath = data.resultAudioFilePath;
+                    this.conversationHistory = data.conversationHistory;
                 }
             }
             catch (FileNotFoundException)
@@ -63,6 +63,6 @@ namespace ChinoBot.config
         public string python_dll_path { get; set; }
         public string userDefaultRoleName { get; set; }
         public string applioPath { get; set; }
-        public string resultAudioFilePath { get; set; }
+        public string conversationHistory { get; set; }
     }
 }

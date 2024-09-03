@@ -8,10 +8,10 @@ def RunGeminiAPI(geminiAPIKey, message_content, username, chat_history_path=os.p
     genai.configure(api_key=geminiAPIKey)
 
     generation_config = {
-        "temperature": 0.9,
+        "temperature": 1.2,
         "top_p": 1,
         "top_k": 1,
-        "max_output_tokens": 1024,
+        "max_output_tokens": 512,
     }
 
     safety_settings = [
@@ -37,6 +37,8 @@ def RunGeminiAPI(geminiAPIKey, message_content, username, chat_history_path=os.p
                     generation_config=generation_config,
                     safety_settings=safety_settings)
 
+    os.makedirs(os.path.dirname(chat_history_path), exist_ok=True)
+    
     try:
         with open(chat_history_path, "r", encoding='utf-8') as f:
             chat_history = json.load(f)
@@ -55,7 +57,7 @@ def RunGeminiAPI(geminiAPIKey, message_content, username, chat_history_path=os.p
         },
         {
         "role": "model",
-        "parts": ["Ah, chào mừng anh trở lại Rabbit House (≧◡≦)."]
+        "parts": ["Ah, chào mừng anh đến với Rabbit House (≧◡≦)."]
         },
     ]
     
