@@ -10,7 +10,7 @@ SET "CURRENT_DIR=%~dp0"
 
 REM Move to Applio Folder
 cd /d "%CURRENT_DIR%\.."
-cd /d "%CD%\..\ChinoKafu\Applio-3.2.0"
+cd /d "%CD%\..\ChinoKafu\Applio"
 call run-applio.bat
 
 ECHO Run successfully
