@@ -22,10 +22,10 @@
 **Installation:**
 
 1. **First Time Setup:**
-   * Run `run-install.bat` inside the `Applio-3.2.0` folder.
+   * Run `InstallRequirement.bat` inside the `RunFolder` folder.
    * Configure `ChinoKafuu\ChinoKafuu\Configs\config.json` with your bot token and settings.
    * Open `ChinoKafuu.csproj` in your IDE and build the project.
-   * Run `normalrun.bat` located in `ChinoKafuu\ChinoKafuu\bin\Debug\net7.0\`.
+   * Run `normalrun.bat`.
    * On Applio website: Click download tab and paste this url to download Chino's voice model *(https://huggingface.co/Timur04129/Chino-Kafuu/resolve/main/chino-kafuu.zip)*. 
 
 2. **Subsequent Runs:**
@@ -33,7 +33,7 @@
 
 ## 💡 What's New
 
-* **Music Commands:** Unlock enhanced features like loop, seek, and shuffle to elevate user listening experience to the next level.
+* Updated Applio to 3.2.5 and fixed missing module while use run-applio.bat. Also if you install for the first time, you dont need to use `run-install.bat` for Applio anymore. I will upload the file soon so please stand by.
 
 ## 🛠️ Libraries Used
 
