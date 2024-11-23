@@ -69,9 +69,6 @@ public class GeminiChat
                     continue; // Bỏ qua nếu không xử lý được
                 }
 
-                Console.WriteLine($"[DEBUG] Message parts type: {message["parts"].GetType()}");
-                Console.WriteLine($"[DEBUG] Message content: {JsonSerializer.Serialize(message)}");
-
                 contents.Add(new
                 {
                     role = message["role"].ToString(),

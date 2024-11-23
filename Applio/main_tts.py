@@ -19,7 +19,7 @@ def TTS(message, guild_id, message_id):
     protect = 0.5
     hop_length = 256
     f0_method = "rmvpe"
-    output_tts_path = "./temporary/temporary_tts_output.wav"
+    output_tts_path = "temporary_tts_output.wav"
     output_rvc_path = full_output_path
     pth_path = "logs/chino-kafuu/chino-kafuu.pth"
     index_path = "logs/chino-kafuu/added_IVF209_Flat_nprobe_1_chino-kafuu_v2.index"
