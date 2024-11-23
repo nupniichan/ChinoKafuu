@@ -305,3 +305,16 @@ cython_debug/
 
 # Config file
 config.json
+
+# Lavalink
+Lavalink/
+
+# Applio ( except API )
+Applio/**
+!Applio/API
+
+# AICoverGen
+AICoverGen/
+
+# LavaLink
+LavaLink/

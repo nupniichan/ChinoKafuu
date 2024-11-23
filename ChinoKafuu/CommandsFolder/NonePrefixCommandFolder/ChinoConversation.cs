@@ -6,6 +6,10 @@ using NAudio.Wave;
 using Python.Runtime;
 using System.Collections.Concurrent;
 using ChinoBot.config;
+using System.Text.Json;
+using System.Net.Http;
+using System.Text;
+using System.Net.Http.Json;
 
 namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 {
@@ -13,17 +17,22 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
     {
         private readonly JSONreader jsonReader;
         private readonly DiscordClient _client;
-        private readonly ConcurrentDictionary<ulong, VoiceNextConnection> _connections = new ConcurrentDictionary<ulong, VoiceNextConnection>();
-        private readonly SemaphoreSlim _pythonLock = new SemaphoreSlim(1, 1);
-        private readonly ConcurrentDictionary<ulong, SemaphoreSlim> _voiceLocks = new ConcurrentDictionary<ulong, SemaphoreSlim>();
-        private readonly ConcurrentDictionary<ulong, Queue<string>> _audioQueues = new ConcurrentDictionary<ulong, Queue<string>>();
+        private readonly GeminiChat _geminiService;
+        private readonly GeminiTranslate _geminiTranslate;
+        private readonly ConcurrentDictionary<ulong, VoiceNextConnection> _connections = new();
+        private readonly SemaphoreSlim _serviceLock = new(1, 1);
+        private readonly ConcurrentDictionary<ulong, SemaphoreSlim> _voiceLocks = new();
+        private readonly ConcurrentDictionary<ulong, Queue<string>> _audioQueues = new();
         private readonly HttpClient _httpClient = new HttpClient();
+        private const string TTS_API_URL = "http://localhost:5000/tts";
 
         public ChinoConversation(DiscordClient client)
         {
             _client = client;
             jsonReader = new JSONreader();
             jsonReader.ReadJson().GetAwaiter().GetResult();
+            _geminiService = new GeminiChat(jsonReader.geminiAPIKey);
+            _geminiTranslate = new GeminiTranslate(jsonReader.geminiTranslateAPIKey);
             _client.MessageCreated += Client_MessageCreated;
         }
 
@@ -31,6 +40,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         {
             return _connections.TryRemove(guildId, out connection);
         }
+
         private async Task Client_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
         {
             if (e.Author.IsBot || e.Message.Content.StartsWith("BOT") ||
@@ -57,22 +67,20 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         private async Task HandleImageInputAsync(DiscordMessage message)
         {
             var attachment = message.Attachments.FirstOrDefault();
-
             try
             {
                 using var response = await _httpClient.GetAsync(attachment.Url);
                 byte[] attachmentData = await response.Content.ReadAsByteArrayAsync();
 
-                await _pythonLock.WaitAsync();
+                await _serviceLock.WaitAsync();
                 try
                 {
-                    string result = await ExecuteGeminiImagePython(attachmentData);
-                    string translateResult = await Translator(result);
-                    await SendMessageAndVoiceAsync(message, result, translateResult);
+                    // chờ fix
+                    await message.RespondAsync("Em lười quá không xem ảnh đâu~");
                 }
                 finally
                 {
-                    _pythonLock.Release();
+                    _serviceLock.Release();
                 }
             }
             catch (Exception ex)
@@ -83,12 +91,29 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 
         private async Task HandleTextInputAsync(DiscordMessage message)
         {
-            await _pythonLock.WaitAsync();
+            await _serviceLock.WaitAsync();
             try
             {
-                string chinoMessage = await ExecuteGeminiTextPython(message);
+                string username = message.Author.Username;
+                var member = await message.Channel.Guild.GetMemberAsync(message.Author.Id);
+                if (member?.Nickname != null)
+                {
+                    username = member.Nickname;
+                }
 
-                if (message.Content.ToLower().Contains("rời voice") || message.Content.ToLower().Contains("out voice") || message.Content.ToLower().Contains("leave voice"))
+                string chatHistoryPath = Path.Combine("..","..","..",
+                    "CommunicationHistory",
+                    "HistoryChat",
+                    message.Channel.Guild.Id.ToString(),
+                    "chat_history.json"
+                );
+                Directory.CreateDirectory(Path.GetDirectoryName(chatHistoryPath));
+
+                string chinoMessage = await _geminiService.RunGeminiAPI(message.Content, username, chatHistoryPath);
+
+                if (message.Content.ToLower().Contains("rời voice") ||
+                    message.Content.ToLower().Contains("out voice") ||
+                    message.Content.ToLower().Contains("leave voice"))
                 {
                     if (_connections.TryRemove(message.Channel.GuildId.Value, out var connection))
                     {
@@ -97,9 +122,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                     await message.Channel.SendMessageAsync(chinoMessage);
                     return;
                 }
-
-                string translateResult = await Translator(chinoMessage);
-                await SendMessageAndVoiceAsync(message, chinoMessage, translateResult);
+                await SendMessageAndVoiceAsync(message, chinoMessage);
             }
             catch (Exception e)
             {
@@ -107,74 +130,18 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
             }
             finally
             {
-                _pythonLock.Release();
+                _serviceLock.Release();
             }
         }
 
-        private async Task<string> ExecuteGeminiTextPython(DiscordMessage message)
-        {
-            string username = message.Author.Username;
-            var member = await message.Channel.Guild.GetMemberAsync(message.Author.Id);
-            if (member != null && !string.IsNullOrEmpty(member.Nickname))
-            {
-                username = member.Nickname;
-            }
-
-            ulong serverId = message.Channel.Guild.Id;
-            string chatHistoryPath = Path.Combine(jsonReader.conversationHistory, "HistoryChat", serverId.ToString(), "chat_history.json");
-
-            try
-            {
-                return await Task.Run(() =>
-                {
-                    Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", jsonReader.python_dll_path);
-                    PythonEngine.Initialize();
-
-                    using (Py.GIL())
-                    {
-                        dynamic sys = Py.Import("sys");
-                        sys.path.append(jsonReader.gemini_folder_path);
-                        dynamic script = Py.Import("Gemini");
-                        return script.RunGeminiAPI(jsonReader.geminiAPIKey, message.Content, username, chatHistoryPath); 
-                    }
-                });
-            }
-            finally
-            {
-                PythonEngine.Shutdown();
-            }
-        }
-
-        private async Task<string> Translator(string messageContent)
-        {
-            try
-            {
-                return await Task.Run(() =>
-                {
-                    Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", jsonReader.python_dll_path);
-                    PythonEngine.Initialize();
-
-                    using (Py.GIL())
-                    {
-                        dynamic sys = Py.Import("sys");
-                        sys.path.append(jsonReader.gemini_folder_path);
-                        dynamic script = Py.Import("GeminiTranslate");
-                        return script.GeminiTranslate(jsonReader.geminiTranslateAPIKey, messageContent);
-                    }
-                });
-            }
-            finally
-            {
-                PythonEngine.Shutdown();
-            }
-        }
-
-        private async Task SendMessageAndVoiceAsync(DiscordMessage message, string textMessage, string voiceMessage)
+        private async Task SendMessageAndVoiceAsync(DiscordMessage message, string textMessage)
         {
             var guild = message.Channel.Guild;
             var member = await guild.GetMemberAsync(message.Author.Id);
             var voiceState = member?.VoiceState;
             var channel = voiceState?.Channel;
+
+            await message.Channel.SendMessageAsync(textMessage);
 
             if (channel != null)
             {
@@ -184,67 +151,93 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                     _connections[guild.Id] = connection;
                 }
 
-                await message.Channel.SendMessageAsync(textMessage);
-
-                _ = Task.Run(async () =>
+                try
                 {
-                    string audioFile = await RunTTSScript(voiceMessage, guild.Id);
-
-                    if (!_audioQueues.TryGetValue(guild.Id, out var queue))
+                    string translateResult = await _geminiTranslate.Translate(textMessage);
+                    if (string.IsNullOrEmpty(translateResult))
                     {
-                        queue = new Queue<string>();
-                        _audioQueues[guild.Id] = queue;
+                        Console.WriteLine("Translation result is empty!");
+                        return;
                     }
 
-                    queue.Enqueue(audioFile);
-
-                    if (queue.Count == 1)
+                    _ = Task.Run(async () =>
                     {
-                        string resultFilePath = Path.Combine(jsonReader.conversationHistory, "VoiceHistory", guild.Id.ToString(),audioFile);
-                        await PlayVoice(resultFilePath, connection, guild.Id);
-                    }
-                });
-            }
-            else
-            {
-                await message.Channel.SendMessageAsync(textMessage);
+                        try
+                        {
+                            // Sử dụng kết quả đã dịch cho TTS
+                            string audioFile = await RunTTSScript(translateResult, guild.Id);
+
+                            if (!_audioQueues.TryGetValue(guild.Id, out var queue))
+                            {
+                                queue = new Queue<string>();
+                                _audioQueues[guild.Id] = queue;
+                            }
+
+                            queue.Enqueue(audioFile);
+
+                            if (queue.Count == 1)
+                            {
+                                string resultFilePath = Path.Combine(
+                                    jsonReader.conversationHistory,
+                                    "VoiceHistory",
+                                    guild.Id.ToString(),
+                                    audioFile
+                                );
+                                await PlayVoice(resultFilePath, connection, guild.Id);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Error in voice processing: {ex}");
+                        }
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error in translation process: {ex}");
+                }
             }
         }
 
-        private async Task<string> ExecuteGeminiImagePython(byte[] attachmentData)
+        private async Task<string> RunTTSScript(string message, ulong guildId)
         {
             try
             {
-                return await Task.Run(() =>
+                var requestData = new
                 {
-                    Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", jsonReader.python_dll_path);
-                    PythonEngine.Initialize();
+                    message = message,
+                    guildId = guildId
+                };
 
-                    using (Py.GIL())
+                var response = await _httpClient.PostAsync(
+                    TTS_API_URL,
+                    new StringContent(
+                        JsonSerializer.Serialize(requestData),
+                        Encoding.UTF8,
+                        "application/json"
+                    )
+                );
+
+                if (response.IsSuccessStatusCode)
+                {
+                    using var jsonDoc = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+                    var root = jsonDoc.RootElement;
+                    
+                    if (root.GetProperty("success").GetBoolean())
                     {
-                        dynamic sys = Py.Import("sys");
-                        dynamic io = Py.Import("io");
-                        sys.path.append(jsonReader.gemini_folder_path);
-
-                        dynamic bytesIO = io.BytesIO(attachmentData);
-                        dynamic script = Py.Import("Gemini");
-                        dynamic convo = script.convo;
-                        dynamic img = script.PIL.Image.open(bytesIO);
-                        dynamic response = convo.send_message(img);
-
-                        return response.text;
+                        return Path.GetFileName(root.GetProperty("file_path").GetString());
                     }
-                });
+                }
+
+                throw new Exception($"TTS API call failed: {response.StatusCode}");
             }
             catch (Exception ex)
             {
-                return $"Anh ơi có lỗi rồi nè~ : {ex.Message}";
-            }
-            finally
-            {
-                PythonEngine.Shutdown();
+                Console.WriteLine($"Error in RunTTSScript: {ex.Message}");
+                throw;
             }
         }
+
         private async Task PlayVoice(string filePath, VoiceNextConnection connection, ulong guildId, float volume = 0.5f)
         {
             var voiceLock = GetVoiceLock(guildId);
@@ -321,37 +314,6 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                 {
                     _audioQueues.TryRemove(guildId, out _);
                 }
-            }
-        }
-
-        private async Task<string> RunTTSScript(string message, ulong guildId)
-        {
-            string audioFile = $"result_{guildId}_{DateTime.Now.Ticks}.wav";
-            string audioResultFilePath = Path.GetFullPath(jsonReader.conversationHistory);
-            string audioServerSpecificPath = Path.Combine(audioResultFilePath, "VoiceHistory" , guildId.ToString());
-            if (!Directory.Exists(audioServerSpecificPath))
-            {
-                Directory.CreateDirectory(audioServerSpecificPath);
-            }
-            await _pythonLock.WaitAsync();
-            try
-            {
-                Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", jsonReader.python_dll_path);
-                PythonEngine.Initialize();
-
-                using (Py.GIL())    
-                {
-                    dynamic sys = Py.Import("sys");
-                    sys.path.append(jsonReader.applioPath);
-                    dynamic script = Py.Import("TTSApi");
-                    script.TTS(message, audioServerSpecificPath, audioFile);
-                }
-                return audioFile;
-            }
-            finally
-            {
-                PythonEngine.Shutdown();
-                _pythonLock.Release();
             }
         }
     }
