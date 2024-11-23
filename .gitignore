@@ -303,6 +303,10 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+# History chat
+HistoryChat/
+VoiceHistory/
+
 # Config file
 config.json
 
@@ -310,8 +314,8 @@ config.json
 Lavalink/
 
 # Applio ( except API )
-Applio/**
-!Applio/API
+Applio/*
+!Applio/API/
 
 # AICoverGen
 AICoverGen/
