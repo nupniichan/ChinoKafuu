@@ -308,14 +308,15 @@ HistoryChat/
 VoiceHistory/
 
 # Config file
-config.json
+ChinoKafuu/Configs/config.json
 
 # Lavalink
 Lavalink/
 
 # Applio ( except API )
 Applio/*
-!Applio/API/
+!Applio/main_tts.py
+!Applio/tts_api.py
 
 # AICoverGen
 AICoverGen/
