@@ -17,7 +17,9 @@ public class GeminiChat
     {
         _apiKey = apiKey;
         _httpClient = new HttpClient();
-        _prompt = File.ReadAllText("../../../Engine/Gemini/Prompt/prompt.txt");
+        // Đọc nội dung prompt từ file
+        string promptFilePath = Path.Combine(AppContext.BaseDirectory, "../../../Engine/Gemini/Prompt/prompt.txt");
+        _prompt = File.ReadAllText(Path.GetFullPath(promptFilePath));
     }
 
     public async Task<string> RunGeminiAPI(string messageContent, string username, string chatHistoryPath)
@@ -34,6 +36,7 @@ public class GeminiChat
             catch (Exception ex)
             {
                 chatHistory = new List<Dictionary<string, object>>();
+                Console.WriteLine(ex.Message);
             }
 
             // Tạo contents list với prompt đầu tiên
@@ -42,10 +45,7 @@ public class GeminiChat
                 new
                 {
                     role = "user",
-                    parts = new[]
-                    {
-                        new { text = _prompt }
-                    }
+                    parts = new[] { new { text = _prompt } }
                 }
             };
 
@@ -54,7 +54,7 @@ public class GeminiChat
             {
                 var parts = message["parts"];
                 string text;
-                
+
                 // Xử lý parts tùy thuộc vào kiểu dữ liệu
                 if (parts is JsonElement jsonElement)
                 {
@@ -72,10 +72,7 @@ public class GeminiChat
                 contents.Add(new
                 {
                     role = message["role"].ToString(),
-                    parts = new[]
-                    {
-                        new { text = text }
-                    }
+                    parts = new[] { new { text = text } }
                 });
             }
 
@@ -83,10 +80,7 @@ public class GeminiChat
             contents.Add(new
             {
                 role = "user",
-                parts = new[]
-                {
-                    new { text = $"{username}: {messageContent}" }
-                }
+                parts = new[] { new { text = $"{username}: {messageContent}" } }
             });
 
             var requestBody = new
@@ -106,11 +100,14 @@ public class GeminiChat
 
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
 
+            // Gửi yêu cầu POST tới API
             var response = await _httpClient.PostAsync($"{API_URL}?key={_apiKey}", content);
             var responseContent = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
             {
+                string responseMessage = response.ToString();
+                Console.WriteLine(responseMessage);
                 return "Xin lỗi, hiện tại em không thể trả lời được. Anh thử lại sau nhé~";
             }
 
@@ -134,11 +131,13 @@ public class GeminiChat
             }
 
             var responseData = JsonSerializer.Deserialize<JsonElement>(responseContent);
+            // Trích xuất câu trả lời từ API
             var modelResponse = responseData.GetProperty("candidates")[0]
                                          .GetProperty("content")
                                          .GetProperty("parts")[0]
                                          .GetProperty("text")
                                          .GetString();
+
             // Thêm tin nhắn mới vào history với định dạng mong muốn
             chatHistory.Add(new Dictionary<string, object>
             {
@@ -153,8 +152,8 @@ public class GeminiChat
             });
 
             // Ghi lại chat history
-            var options = new JsonSerializerOptions 
-            { 
+            var options = new JsonSerializerOptions
+            {
                 WriteIndented = true,
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             };
@@ -162,7 +161,7 @@ public class GeminiChat
             var serializedHistory = JsonSerializer.Serialize(chatHistory, options);
             await File.WriteAllTextAsync(chatHistoryPath, serializedHistory);
 
-            return modelResponse;
+            return modelResponse != null ? modelResponse : "Có lỗi khi gọi Api đến Gemini";
         }
         catch (Exception ex)
         {

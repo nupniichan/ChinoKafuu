@@ -105,7 +105,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                         embed = new DiscordEmbedBuilder()
                             .WithTitle(":loud_sound: Nhạc đang phát")
                             .WithDescription($"Hiện tại em đang phát: [{track.Title}]({track.Uri}) - {track.Duration}")
-                            .WithColor(Helper.GetRandomDiscordColor());
+                            .WithColor(Utils.GetRandomDiscordColor());
                     }
                     else
                     {

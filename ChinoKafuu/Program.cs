@@ -38,7 +38,7 @@ internal sealed class Program
             AutoReconnect = true
         });
 
-        if (!Helper.SkipLavalink)
+        if (!Utils.SkipLavalink)
         {
             builder.Services.AddLavalink();
         }
@@ -129,7 +129,7 @@ file sealed class ApplicationHost : BackgroundService
         slashCommands.RegisterCommands<AnilistSlashCommand>();
         slashCommands.RegisterCommands<OsuSlashCommand>();
 
-        if (!Helper.SkipLavalink)
+        if (!Utils.SkipLavalink)
         {
             slashCommands.RegisterCommands<MusicCommands>();
         }
@@ -178,7 +178,7 @@ file sealed class ApplicationHost : BackgroundService
         var defaultChannel = e.Guild.GetDefaultChannel();
         string welcomeGifUrl = "https://cdn.discordapp.com/attachments/1023808975185133638/1143428547642409080/gochiusa-welcome.gif";
         var welcomeEmbed = new DiscordEmbedBuilder()
-            .WithColor(Helper.GetRandomDiscordColor())
+            .WithColor(Utils.GetRandomDiscordColor())
             .WithTitle($"Ohayo/Konichiwa/Konbawa {e.Member.Username} đã vào quán")
             .WithDescription("Mong bạn sẽ có trải nghiệm vui vẻ ở quán của mình~")
             .WithThumbnail(e.Member.AvatarUrl)

@@ -1,12 +1,14 @@
 using System;
+using System.IO;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
-using System.IO;
 
 public class TTSApi
 {
     private readonly HttpClient _httpClient;
+    // cần sửa
+    private readonly string URL = "http://127.0.0.1:5000";
     public TTSApi()
     {
         _httpClient = new HttpClient();
@@ -14,75 +16,64 @@ public class TTSApi
 
     public async Task<string> GenerateTTS(
         string message,
-        string outputFolder = "resultfolder",
-        string outputFile = "result.wav"
-        )
+        string outputFolder,
+        string outputFile
+    )
     {
         try
         {
-            Directory.CreateDirectory(outputFolder);
-            string fullOutputPath = Path.Combine(outputFolder, outputFile);
+            Directory.CreateDirectory(outputFolder); 
 
             // Chuẩn bị dữ liệu request
             var requestData = new
             {
-                data = new object[]
-                {
-                    message,                    // Text to speak
-                    "ja-JP-NanamiNeural",      // Voice
-                    0,                         // TTS rate
-                    3,                         // Pitch
-                    4,                         // Filter radius
-                    0.6,                       // Index rate
-                    1,                         // Volume envelope
-                    0.5,                       // Protect
-                    256,                       // Hop length
-                    "rmvpe",                   // F0 method
-                    "result",                  // Output TTS path
-                    fullOutputPath,            // Output RVC path
-                    @"logs\chino-kafuu\chino-kafuu.pth",           // PTH path
-                    @"logs\chino-kafuu\added_IVF209_Flat_nprobe_1_chino-kafuu_v2.index", // Index path
-                    false,                     // Split audio
-                    true,                      // F0 autotune
-                    true,                      // Clean audio
-                    0.5,                       // Clean strength
-                    "WAV",                     // Export format
-                    false,                     // Upscale audio
-                    new { path = "https://github.com/gradio-app/gradio/raw/main/test/test_files/sample_file.pdf" }, // F0 file
-                    "contentvec",              // Embedder model
-                    null                       // Embedder model custom
-                }
+                message = message,
+                guildId = Path.GetFileName(outputFolder) 
             };
 
-            // Gửi request đầu tiên để lấy EVENT_ID
+            // Gửi request đến Flask server
             var content = new StringContent(
                 JsonSerializer.Serialize(requestData),
                 System.Text.Encoding.UTF8,
                 "application/json");
 
-            var response = await _httpClient.PostAsync("/call/run_tts_script", content);
+            var response = await _httpClient.PostAsync("http://127.0.0.1:5000/tts", content);
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"Initial request failed: {response.StatusCode}");
+                throw new Exception($"Request failed: {response.StatusCode}");
             }
 
-            var responseContent = await response.Content.ReadAsStringAsync();
-            var eventId = JsonSerializer.Deserialize<JsonElement>(responseContent)
-                .GetProperty("event_id").GetString();
+            // Parse kết quả từ server
+            using var jsonDoc = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+            var root = jsonDoc.RootElement;
 
-            // Gửi request thứ hai để lấy kết quả
-            var resultResponse = await _httpClient.GetAsync($"/call/run_tts_script/{eventId}");
-            if (!resultResponse.IsSuccessStatusCode)
+            if (root.GetProperty("success").GetBoolean())
             {
-                throw new Exception($"Result request failed: {resultResponse.StatusCode}");
-            }
+                string relativeFilePath = root.GetProperty("file_path").GetString();
 
-            var result = await resultResponse.Content.ReadAsStringAsync();
-            return result;
+                // Tải file từ Flask server
+                var fileResponse = await _httpClient.GetAsync($"http://127.0.0.1:5000/download?file={Uri.EscapeDataString(relativeFilePath)}");
+                if (!fileResponse.IsSuccessStatusCode)
+                {
+                    throw new Exception($"File download failed: {fileResponse.StatusCode}");
+                }
+
+                string fullOutputPath = Path.Combine(outputFolder, outputFile);
+
+                // Lưu file vào thư mục đầu ra
+                await using var fileStream = new FileStream(fullOutputPath, FileMode.Create, FileAccess.Write);
+                await fileResponse.Content.CopyToAsync(fileStream);
+
+                return fullOutputPath; // Trả về đường dẫn đầy đủ của file
+            }
+            else
+            {
+                throw new Exception($"TTS generation failed: {root.GetProperty("error").GetString()}");
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error in TTS generation: {ex.Message}");
+            Console.WriteLine($"Error in GenerateTTS: {ex.Message}");
             throw;
         }
     }

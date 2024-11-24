@@ -3,7 +3,6 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.VoiceNext;
 using DSharpPlus;
 using NAudio.Wave;
-using Python.Runtime;
 using System.Collections.Concurrent;
 using ChinoBot.config;
 using System.Text.Json;
@@ -24,8 +23,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         private readonly ConcurrentDictionary<ulong, SemaphoreSlim> _voiceLocks = new();
         private readonly ConcurrentDictionary<ulong, Queue<string>> _audioQueues = new();
         private readonly HttpClient _httpClient = new HttpClient();
-        private const string TTS_API_URL = "http://localhost:5000/tts";
-
+        private readonly TTSApi _ttsApi = new TTSApi();
         public ChinoConversation(DiscordClient client)
         {
             _client = client;
@@ -177,13 +175,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 
                             if (queue.Count == 1)
                             {
-                                string resultFilePath = Path.Combine(
-                                    jsonReader.conversationHistory,
-                                    "VoiceHistory",
-                                    guild.Id.ToString(),
-                                    audioFile
-                                );
-                                await PlayVoice(resultFilePath, connection, guild.Id);
+                                await PlayVoice(audioFile, connection, guild.Id);
                             }
                         }
                         catch (Exception ex)
@@ -194,7 +186,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error in translation process: {ex}");
+                    Console.WriteLine($"Phát sinh lỗi trong quá trình dịch: {ex}");
                 }
             }
         }
@@ -203,33 +195,12 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         {
             try
             {
-                var requestData = new
-                {
-                    message = message,
-                    guildId = guildId
-                };
+                string outputFolder = Path.Combine("..", "..", "..", "CommunicationHistory", "VoiceHistory", guildId.ToString());
+                string outputFile = $"result_{guildId}_{Guid.NewGuid()}.wav";
 
-                var response = await _httpClient.PostAsync(
-                    TTS_API_URL,
-                    new StringContent(
-                        JsonSerializer.Serialize(requestData),
-                        Encoding.UTF8,
-                        "application/json"
-                    )
-                );
+                string generatedFile = await _ttsApi.GenerateTTS(message, outputFolder, outputFile);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    using var jsonDoc = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
-                    var root = jsonDoc.RootElement;
-                    
-                    if (root.GetProperty("success").GetBoolean())
-                    {
-                        return Path.GetFileName(root.GetProperty("file_path").GetString());
-                    }
-                }
-
-                throw new Exception($"TTS API call failed: {response.StatusCode}");
+                return generatedFile; 
             }
             catch (Exception ex)
             {
@@ -237,7 +208,6 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                 throw;
             }
         }
-
         private async Task PlayVoice(string filePath, VoiceNextConnection connection, ulong guildId, float volume = 0.5f)
         {
             var voiceLock = GetVoiceLock(guildId);
@@ -256,13 +226,9 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 
                 if (_audioQueues.TryGetValue(guildId, out var queue))
                 {
-                    if (queue.TryPeek(out var nextAudioFile))
+                    if (queue.TryPeek(out var nextAudioFile) && nextAudioFile == filePath)
                     {
-                        string currentFilePath = Path.Combine(jsonReader.conversationHistory, "VoiceHistory", guildId.ToString(),nextAudioFile);
-                        if (currentFilePath == filePath)
-                        {
-                            queue.TryDequeue(out _);
-                        }
+                        queue.TryDequeue(out _);
                     }
                 }
                 await ProcessNextInQueue(guildId, connection);
@@ -307,8 +273,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
             {
                 if (queue.TryDequeue(out var nextAudioFile))
                 {
-                    string resultFilePath = Path.Combine(jsonReader.conversationHistory, "VoiceHistory", guildId.ToString(), nextAudioFile);
-                    await PlayVoice(resultFilePath, connection, guildId);
+                    await PlayVoice(nextAudioFile, connection, guildId);
                 }
                 if (queue.Count == 0)
                 {

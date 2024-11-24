@@ -204,7 +204,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 .WithThumbnail(media.coverImage.medium)
                 .WithImageUrl(media.bannerImage);
 
-            string utcOffsetString = Helper.GetUtcOffsetString();
+            string utcOffsetString = Utils.GetUtcOffsetString();
 
             if (isAnime)
             {
@@ -343,7 +343,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
         {
             var doc = new HtmlDocument();
             doc.LoadHtml(description);
-            return Helper.ProcessHtmlToMarkdown(doc.DocumentNode);
+            return Utils.ProcessHtmlToMarkdown(doc.DocumentNode);
         }
 
         private string FormatDate(MediaDate date)

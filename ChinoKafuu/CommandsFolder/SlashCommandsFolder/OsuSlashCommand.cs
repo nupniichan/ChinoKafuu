@@ -148,7 +148,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                     string dateTimeString = user.DateTime.ToString("dd/MM/yyyy HH:mm:ss");
 
                     // create string description to store properties
-                    string resultString = $"**🏆 Rank:** {Helper.getOsuRank(user.Rank, user.EnabledMods.ToString(), ctx)}\n" +
+                    string resultString = $"**🏆 Rank:** {Utils.getOsuRank(user.Rank, user.EnabledMods.ToString(), ctx)}\n" +
                                           $"**Combo:** x{user.MaxCombo}/{beatmapInfo.MaxCombo}\n" +
                                           $"**Details:** [{user.Count300}/{user.Count100}/{user.Count50}/{user.CountMiss}]\n" +
                                           $"**PP:** {pp:F2}\n" +
@@ -237,7 +237,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                     Beatmap beatMapInfo = beatmapArray.FirstOrDefault();
 
                     string formattedDateTime = userBestScore.DateTime.ToString("dd/MM/yyyy HH:mm:ss");
-                    string rankEmoji = Helper.getOsuRank(userBestScore.Rank.ToString(), mode.ToString(), ctx);
+                    string rankEmoji = Utils.getOsuRank(userBestScore.Rank.ToString(), mode.ToString(), ctx);
                     string beatmapTitle = $"[**{beatMapInfo?.Title}**]({beatMapInfo?.GetUrl()}) - ID: {beatMapInfo?.BeatmapId}" + "\n" +
                                           $"**Difficulty Rating: ** {beatMapInfo?.Version} ({beatMapInfo?.DiffecultyRating:F2}★) +{userBestScore?.EnabledMods}" + "\n" +
                                           $"**🏆 Rank: ** {rankEmoji}" + "\n" +
@@ -283,9 +283,9 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 Beatmap beatmapInformation = beatmapArray[0];
                 if (beatmapInformation != null)
                 {
-                    string approvedDate = Helper.FormatDate(beatmapInformation.ApprovedDate);
-                    string lastUpdate = Helper.FormatDate(beatmapInformation.LastUpdate);
-                    string submitDate = Helper.FormatDate(beatmapInformation.SubmitDate);
+                    string approvedDate = Utils.FormatDate(beatmapInformation.ApprovedDate);
+                    string lastUpdate = Utils.FormatDate(beatmapInformation.LastUpdate);
+                    string submitDate = Utils.FormatDate(beatmapInformation.SubmitDate);
 
                     string descriptionString = $"**ApproveStatus:** {beatmapInformation.Approved} ({approvedDate})" + "\n" +
                                                $"**Mode: ** {beatmapInformation.Mode}" + "\n" +

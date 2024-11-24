@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ChinoBot
 {
-    public class Helper
+    public class Utils
     {
         public static bool SkipLavalink => System.Environment.GetEnvironmentVariable("SKIP_LAVALINK") == "true";
         public static DiscordColor GetRandomDiscordColor()
