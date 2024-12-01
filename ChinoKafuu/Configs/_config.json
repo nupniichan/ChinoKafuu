@@ -1,0 +1,10 @@
+﻿{
+  "token": "YOUR_DISCORD_TOKEN", // You can generate your bot token here https://discord.com/developers/applications
+  "prefix": ">", // You can change if you want
+  "osuToken": "YOUR_OSU_TOKEN", // You can get one here https://osu.ppy.sh/home/account/edit scroll down to Old api
+  "geminiAPIKey": "YOUR_GEMINI_KEY", // Get your here https://aistudio.google.com/apikey
+  "geminiTranslateAPIKey": "YOUR_GEMINI_KEY", // Get your here https://aistudio.google.com/apikey
+  "allowChannelID_gemini": "YOUR_CHANNEL_ALLOWED", // Currently i only support 1 channel to chat
+  "userDefaultRoleName": "YOUR_DEFAULT_ROLE",
+  "conversationHistory": "..\\..\\..\\CommunicationHistory\\" // After you done that all remove the "_" before the config.json
+}

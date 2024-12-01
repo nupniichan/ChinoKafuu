@@ -19,8 +19,6 @@
     <PackageReference Include="GraphQL.Client.Abstractions" Version="6.1.0" />
     <PackageReference Include="GraphQL.Client.Serializer.Newtonsoft" Version="6.1.0" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.71" />
-    <PackageReference Include="Lavalink4NET" Version="4.0.25" />
-    <PackageReference Include="Lavalink4NET.DSharpPlus" Version="4.0.25" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
     <PackageReference Include="NAudio" Version="2.2.1" />

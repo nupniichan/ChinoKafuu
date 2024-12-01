@@ -12,10 +12,7 @@ using ChinoBot.CommandsFolder.NonePrefixCommandFolder;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Lavalink4NET.Extensions;
-using System.Data;
 using DSharpPlus.VoiceNext;
-using System.Collections.Concurrent;
 
 internal sealed class Program
 {
@@ -38,14 +35,6 @@ internal sealed class Program
             AutoReconnect = true
         });
 
-        if (!Utils.SkipLavalink)
-        {
-            builder.Services.AddLavalink();
-        }
-        else
-        {
-            Console.WriteLine("Skipping Lavalink initialization in CI environment");
-        }
         try
         {
             builder.Build().Run();
@@ -129,11 +118,6 @@ file sealed class ApplicationHost : BackgroundService
         slashCommands.RegisterCommands<AnilistSlashCommand>();
         slashCommands.RegisterCommands<OsuSlashCommand>();
 
-        if (!Utils.SkipLavalink)
-        {
-            slashCommands.RegisterCommands<MusicCommands>();
-        }
-
         await _discordClient.ConnectAsync().ConfigureAwait(false);
 
         var readyTaskCompletionSource = new TaskCompletionSource();
@@ -145,17 +129,6 @@ file sealed class ApplicationHost : BackgroundService
         _discordClient.Ready += SetResult;
         await readyTaskCompletionSource.Task.ConfigureAwait(false);
         _discordClient.Ready -= SetResult;
-
-        if (Environment.GetEnvironmentVariable("CI") == "true")
-        {
-            Console.WriteLine("Detected CI environment. Bot will auto-shutdown after 30 seconds.");
-            _ = Task.Run(async () =>
-            {
-                await Task.Delay(TimeSpan.FromSeconds(30));
-                await _discordClient.DisconnectAsync();
-                Environment.Exit(0);
-            });
-        }
 
         await Task.Delay(Timeout.InfiniteTimeSpan, stoppingToken).ConfigureAwait(false);
     }

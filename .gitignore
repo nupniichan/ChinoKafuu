@@ -304,8 +304,7 @@ cython_debug/
 #.idea/
 
 # History chat
-HistoryChat/
-VoiceHistory/
+CommunicationHistory/
 
 # Config file
 ChinoKafuu/Configs/config.json
@@ -318,7 +317,3 @@ Applio/*
 
 # AICoverGen
 AICoverGen/
-
-# LavaLink
-LavaLink/
-!LavaLink/Dockerfile
