@@ -23,7 +23,6 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         private readonly ConcurrentDictionary<ulong, SemaphoreSlim> _voiceLocks = new();
         private readonly ConcurrentDictionary<ulong, Queue<string>> _audioQueues = new();
         private readonly HttpClient _httpClient = new HttpClient();
-        private readonly TTSApi _ttsApi = new TTSApi();
         public ChinoConversation(DiscordClient client)
         {
             _client = client;
@@ -162,7 +161,6 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                     {
                         try
                         {
-                            // Sử dụng kết quả đã dịch cho TTS
                             string audioFile = await RunTTSScript(translateResult, guild.Id);
 
                             if (!_audioQueues.TryGetValue(guild.Id, out var queue))
@@ -195,19 +193,29 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         {
             try
             {
-                string outputFolder = Path.Combine("..", "..", "..", "CommunicationHistory", "VoiceHistory", guildId.ToString());
-                string outputFile = $"result_{guildId}_{Guid.NewGuid()}.wav";
+                string baseDirectory = AppContext.BaseDirectory;
+                string outputFolder = Path.Combine(baseDirectory, "..", "..", "..", "CommunicationHistory", "VoiceHistory", guildId.ToString());
+                Directory.CreateDirectory(outputFolder);
 
-                string generatedFile = await _ttsApi.GenerateTTS(message, outputFolder, outputFile);
+                using var httpClient = new HttpClient();
+                var ttsService = new TTSApi(httpClient);
 
-                return generatedFile; 
+                string generatedFileName = await ttsService.GenerateTTS(message, guildId.ToString());
+
+                string fileName = Path.GetFileName(generatedFileName);
+                string localFilePath = Path.Combine(outputFolder, fileName);
+
+                await ttsService.DownloadGeneratedTTS(guildId, fileName, localFilePath);
+
+                return localFilePath;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in RunTTSScript: {ex.Message}");
+                Console.WriteLine($"Lỗi trong RunTTSScript: {ex.Message}");
                 throw;
             }
         }
+
         private async Task PlayVoice(string filePath, VoiceNextConnection connection, ulong guildId, float volume = 0.5f)
         {
             var voiceLock = GetVoiceLock(guildId);

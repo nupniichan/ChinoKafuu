@@ -1,80 +1,77 @@
 using System;
 using System.IO;
 using System.Net.Http;
-using System.Text.Json;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
+
+public class TTSRequest
+{
+    public string Text { get; set; }
+    public string guild_id { get; set; }
+    public string Voice { get; set; } = "ja-JP-NanamiNeural";
+    public int Rate { get; set; } = 0;
+    public int Pitch { get; set; } = 3;
+    public int FilterRadius { get; set; } = 4;
+    public float IndexRate { get; set; } = 0.6f;
+    public int VolumeEnvelope { get; set; } = 1;
+    public float Protect { get; set; } = 0.5f;
+    public int HopLength { get; set; } = 256;
+    public string F0Method { get; set; } = "rmvpe";
+    public bool SplitAudio { get; set; } = false;
+    public bool F0Autotune { get; set; } = false;
+    public float F0AutotuneStrength { get; set; } = 0.12f;
+    public bool CleanAudio { get; set; } = true;
+    public float CleanStrength { get; set; } = 0.5f;
+    public string ExportFormat { get; set; } = "wav";
+    public bool UpscaleAudio { get; set; } = false;
+    public string EmbedderModel { get; set; } = "contentvec";
+}
 
 public class TTSApi
 {
     private readonly HttpClient _httpClient;
-    // cần sửa
-    private readonly string URL = "http://127.0.0.1:5000";
-    public TTSApi()
+
+    public TTSApi(HttpClient httpClient)
     {
-        _httpClient = new HttpClient();
+        _httpClient = httpClient;
     }
 
-    public async Task<string> GenerateTTS(
-        string message,
-        string outputFolder,
-        string outputFile
-    )
+    public async Task<string> GenerateTTS(string message, string guildId)
     {
-        try
+        var ttsRequest = new TTSRequest
         {
-            Directory.CreateDirectory(outputFolder); 
-
-            // Chuẩn bị dữ liệu request
-            var requestData = new
-            {
-                message = message,
-                guildId = Path.GetFileName(outputFolder) 
-            };
-
-            // Gửi request đến Flask server
-            var content = new StringContent(
-                JsonSerializer.Serialize(requestData),
-                System.Text.Encoding.UTF8,
-                "application/json");
-
-            var response = await _httpClient.PostAsync("http://127.0.0.1:5000/tts", content);
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new Exception($"Request failed: {response.StatusCode}");
-            }
-
-            // Parse kết quả từ server
-            using var jsonDoc = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
-            var root = jsonDoc.RootElement;
-
-            if (root.GetProperty("success").GetBoolean())
-            {
-                string relativeFilePath = root.GetProperty("file_path").GetString();
-
-                // Tải file từ Flask server
-                var fileResponse = await _httpClient.GetAsync($"http://127.0.0.1:5000/download?file={Uri.EscapeDataString(relativeFilePath)}");
-                if (!fileResponse.IsSuccessStatusCode)
-                {
-                    throw new Exception($"File download failed: {fileResponse.StatusCode}");
-                }
-
-                string fullOutputPath = Path.Combine(outputFolder, outputFile);
-
-                // Lưu file vào thư mục đầu ra
-                await using var fileStream = new FileStream(fullOutputPath, FileMode.Create, FileAccess.Write);
-                await fileResponse.Content.CopyToAsync(fileStream);
-
-                return fullOutputPath; // Trả về đường dẫn đầy đủ của file
-            }
-            else
-            {
-                throw new Exception($"TTS generation failed: {root.GetProperty("error").GetString()}");
-            }
-        }
-        catch (Exception ex)
+            Text = message,
+            guild_id = guildId
+        };
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync("http://localhost:8000/tts", ttsRequest);
+        if (!response.IsSuccessStatusCode)
         {
-            Console.WriteLine($"Error in GenerateTTS: {ex.Message}");
-            throw;
+            string responseContent = await response.Content.ReadAsStringAsync();
+            throw new Exception($"Gọi api thất bại: {response.ReasonPhrase} - {responseContent}");
         }
+
+        var result = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+        return result["file_name"];
+    }
+
+    public async Task DownloadGeneratedTTS(ulong guildId, string fileName, string outputPath)
+    {
+        string outputDirectory = Path.GetDirectoryName(outputPath);
+
+        Directory.CreateDirectory(outputDirectory);
+
+        string baseApiUrl = "http://localhost:8000";
+        string decodedFileName = System.Web.HttpUtility.UrlDecode(fileName);
+        string downloadUrl = $"{baseApiUrl}/get-generated/{guildId}/{decodedFileName}";
+
+        HttpResponseMessage response = await _httpClient.GetAsync(downloadUrl);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"Tải file thất bại: {response.ReasonPhrase}");
+        }
+
+        await using FileStream fs = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None);
+        await response.Content.CopyToAsync(fs);
     }
 }
