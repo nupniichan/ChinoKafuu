@@ -311,8 +311,7 @@ ChinoKafuu/Configs/config.json
 
 # Applio ( except API )
 Applio/*
-!Applio/main_tts.py
-!Applio/tts_api.py
+!Applio/api.py
 !Applio/Dockerfile
 
 # AICoverGen
