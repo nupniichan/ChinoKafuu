@@ -51,6 +51,7 @@ public class TTSApi
         }
 
         var result = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+        Console.WriteLine("Response keys: " + string.Join(", ", result.Keys));
         return result["file_name"];
     }
 

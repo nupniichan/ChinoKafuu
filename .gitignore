@@ -312,6 +312,7 @@ ChinoKafuu/Configs/config.json
 # Applio ( except API )
 Applio/*
 !Applio/api.py
+!Applio/requirements.txt
 !Applio/Dockerfile
 
 # AICoverGen

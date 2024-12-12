@@ -5,7 +5,7 @@ import requests
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import uvicorn
-from fastapi import BackgroundTask
+from fastapi import BackgroundTasks
 from typing import Optional
 from fastapi.responses import FileResponse
 from datetime import datetime
@@ -32,7 +32,6 @@ class TTSRequest(BaseModel):
     clean_audio: bool = True
     clean_strength: float = 0.5
     export_format: str = "wav"
-    upscale_audio: bool = False
     embedder_model: str = "contentvec"
     pth_path: str = "logs/chino-kafuu/chino-kafuu.pth"
     index_path: str = "logs/chino-kafuu/added_IVF209_Flat_nprobe_1_chino-kafuu_v2.index"
@@ -132,7 +131,6 @@ async def text_to_speech(request: TTSRequest):
             clean_audio=request.clean_audio,
             clean_strength=request.clean_strength,
             export_format=request.export_format,
-            upscale_audio=request.upscale_audio,
             f0_file="",
             embedder_model=request.embedder_model
         )
@@ -146,21 +144,21 @@ async def text_to_speech(request: TTSRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi TTS: {str(e)}")
     
-# Get tts file that generated before
 @app.get("/get-generated/{guild_id}/{file_name}")
-async def download_tts_file(guild_id: str, file_name: str):
+async def download_tts_file(guild_id: str, file_name: str, background_tasks: BackgroundTasks):
     file_path = os.path.join("tts_output", guild_id, file_name)
     
     if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail="File không tồn tại. TTS bị sai rồi sao?")
-    
-    try:
-        response = FileResponse(file_path, media_type="audio/wav", headers={"Content-Disposition": f"attachment; filename={file_name}"})
+        raise HTTPException(status_code=404, detail="File không tồn tại.")
 
-        # After giving the file to client, remove the current file exist on api folder make sure that the resource wasnt wasted
-        response.background = BackgroundTask(remove_file, file_path)
+    try:
+        background_tasks.add_task(remove_file, file_path)
         
-        return response
+        return FileResponse(
+            file_path,
+            media_type="audio/wav",
+            headers={"Content-Disposition": f"attachment; filename={file_name}"}
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi tải file: {str(e)}")
 

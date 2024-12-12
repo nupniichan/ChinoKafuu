@@ -72,7 +72,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                 await _serviceLock.WaitAsync();
                 try
                 {
-                    // chờ fix
+                    // Im working on it so please wait
                     await message.RespondAsync("Em lười quá không xem ảnh đâu~");
                 }
                 finally
