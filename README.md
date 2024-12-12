@@ -99,4 +99,4 @@ Any contributions are highly appreciated! Feel free to submit issues or pull req
 
 ---
 
-<div align="center">Thank you for using Chino Kafu! More features are coming soon~.</div>
+<div align="center">Thank you for visiting Chino Kafu! More features are coming soon ❤️.</div>
