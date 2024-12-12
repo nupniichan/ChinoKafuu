@@ -14,6 +14,7 @@ Welcome to Chino Kafu, the Discord bot I've crafted using the dotnet framework. 
 
 ## 🚀 Get started
 To get started, you must download the release file then follow my instructions:
+- Download newest release file
 - Add your token to `_config.json`. After done that please rename the file to 'config.json'
 - Use cmd ( or venv it's on you ) cd to Applio folder and use this command ```pip install -r requirement.txt``` to install package needed
 
@@ -29,6 +30,7 @@ To get started, you must download the release file then follow my instructions:
 ## 🆕**New update**
 - Due to Youtube update so Lavalink is not working anymore on VPS so i decided to remove Youtube music commands
 - Improve response time of chatting
+- Update Applio to newest version (3.2.8) and sync to make sure that api can run core.py of Applio
 
 ---
 
@@ -37,12 +39,12 @@ To get started, you must download the release file then follow my instructions:
 - Use cmd and cd to Applio folder and run api.py
 - For example:
 ```bash
-cd E:\ChinoKafuu\Applio
+cd E:\ChinoKafuu\Applio # Change to your path
 uvicorn api:app --reload
 ```
 - Run c# console app
-```csharp
-cd E:\ChinoKafuu\ChinoKafuu
+```bash
+cd E:\ChinoKafuu\ChinoKafuu # Change to your path
 dotnet restore
 dotnet build
 dotnet run
@@ -73,7 +75,7 @@ Chino Kafu provide many of features for your Discord server:
 - Create my own voice dataset and train it
 - Add current datetime to make sure Chino know what time is it
 - Create dockerfile
-- 
+
 ---
 
 ## 📚 **Library used**
