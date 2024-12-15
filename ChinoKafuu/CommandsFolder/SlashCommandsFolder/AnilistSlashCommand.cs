@@ -1,12 +1,16 @@
-﻿using AnilistAPI;
-using AnilistAPI.AnilistAPI;
-using AnilistAPI.AnilistAPI.Enum;
-using AnilistAPI.Objects.Object;
-using ChinoBot.Engine.Anilist.Objects;
+﻿using ChinoKafuu.Utils;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using HtmlAgilityPack;
+using SimpleAnilist.AnilistAPI.Enum;
+using SimpleAnilist.Models.Character;
+using SimpleAnilist.Models.Media;
+using SimpleAnilist.Models.Staff;
+using SimpleAnilist.Models.User;
+using SimpleAnilist.Services;
+using System.Net;
+using System.Text.RegularExpressions;
 
 namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 {
@@ -14,6 +18,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
     {
         private const string ANILIST_LOGO = "https://media.discordapp.net/attachments/1023808975185133638/1143013784584208504/AniList_logo.svg.png?width=588&height=588";
         private const string ANILIST_URL = "anilist.co";
+        private SimpleAniListService anilistService = new SimpleAniListService();
 
         [SlashCommand("AniHelp", "Hiển thị trợ giúp về các lệnh Anilist")]
         public async Task AniHelpCommand(InteractionContext ctx)
@@ -38,7 +43,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
         public async Task AniUserCommand(InteractionContext ctx, [Option("name", "Tên profile là gì?")] string name)
         {
             await ctx.DeferAsync();
-            var user = await AnilistGraphQL.GetUserAsync(AniQuery.UserSearchQuery, new { name, asHtml = false });
+            var user = await anilistService.SearchUserAsync(name);
 
             if (user == null)
             {
@@ -54,7 +59,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
         public async Task AniUserFavoriteCommand(InteractionContext ctx, [Option("user", "Tên của người bạn cần tra là ai nè~")] string name)
         {
             await ctx.DeferAsync();
-            var user = await AnilistGraphQL.GetUserAsync(AniQuery.UserSearchQuery, new { name, asHtml = false });
+            var user = await anilistService.SearchUserAsync(name);
 
             if (user == null)
             {
@@ -69,20 +74,20 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
         [SlashCommand("Anime", "Xem thông tin về bộ anime")]
         public async Task AnimeCommand(InteractionContext ctx, [Option("name", "Tên anime")] string name)
         {
-            await SearchMediaCommand(ctx, name, AniMediaType.ANIME);
+            await SearchMediaCommand(ctx, name, MediaType.ANIME);
         }
 
         [SlashCommand("Manga", "Xem thông tin về bộ manga")]
         public async Task MangaCommand(InteractionContext ctx, [Option("name", "Tên manga")] string name)
         {
-            await SearchMediaCommand(ctx, name, AniMediaType.MANGA);
+            await SearchMediaCommand(ctx, name, MediaType.MANGA);
         }
 
         [SlashCommand("AniCharacter", "Xem thông tin về nhân vật")]
         public async Task CharacterInformationCommand(InteractionContext ctx, [Option("name", "Tên nhân vật")] string name)
         {
             await ctx.DeferAsync();
-            var character = await AnilistGraphQL.GetCharacterAsync(AniQuery.CharacterSearchQuery, new { search = name, asHtml = false });
+            var character = await anilistService.SearchCharacterAsync(name);
             if (character == null)
             {
                 await SendErrorEmbed(ctx, $"Không tìm thấy nhân vật: {name}");
@@ -97,7 +102,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
         public async Task StaffInformationCommand(InteractionContext ctx, [Option("name", "Tên của người đó")] string name)
         {
             await ctx.DeferAsync();
-            var staff = await AnilistGraphQL.GetStaffAsync(AniQuery.StaffSearchQuery, new { search = name, asHtml = true });
+            var staff = await anilistService.SearchStaffAsync(name);
 
             if (staff == null)
             {
@@ -109,21 +114,20 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
         }
 
-        private async Task SearchMediaCommand(InteractionContext ctx, string search, AniMediaType type)
+        private async Task SearchMediaCommand(InteractionContext ctx, string search, MediaType type)
         {
             try
             {
                 await ctx.DeferAsync();
-                var query = type == AniMediaType.ANIME ? AniQuery.AnimeNameQuery : AniQuery.MangaNameQuery;
-                var media = await AnilistGraphQL.GetMediaAsync(query, new { search, type = Enum.GetName(typeof(AniMediaType), type), asHtml = true });
+                var media = await anilistService.SearchMediaByNameAsync(search, type);
 
                 if (media == null)
                 {
-                    await SendErrorEmbed(ctx, $"Không tìm thấy {(type == AniMediaType.ANIME ? "anime" : "manga")}: {search}");
+                    await SendErrorEmbed(ctx, $"Không tìm thấy {(type == MediaType.ANIME ? "anime" : "manga")}: {search}");
                     return;
                 }
 
-                var embed = CreateMediaEmbed(media, type == AniMediaType.ANIME);
+                var embed = CreateMediaEmbed(media, type == MediaType.ANIME);
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
             }
             catch (Exception e)
@@ -135,29 +139,48 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 
         private DiscordEmbed CreateUserEmbed(AniUser user)
         {
-            float daysWatched = (float)user.statistics.anime.minutesWatched / 60 / 24;
+            float daysWatched = user.statistics.anime.minutesWatched > 0
+                ? (float)user.statistics.anime.minutesWatched / 60 / 24
+                : 0;
+
             string userAbout = ProcessDescription(user.about);
 
-            return new DiscordEmbedBuilder()
+            if (string.IsNullOrWhiteSpace(userAbout))
+            {
+                userAbout = "*Không có mô tả*";
+            }
+
+            var embedBuilder = new DiscordEmbedBuilder()
                 .WithAuthor("AniList Profile", null, ANILIST_LOGO)
                 .WithTitle(user.name)
                 .WithUrl(user.siteUrl)
                 .WithDescription($"**ID: **{user.id}")
-                .AddField("**💬 Mô tả**", userAbout)
-                .AddField("\u2014", "\u200B")
-                .AddField("📊 Anime Stats", $"**Tổng bộ anime đã xem:** {user.statistics.anime.count} bộ \n " +
-                                            $"**Điểm trung bình:** {user.statistics.anime.meanScore}/100 \n " +
-                                            $"**Số ngày đã xem:** {daysWatched:F2} ngày \n " +
-                                            $"**Số tập đã xem:** {user.statistics.anime.episodesWatched} tập", false)
-                .AddField("📊 Manga Stats", $"**Số manga đã đọc:** {user.statistics.manga.count} bộ \n " +
-                                            $"**Điểm trung bình:** {user.statistics.manga.meanScore}/100 \n " +
-                                            $"**Số chapters đã đọc: **{user.statistics.manga.chaptersRead} chapters\n " +
-                                            $"**Số volumes đã đoc:** {user.statistics.manga.volumesRead} volumes", false)
-                .WithImageUrl(user.bannerImage)
+                .AddField("**💬 Mô tả**", userAbout, false)
+                .AddField("\u2014", "\u200B", false)
+                .AddField("📊 **Anime Stats**",
+                    $"**Tổng bộ anime đã xem:** {user.statistics.anime.count:N0} bộ\n" + 
+                    $"**Điểm trung bình:** {user.statistics.anime.meanScore:F2}/100\n" +
+                    $"**Số ngày đã xem:** {daysWatched:F2} ngày\n" +
+                    $"**Số tập đã xem:** {user.statistics.anime.episodesWatched:N0} tập",
+                    false)
+                .AddField("📚 **Manga Stats**",
+                    $"**Số manga đã đọc:** {user.statistics.manga.count:N0} bộ\n" +
+                    $"**Điểm trung bình:** {user.statistics.manga.meanScore:F2}/100\n" +
+                    $"**Số chapters đã đọc:** {user.statistics.manga.chaptersRead:N0} chapters\n" +
+                    $"**Số volumes đã đọc:** {user.statistics.manga.volumesRead:N0} volumes",
+                    false)
                 .WithColor(DiscordColor.Azure)
                 .WithFooter($"{ANILIST_URL}")
                 .WithThumbnail(user.avatar.medium);
+
+            if (!string.IsNullOrWhiteSpace(user.bannerImage))
+            {
+                embedBuilder.WithImageUrl(user.bannerImage);
+            }
+
+            return embedBuilder;
         }
+
 
         private DiscordEmbed CreateUserFavoriteEmbed(AniUser user)
         {
@@ -167,18 +190,27 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             string staffFavorites = string.Join("\n", user.favourites.staff.nodes.Select(c => $"[{c.name.first} {c.name.last}]({c.siteUrl})"));
             string studioFavorites = string.Join("\n", user.favourites.studios.nodes.Select(c => $"[{c.name}]({c.siteUrl})"));
 
+            string animeCount = user.favourites.anime.nodes.Count > 0 ? $"{user.favourites.anime.nodes.Count}" : "0";
+            string mangaCount = user.favourites.manga.nodes.Count > 0 ? $"{user.favourites.manga.nodes.Count}" : "0";
+            string characterCount = user.favourites.characters.nodes.Count > 0 ? $"{user.favourites.characters.nodes.Count}" : "0";
+            string staffCount = user.favourites.staff.nodes.Count > 0 ? $"{user.favourites.staff.nodes.Count}" : "0";
+            string studioCount = user.favourites.studios.nodes.Count > 0 ? $"{user.favourites.studios.nodes.Count}" : "0";
+
             return new DiscordEmbedBuilder()
                 .WithAuthor("AniList Favorite", null, ANILIST_LOGO)
                 .WithTitle(user.name)
-                .AddField(":star: Favorite Anime", string.IsNullOrEmpty(animeFavorites) ? "N/A" : animeFavorites)
-                .AddField(":star: Favorite Manga", string.IsNullOrEmpty(mangaFavorites) ? "N/A" : mangaFavorites)
-                .AddField(":star: Favorite Characters", string.IsNullOrEmpty(characterFavorites) ? "N/A" : characterFavorites)
-                .AddField(":star: Favorite Staffs", string.IsNullOrEmpty(staffFavorites) ? "N/A" : staffFavorites)
-                .AddField(":star: Favorite Studios", string.IsNullOrEmpty(studioFavorites) ? "N/A" : studioFavorites)
+                .AddField($":star: **Anime yêu thích - {animeCount} bộ**", string.IsNullOrEmpty(animeFavorites) ? $"**Không tìm thấy**" : $"{animeFavorites}\n\n", false)
+                .AddField($":star: **Manga yêu thích - {mangaCount} bộ**", string.IsNullOrEmpty(mangaFavorites) ? $"**Không tìm thấy**" : $"{mangaFavorites}\n\n", false)
+                .AddField($":star: **Nhân vật yêu thích - {characterCount}**", string.IsNullOrEmpty(characterFavorites) ? $"**Không tìm thấy**" : $"{characterFavorites}\n\n", false)
+                .AddField($":star: **Staff yêu thích - {staffCount} staff**", string.IsNullOrEmpty(staffFavorites) ? $"**Không tìm thấy**" : $"{staffFavorites}\n\n", true)
+                .AddField($":star: **Studio yêu thích - {studioCount} studio**", string.IsNullOrEmpty(studioFavorites) ? $"**Không tìm thấy**" : $"{studioFavorites}\n\n", true)
                 .AddField("Xem thêm tại đây", $"[Anilist]({user.siteUrl})")
                 .WithColor(DiscordColor.Azure)
                 .WithFooter($"{ANILIST_URL}")
-                .WithThumbnail(user.avatar.medium);
+                .WithThumbnail(user.avatar.medium)
+                .WithImageUrl(user.bannerImage ?? ANILIST_LOGO) 
+
+                .Build();
         }
 
         private DiscordEmbed CreateMediaEmbed(AniMedia media, bool isAnime)
@@ -188,9 +220,9 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             string endDate = media.endDate == null ? "N/A" : FormatDate(media.endDate);
             string status = media.status switch
             {
-                AniMediaStatus.FINISHED => "Đã hoàn thành",
-                AniMediaStatus.RELEASING => "Đang phát sóng",
-                AniMediaStatus.CANCELLED => "Đã bị huỷ",
+                MediaStatus.FINISHED => "Đã hoàn thành",
+                MediaStatus.RELEASING => "Đang phát sóng",
+                MediaStatus.CANCELLED => "Đã bị huỷ",
                 _ => "Chưa phát sóng"
             };
 
@@ -208,7 +240,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 
             if (isAnime)
             {
-                if (media.status == AniMediaStatus.FINISHED)
+                if (media.status == MediaStatus.FINISHED)
                 {
                     embed.AddField(":minidisc: Số tập", media.episodes.ToString(), true)
                          .AddField("⏱ Thời lượng", $"{media.duration} phút", true)
@@ -222,7 +254,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                          .AddField("🌐 Tên gốc", media.title.native, false)
                          .AddField("🛈 Thông tin thêm", $"[Anilist]({media.siteUrl})");
                 }
-                else if (media.status == AniMediaStatus.RELEASING)
+                else if (media.status == MediaStatus.RELEASING)
                 {
                     if (media.airingSchedule?.nodes?.FirstOrDefault() != null)
                     {
@@ -270,7 +302,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             }
             else
             {
-                if (media.status == AniMediaStatus.FINISHED)
+                if (media.status == MediaStatus.FINISHED)
                 {
                     embed.AddField(":hourglass_flowing_sand: Trạng thái: ", status, true)
                          .AddField(":calendar_spiral: Phát hành", $"{startDate} -> {endDate}", true)
@@ -281,7 +313,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                          .AddField("🌐 Tên gốc", media.title.native, false)
                          .AddField("🛈 Thông tin thêm", $"[Anilist]({media.siteUrl})");
                 }
-                else if (media.status == AniMediaStatus.RELEASING)
+                else if (media.status == MediaStatus.RELEASING)
                 {
                     embed.AddField(":hourglass_flowing_sand: Trạng thái", status, true)
                          .AddField(":calendar_spiral: Phát hành", $"{startDate} -> N/A", true)
@@ -318,7 +350,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 .WithTitle($"{character.name.first} {character.name.last}")
                 .WithDescription(description)
                 .WithUrl(character.siteUrl)
-                .AddField("Giới tính: ", character.gender == "FEMALE" ? "Nữ" : "Nam", true)
+                .AddField("Giới tính: ", character.gender == "Female" ? "Nữ" : "Nam", true)
                 .AddField("Ngày sinh: ", $"{character.dateOfBirth.day}/{character.dateOfBirth.month}",true)
                 .AddField("Tên khác", string.Join(", ", character.name.alternative))
                 .WithColor(DiscordColor.Azure)
@@ -341,9 +373,20 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 
         private string ProcessDescription(string description)
         {
-            var doc = new HtmlDocument();
-            doc.LoadHtml(description);
-            return Utils.ProcessHtmlToMarkdown(doc.DocumentNode);
+            if (string.IsNullOrEmpty(description))
+                return string.Empty;
+
+            description = Regex.Replace(description, @"<[^>]*>", "");
+            description = Regex.Replace(description, @"<img[^>]*>", "");
+            description = description.Replace("~~~", "").Trim();
+            description = WebUtility.HtmlDecode(description);
+
+            if (description.Length > 1024)
+            {
+                description = description.Substring(0, 1021) + "...";
+            }
+
+            return description;
         }
 
         private string FormatDate(MediaDate date)

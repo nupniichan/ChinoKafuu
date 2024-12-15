@@ -7,12 +7,12 @@ using DSharpPlus.SlashCommands;
 using ChinoBot.config;
 using ChinoBot.CommandsFolder.PrefixCommandsFolder;
 using ChinoBot.CommandsFolder.SlashCommandsFolder;
-using ChinoBot;
 using ChinoBot.CommandsFolder.NonePrefixCommandFolder;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using DSharpPlus.VoiceNext;
+using ChinoKafuu.Utils;
 
 internal sealed class Program
 {
