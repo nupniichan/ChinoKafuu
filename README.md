@@ -31,7 +31,7 @@ To get started, you must download the release file then follow my instructions:
 - Due to Youtube update so Lavalink is not working anymore on VPS so i decided to remove Youtube music commands
 - Improve response time of chatting
 - Update Applio to newest version (3.2.8) and sync to make sure that api can run core.py of Applio
-
+- Currenly, OsuNet doesn't work so im trying to fix
 ---
 
 ## 🧑‍💻 **How to use?**
@@ -80,7 +80,7 @@ Chino Kafu provide many of features for your Discord server:
 
 ## 📚 **Library used**
 - [DSharpPlus](https://github.com/DSharpPlus/DSharpPlus)
-- [OsuNet](https://github.com/Blackcat76iT/OsuNet/tree/29571b5270b52c628a809225ce32c20573b65a3b)
+- [OsuNet](https://github.com/Blackcat76iT/OsuNet/tree/29571b5270b52c628a809225ce32c20573b65a3b) 
 - [Anilist-GraphQL](https://github.com/AniList/ApiV2-GraphQL-Docs)
 - [generativeAI](https://github.com/google/generative-ai-docs)
 - [Applio](https://github.com/IAHispano/Applio)
@@ -99,4 +99,4 @@ Any contributions are highly appreciated! Feel free to submit issues or pull req
 
 ---
 
-<div align="center">Thank you for visiting Chino Kafu! More features are coming soon ❤️.</div>
+<div align="center">Thank you for visiting this respository! More features are coming soon ❤️.</div>
