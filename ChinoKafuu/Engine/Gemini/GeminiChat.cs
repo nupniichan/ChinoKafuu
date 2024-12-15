@@ -9,7 +9,7 @@ public class GeminiChat
 {
     private readonly string _apiKey;
     private readonly HttpClient _httpClient;
-    private const int MAX_CHAT_HISTORY_LENGTH = 500;
+    private const int MAX_CHAT_HISTORY_LENGTH = 1000;
     private const string API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
     private readonly string _prompt;
 
@@ -17,7 +17,6 @@ public class GeminiChat
     {
         _apiKey = apiKey;
         _httpClient = new HttpClient();
-        // Đọc nội dung prompt từ file
         string promptFilePath = Path.Combine(AppContext.BaseDirectory, "../../../Engine/Gemini/Prompt/prompt.txt");
         _prompt = File.ReadAllText(Path.GetFullPath(promptFilePath));
     }
@@ -26,7 +25,6 @@ public class GeminiChat
     {
         try
         {
-            // Đọc chat history trước
             List<Dictionary<string, object>> chatHistory;
             try
             {
@@ -39,23 +37,20 @@ public class GeminiChat
                 Console.WriteLine(ex.Message);
             }
 
-            // Tạo contents list với prompt đầu tiên
             var contents = new List<object>
+        {
+            new
             {
-                new
-                {
-                    role = "user",
-                    parts = new[] { new { text = _prompt } }
-                }
-            };
+                role = "user",
+                parts = new[] { new { text = _prompt } }
+            }
+        };
 
-            // Thêm chat history vào contents
             foreach (var message in chatHistory)
             {
                 var parts = message["parts"];
                 string text;
 
-                // Xử lý parts tùy thuộc vào kiểu dữ liệu
                 if (parts is JsonElement jsonElement)
                 {
                     text = jsonElement[0].GetString();
@@ -66,7 +61,7 @@ public class GeminiChat
                 }
                 else
                 {
-                    continue; // Bỏ qua nếu không xử lý được
+                    continue;
                 }
 
                 contents.Add(new
@@ -76,11 +71,12 @@ public class GeminiChat
                 });
             }
 
-            // Thêm tin nhắn hiện tại
+            DateTime currentDateTime = DateTime.Now;
+
             contents.Add(new
             {
                 role = "user",
-                parts = new[] { new { text = $"{username}: {messageContent}" } }
+                parts = new[] { new { text = $"{username} ({currentDateTime}): {messageContent}" } }
             });
 
             var requestBody = new
@@ -100,7 +96,6 @@ public class GeminiChat
 
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
 
-            // Gửi yêu cầu POST tới API
             var response = await _httpClient.PostAsync($"{API_URL}?key={_apiKey}", content);
             var responseContent = await response.Content.ReadAsStringAsync();
 
@@ -111,47 +106,41 @@ public class GeminiChat
                 return "Xin lỗi, hiện tại em không thể trả lời được. Anh thử lại sau nhé~";
             }
 
-            // Kiểm tra và tạo thư mục nếu chưa tồn tại
             var directoryPath = Path.GetDirectoryName(chatHistoryPath);
             if (!Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);
             }
 
-            // Kiểm tra và tạo file nếu chưa tồn tại
             if (!File.Exists(chatHistoryPath))
             {
                 await File.WriteAllTextAsync(chatHistoryPath, "[]", System.Text.Encoding.UTF8);
             }
 
-            // Giới hạn độ dài chat history
             if (chatHistory.Count > MAX_CHAT_HISTORY_LENGTH)
             {
                 chatHistory = chatHistory.GetRange(chatHistory.Count - MAX_CHAT_HISTORY_LENGTH, MAX_CHAT_HISTORY_LENGTH);
             }
 
             var responseData = JsonSerializer.Deserialize<JsonElement>(responseContent);
-            // Trích xuất câu trả lời từ API
             var modelResponse = responseData.GetProperty("candidates")[0]
-                                         .GetProperty("content")
-                                         .GetProperty("parts")[0]
-                                         .GetProperty("text")
-                                         .GetString();
-
-            // Thêm tin nhắn mới vào history với định dạng mong muốn
-            chatHistory.Add(new Dictionary<string, object>
-            {
-                { "role", "user" },
-                { "parts", new[] { $"{username}: {messageContent}" } }
-            });
+                                             .GetProperty("content")
+                                             .GetProperty("parts")[0]
+                                             .GetProperty("text")
+                                             .GetString();
 
             chatHistory.Add(new Dictionary<string, object>
-            {
-                { "role", "model" },
-                { "parts", new[] { modelResponse } }
-            });
+        {
+            { "role", "user" },
+            { "parts", new[] { $"{username} ({currentDateTime}): {messageContent}" } }
+        });
 
-            // Ghi lại chat history
+            chatHistory.Add(new Dictionary<string, object>
+        {
+            { "role", "model" },
+            { "parts", new[] { modelResponse } }
+        });
+
             var options = new JsonSerializerOptions
             {
                 WriteIndented = true,
