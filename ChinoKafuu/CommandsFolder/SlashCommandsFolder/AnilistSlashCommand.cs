@@ -7,6 +7,7 @@ using SimpleAnilist.AnilistAPI.Enum;
 using SimpleAnilist.Models.Character;
 using SimpleAnilist.Models.Media;
 using SimpleAnilist.Models.Staff;
+using SimpleAnilist.Models.Studio;
 using SimpleAnilist.Models.User;
 using SimpleAnilist.Services;
 using System.Net;
@@ -17,29 +18,31 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
     internal class AnilistSlashCommand : ApplicationCommandModule
     {
         private const string ANILIST_LOGO = "https://media.discordapp.net/attachments/1023808975185133638/1143013784584208504/AniList_logo.svg.png?width=588&height=588";
-        private const string ANILIST_URL = "anilist.co";
+        private const string ANILIST_URL = "https://anilist.co/";
         private SimpleAniListService anilistService = new SimpleAniListService();
 
-        [SlashCommand("AniHelp", "Hiển thị trợ giúp về các lệnh Anilist")]
+        [SlashCommand("ani-help", "Hiển thị trợ giúp về các lệnh Anilist")]
         public async Task AniHelpCommand(InteractionContext ctx)
         {
             var embed = new DiscordEmbedBuilder()
                 .WithTitle("Danh sách các lệnh Anilist")
                 .WithDescription("Dưới đây là danh sách các lệnh Anilist có sẵn:")
                 .WithColor(DiscordColor.Azure)
-                .AddField("/AniUser", "Tìm profile trên Anilist")
-                .AddField("/AniuserFavorite", "Xem những bộ anime/manga mà người đó thích")
-                .AddField("/Anime", "Xem thông tin về bộ anime")
-                .AddField("/Manga", "Xem thông tin về bộ manga")
-                .AddField("/AniCharacter", "Xem thông tin về nhân vật")
-                .AddField("/AniStaff", "Xem thông tin về những người làm ra")
+                .AddField("/ani-user", "Tìm profile trên Anilist")
+                .AddField("/ani-userFavorite", "Xem những bộ anime/manga mà người đó thích")
+                .AddField("/anime", "Xem thông tin về bộ anime")
+                .AddField("/manga", "Xem thông tin về bộ manga")
+                .AddField("/ani-character", "Xem thông tin về nhân vật")
+                .AddField("/ani-staff", "Xem thông tin về những người làm ra")
+                .AddField("/ani-studio", "Xem một vài thông tin về studio đó")
+                .AddField("/ani-trailer", "Xem trailer của bộ phim đó")
                 .WithFooter("Để sử dụng lệnh cụ thể, nhập /tên-lệnh");
 
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder().AddEmbed(embed));
         }
 
-        [SlashCommand("AniUser", "Tìm profile trên anilist")]
+        [SlashCommand("ani-user", "Tìm profile trên anilist")]
         public async Task AniUserCommand(InteractionContext ctx, [Option("name", "Tên profile là gì?")] string name)
         {
             await ctx.DeferAsync();
@@ -55,7 +58,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
         }
 
-        [SlashCommand("AniUserFavorite", "Xem những bộ anime/manga mà người đó thích")]
+        [SlashCommand("ani-userFavorite", "Xem những bộ anime/manga mà người đó thích")]
         public async Task AniUserFavoriteCommand(InteractionContext ctx, [Option("user", "Tên của người bạn cần tra là ai nè~")] string name)
         {
             await ctx.DeferAsync();
@@ -71,19 +74,19 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
         }
 
-        [SlashCommand("Anime", "Xem thông tin về bộ anime")]
+        [SlashCommand("anime", "Xem thông tin về bộ anime")]
         public async Task AnimeCommand(InteractionContext ctx, [Option("name", "Tên anime")] string name)
         {
             await SearchMediaCommand(ctx, name, MediaType.ANIME);
         }
 
-        [SlashCommand("Manga", "Xem thông tin về bộ manga")]
+        [SlashCommand("manga", "Xem thông tin về bộ manga")]
         public async Task MangaCommand(InteractionContext ctx, [Option("name", "Tên manga")] string name)
         {
             await SearchMediaCommand(ctx, name, MediaType.MANGA);
         }
 
-        [SlashCommand("AniCharacter", "Xem thông tin về nhân vật")]
+        [SlashCommand("ani-character", "Xem thông tin về nhân vật")]
         public async Task CharacterInformationCommand(InteractionContext ctx, [Option("name", "Tên nhân vật")] string name)
         {
             await ctx.DeferAsync();
@@ -98,7 +101,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
         }
 
-        [SlashCommand("AniStaff", "Xem thông tin về những người đóng góp vào bộ anime đó")]
+        [SlashCommand("ani-staff", "Xem thông tin về những người đóng góp vào bộ anime đó")]
         public async Task StaffInformationCommand(InteractionContext ctx, [Option("name", "Tên của người đó")] string name)
         {
             await ctx.DeferAsync();
@@ -112,6 +115,43 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 
             var embed = CreateStaffEmbed(staff);
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+        }
+
+        [SlashCommand("ani-studio", "Xem một vài thông tin về studio đó")]
+        public async Task StudioInformationCommand(InteractionContext ctx, [Option("name", "Tên của studio")] string name)
+        {
+            await ctx.DeferAsync();
+            var studio = await anilistService.SearchStudioAsync(name);
+
+            if (studio == null)
+            {
+                await SendErrorEmbed(ctx, $"Không tìm thấy studio: {name}");
+                return;
+            }
+
+            var embed = CreateStudioEmbed(studio);
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+        }
+
+        [SlashCommand("ani-trailer", "Xem trailer của bộ anime đó")]
+        public async Task GetVideoTrailer(InteractionContext ctx, [Option("name", "Tên anime")] string name)
+        {
+            await ctx.DeferAsync();
+            var media = await anilistService.SearchMediaByNameAsync(name, MediaType.ANIME);
+            if (media == null)
+            {
+                await SendErrorEmbed(ctx, $"Không tìm thấy anime: {name}");
+                return;
+            }
+            if (media.trailer == null)
+            {
+                await SendErrorEmbed(ctx, $"Không tìm thấy trailer anime: {name}");
+                return;
+            }
+
+            var trailerUrl = $"https://www.{media.trailer.site}.com/watch?v={media.trailer.id}";
+
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent(trailerUrl));
         }
 
         private async Task SearchMediaCommand(InteractionContext ctx, string search, MediaType type)
@@ -201,9 +241,9 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 .WithTitle(user.name)
                 .AddField($":star: **Anime yêu thích - {animeCount} bộ**", string.IsNullOrEmpty(animeFavorites) ? $"**Không tìm thấy**" : $"{animeFavorites}\n\n", false)
                 .AddField($":star: **Manga yêu thích - {mangaCount} bộ**", string.IsNullOrEmpty(mangaFavorites) ? $"**Không tìm thấy**" : $"{mangaFavorites}\n\n", false)
-                .AddField($":star: **Nhân vật yêu thích - {characterCount}**", string.IsNullOrEmpty(characterFavorites) ? $"**Không tìm thấy**" : $"{characterFavorites}\n\n", false)
-                .AddField($":star: **Staff yêu thích - {staffCount} staff**", string.IsNullOrEmpty(staffFavorites) ? $"**Không tìm thấy**" : $"{staffFavorites}\n\n", true)
-                .AddField($":star: **Studio yêu thích - {studioCount} studio**", string.IsNullOrEmpty(studioFavorites) ? $"**Không tìm thấy**" : $"{studioFavorites}\n\n", true)
+                .AddField($":star: **Nhân vật yêu thích - {characterCount} nhân vật**", string.IsNullOrEmpty(characterFavorites) ? $"**Không tìm thấy**" : $"{characterFavorites}\n\n", false)
+                .AddField($":star: **Staff yêu thích - {staffCount} staff**", string.IsNullOrEmpty(staffFavorites) ? $"**Không tìm thấy**" : $"{staffFavorites}\n\n", false)
+                .AddField($":star: **Studio yêu thích - {studioCount} studio**", string.IsNullOrEmpty(studioFavorites) ? $"**Không tìm thấy**" : $"{studioFavorites}\n\n", false)
                 .AddField("Xem thêm tại đây", $"[Anilist]({user.siteUrl})")
                 .WithColor(DiscordColor.Azure)
                 .WithFooter($"{ANILIST_URL}")
@@ -250,6 +290,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                          .AddField(":file_folder: Nguồn", char.ToUpper(media.source[0]) + media.source.Substring(1).ToLower(), false)
                          .AddField(":star: Điểm trung bình", $"{media.averageScore}/100", true)
                          .AddField(":star: Điểm trung vị", $"{media.meanScore}/100", true)
+                         .AddField(":thumbsup: Số lượt thích", $"{media.favourites}", true)
                          .AddField(":arrow_right: Thể loại", string.Join(", ", media.genres), false)
                          .AddField("🌐 Tên gốc", media.title.native, false)
                          .AddField("🛈 Thông tin thêm", $"[Anilist]({media.siteUrl})");
@@ -269,6 +310,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                              .AddField(":file_folder: Nguồn", char.ToUpper(media.source[0]) + media.source.Substring(1).ToLower(), false)
                              .AddField(":star: Điểm trung bình", $"{media.averageScore}/100", true)
                              .AddField(":star: Điểm trung vị", $"{media.meanScore}/100", true)
+                             .AddField(":thumbsup: Số lượt thích", $"{media.favourites}", true)
                              .AddField(":arrow_right: Thể loại", string.Join(", ", media.genres), false)
                              .AddField("🌐 Tên gốc", media.title.native, false)
                              .AddField("🛈 Thông tin thêm", $"[Anilist]({media.siteUrl})");
@@ -282,6 +324,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                              .AddField(":file_folder: Nguồn", char.ToUpper(media.source[0]) + media.source.Substring(1).ToLower(), false)
                              .AddField(":star: Điểm trung bình", $"{media.averageScore}/100", true)
                              .AddField(":star: Điểm trung vị", $"{media.meanScore}/100", true)
+                             .AddField(":thumbsup: Số lượt thích", $"{media.favourites}", true)
                              .AddField(":arrow_right: Thể loại", string.Join(", ", media.genres), false)
                              .AddField("🌐 Tên gốc", media.title.native, false)
                              .AddField("🛈 Thông tin thêm", $"[Anilist]({media.siteUrl})");
@@ -295,6 +338,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                              .AddField(":file_folder: Nguồn", char.ToUpper(media.source[0]) + media.source.Substring(1).ToLower(), false)
                              .AddField(":star: Điểm trung bình", $"{media.averageScore}/100", true)
                              .AddField(":star: Điểm trung vị", $"{media.meanScore}/100", true)
+                             .AddField(":thumbsup: Số lượt thích", $"{media.favourites}", true)
                              .AddField(":arrow_right: Thể loại", string.Join(", ", media.genres), false)
                              .AddField("🌐 Tên gốc", media.title.native, false)
                              .AddField("🛈 Thông tin thêm", $"[Anilist]({media.siteUrl})");
@@ -310,6 +354,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                          .AddField(":file_folder: Nguồn", char.ToUpper(media.source[0]) + media.source.Substring(1).ToLower(), false)
                          .AddField(":star: Điểm trung bình", $"{media.averageScore}/100", true)
                          .AddField(":star: Điểm trung vị", $"{media.meanScore}/100", true)
+                         .AddField(":thumbsup: Số lượt thích", $"{media.favourites}", true)
                          .AddField("🌐 Tên gốc", media.title.native, false)
                          .AddField("🛈 Thông tin thêm", $"[Anilist]({media.siteUrl})");
                 }
@@ -321,6 +366,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                          .AddField(":file_folder: Nguồn", char.ToUpper(media.source[0]) + media.source.Substring(1).ToLower(), false)
                          .AddField(":star: Điểm trung bình", $"{media.averageScore}/100", true)
                          .AddField(":star: Điểm trung vị", $"{media.meanScore}/100", true)
+                         .AddField(":thumbsup: Số lượt thích", $"{media.favourites}", true)
                          .AddField("🌐 Tên gốc", media.title.native, false)
                          .AddField("🛈 Thông tin thêm", $"[Anilist]({media.siteUrl})");
                 }
@@ -332,6 +378,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                          .AddField(":file_folder: Nguồn", char.ToUpper(media.source[0]) + media.source.Substring(1).ToLower(), false)
                          .AddField(":star: Điểm trung bình", $"{media.averageScore}/100", true)
                          .AddField(":star: Điểm trung vị", $"{media.meanScore}/100", true)
+                         .AddField(":thumbsup: Số lượt thích", $"{media.favourites}", true)
                          .AddField("🌐 Tên gốc", media.title.native, false)
                          .AddField("🛈 Thông tin thêm", $"[Anilist]({media.siteUrl})");
                 }
@@ -351,7 +398,8 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 .WithDescription(description)
                 .WithUrl(character.siteUrl)
                 .AddField("Giới tính: ", character.gender == "Female" ? "Nữ" : "Nam", true)
-                .AddField("Ngày sinh: ", $"{character.dateOfBirth.day}/{character.dateOfBirth.month}",true)
+                .AddField(":calendar_spiral: Ngày sinh: ", $"{character.dateOfBirth.day}/{character.dateOfBirth.month}",true)
+                .AddField(":heart: Số lượt thích", $"{character.favourites}", true)
                 .AddField("Tên khác", string.Join(", ", character.name.alternative))
                 .WithColor(DiscordColor.Azure)
                 .WithFooter($"{ANILIST_URL}");
@@ -367,10 +415,23 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 .WithDescription(description)
                 .WithColor(DiscordColor.Azure)
                 .WithUrl(staff.siteUrl)
+                .AddField("Giới tính: ", staff.gender != null ? staff.gender : "Không có thông tin",true )
+                .AddField(":homes: Quê quán: ", staff.homeTown != null ? staff.homeTown : "Không có thông tin",true)
+                .AddField(":heart: Số lượt thích", $"{staff.favourites}", true)
                 .WithThumbnail(staff.image.medium)
                 .WithFooter($"{ANILIST_URL}");
         }
 
+        private DiscordEmbed CreateStudioEmbed(AniStudio studio)
+        {
+            return new DiscordEmbedBuilder()
+                .WithAuthor("Anilist Staff", null, ANILIST_LOGO)
+                .WithTitle($"{studio.name}")
+                .WithColor(DiscordColor.Azure)
+                .WithUrl(studio.siteUrl)
+                .AddField(":heart: Số lượt thích", $"{studio.favourites}", true)
+                .WithFooter($"{ANILIST_URL}");
+        }
         private string ProcessDescription(string description)
         {
             if (string.IsNullOrEmpty(description))

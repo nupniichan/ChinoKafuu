@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using DSharpPlus.VoiceNext;
 using ChinoKafuu.Utils;
+using ChinoKafuu.CommandsFolder.SlashCommandsFolder;
 
 internal sealed class Program
 {
@@ -113,10 +114,11 @@ file sealed class ApplicationHost : BackgroundService
         // Đăng ký sử dụng lệnh slash ( / )
         var slashCommands = _discordClient.UseSlashCommands(new SlashCommandsConfiguration { Services = _serviceProvider });
         await slashCommands.RefreshCommands();
-        slashCommands.RegisterCommands<BasicSlashCommands>();
         slashCommands.RegisterCommands<AdministratorCommand>();
         slashCommands.RegisterCommands<AnilistSlashCommand>();
         slashCommands.RegisterCommands<OsuSlashCommand>();
+        slashCommands.RegisterCommands<SystemStatusSlashCommands>();
+        slashCommands.RegisterCommands<UserSlashCommands>();
 
         await _discordClient.ConnectAsync().ConfigureAwait(false);
 
@@ -153,7 +155,7 @@ file sealed class ApplicationHost : BackgroundService
         var welcomeEmbed = new DiscordEmbedBuilder()
             .WithColor(Utils.GetRandomDiscordColor())
             .WithTitle($"Ohayo/Konichiwa/Konbawa {e.Member.Username} đã vào quán")
-            .WithDescription("Mong bạn sẽ có trải nghiệm vui vẻ ở quán của mình~")
+            .WithDescription("Chào mừng bạn đến với CaféDeNup~")
             .WithThumbnail(e.Member.AvatarUrl)
             .WithImageUrl(welcomeGifUrl);
         var defaultRolePair = e.Guild.Roles.FirstOrDefault(r => r.Value.Name == jsonReader.userDefaultRoleName);

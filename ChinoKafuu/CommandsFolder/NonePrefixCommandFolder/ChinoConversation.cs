@@ -23,6 +23,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         private readonly ConcurrentDictionary<ulong, SemaphoreSlim> _voiceLocks = new();
         private readonly ConcurrentDictionary<ulong, Queue<string>> _audioQueues = new();
         private readonly HttpClient _httpClient = new HttpClient();
+        private readonly ulong testChannel = 1140906898779017268;
         public ChinoConversation(DiscordClient client)
         {
             _client = client;
@@ -41,7 +42,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         private async Task Client_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
         {
             if (e.Author.IsBot || e.Message.Content.StartsWith("BOT") ||
-                (e.Channel.Id != 1140906898779017268 && e.Channel.Id != jsonReader.allowChannelID_gemini))
+                (e.Channel.Id != testChannel && e.Channel.Id != jsonReader.allowChannelID_gemini))
             {
                 return;
             }
