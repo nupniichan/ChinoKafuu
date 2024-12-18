@@ -153,7 +153,7 @@ file sealed class ApplicationHost : BackgroundService
         var defaultChannel = e.Guild.GetDefaultChannel();
         string welcomeGifUrl = "https://cdn.discordapp.com/attachments/1023808975185133638/1143428547642409080/gochiusa-welcome.gif";
         var welcomeEmbed = new DiscordEmbedBuilder()
-            .WithColor(Utils.GetRandomDiscordColor())
+            .WithColor(Util.GetRandomDiscordColor())
             .WithTitle($"Ohayo/Konichiwa/Konbawa {e.Member.Username} đã vào quán")
             .WithDescription("Chào mừng bạn đến với CaféDeNup~")
             .WithThumbnail(e.Member.AvatarUrl)

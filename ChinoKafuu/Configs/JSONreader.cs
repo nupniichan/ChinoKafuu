@@ -12,6 +12,7 @@ namespace ChinoBot.config
         public ulong allowChannelID_gemini { get; set; }
         public string userDefaultRoleName { get; set; }
         public string conversationHistory { get; set; }
+        public string openWeatherApi { get; set; }
         public async Task ReadJson()
         {
             string baseDirectory = AppContext.BaseDirectory;
@@ -32,6 +33,7 @@ namespace ChinoBot.config
                     this.allowChannelID_gemini = data.allowChannelID_gemini;
                     this.userDefaultRoleName = data.userDefaultRoleName;
                     this.conversationHistory = data.conversationHistory;
+                    this.openWeatherApi = data.openWeatherApi;
                 }
             }
             catch (FileNotFoundException)
@@ -55,5 +57,6 @@ namespace ChinoBot.config
         public ulong allowChannelID_gemini { get; set; }
         public string userDefaultRoleName { get; set; }
         public string conversationHistory { get; set; }
+        public string openWeatherApi { get; set; }
     }
 }

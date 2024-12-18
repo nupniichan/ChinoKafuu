@@ -5,6 +5,8 @@
   "geminiAPIKey": "YOUR_GEMINI_KEY", // Get your here https://aistudio.google.com/apikey
   "geminiTranslateAPIKey": "YOUR_GEMINI_KEY", // Get your here https://aistudio.google.com/apikey
   "allowChannelID_gemini": "YOUR_CHANNEL_ALLOWED", // Currently i only support 1 channel to chat
-  "userDefaultRoleName": "YOUR_DEFAULT_ROLE",
-  "conversationHistory": "..\\..\\..\\CommunicationHistory\\" // After you done that all remove the "_" before the config.json
+  "userDefaultRoleName": "YOUR_DEFAULT_ROLE", // Your default role on server
+  "conversationHistory": "..\\..\\..\\CommunicationHistory\\", // Dont change this one
+  "openWeatherApi": "YOUR_OPEN_WEATHER_MAP_API" // You can get your here: https://home.openweathermap.org/api_keys
 }
+// After you done that all remove the "_" before the config.json

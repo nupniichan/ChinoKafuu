@@ -35,5 +35,6 @@
     <Folder Include="CommunicationHistory\VoiceHistory\" />
     <Folder Include="CommunicationHistory\HistoryChat\" />
     <Folder Include="CommunicationHistory\" />
+    <Folder Include="Engine\cs-owm\" />
   </ItemGroup>
 </Project>

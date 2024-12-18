@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ChinoKafuu.Utils
 {
-    public class Utils
+    public class Util
     {
         public static bool SkipLavalink => Environment.GetEnvironmentVariable("SKIP_LAVALINK") == "true";
         public static DiscordColor GetRandomDiscordColor()
@@ -160,6 +160,37 @@ namespace ChinoKafuu.Utils
             string formattedOffset = $"{sign}{Math.Abs(utcOffset.Hours):00}:{Math.Abs(utcOffset.Minutes):00}";
 
             return $"UTC{formattedOffset}";
+        }
+
+        public static DiscordColor GetEmbedColor(double temperature)
+        {
+            if (temperature < 10) return DiscordColor.Blue;     
+            if (temperature < 20) return DiscordColor.Cyan;    
+            if (temperature < 30) return DiscordColor.Green;    
+            if (temperature < 35) return DiscordColor.Yellow;   
+            return DiscordColor.Orange;                        
+        }
+
+        public static string GetWindDirection(float degrees)
+        {
+            string[] directions = {
+        "Bắc", "Bắc Đông Bắc", "Đông Bắc",
+        "Đông", "Đông Nam", "Nam Đông Nam",
+        "Nam", "Nam Tây Nam", "Tây Nam",
+        "Tây", "Tây Bắc", "Bắc Tây Bắc"
+    };
+
+            int index = (int)((degrees + 15) % 360 / 30);
+            return directions[index];
+        }
+
+        public static string GetCloudDescription(int cloudiness)
+        {
+            if (cloudiness < 10) return "Trời quang";
+            if (cloudiness < 25) return "Ít mây";
+            if (cloudiness < 50) return "Mây rải rác";
+            if (cloudiness < 75) return "Nhiều mây";
+            return "Trời âm u";
         }
     }
 }

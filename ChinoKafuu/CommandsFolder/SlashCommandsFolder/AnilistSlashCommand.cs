@@ -276,7 +276,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 .WithThumbnail(media.coverImage.medium)
                 .WithImageUrl(media.bannerImage);
 
-            string utcOffsetString = Utils.GetUtcOffsetString();
+            string utcOffsetString = Util.GetUtcOffsetString();
 
             if (isAnime)
             {

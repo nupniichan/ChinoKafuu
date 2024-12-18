@@ -1,4 +1,6 @@
-﻿using DSharpPlus;
+﻿using ChinoBot.config;
+using ChinoKafuu.Utils;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
@@ -11,6 +13,14 @@ namespace ChinoKafuu.CommandsFolder.SlashCommandsFolder
 {
     public class UserSlashCommands : ApplicationCommandModule
     {
+        private readonly JSONreader jsonReader;
+
+        public UserSlashCommands()
+        {
+            jsonReader = new JSONreader();
+            jsonReader.ReadJson().GetAwaiter().GetResult();
+        }
+
         [SlashCommand("user-help", "Xem các câu lệnh được hỗ trợ")]
         public async Task UserHelp(InteractionContext ctx)
         {
@@ -201,6 +211,69 @@ namespace ChinoKafuu.CommandsFolder.SlashCommandsFolder
                                                                             .WithTitle("Kết quả vote")
                                                                             .WithDescription(resultString)
                                                                             .WithColor(DiscordColor.Green)));
+        }
+        [SlashCommand("weather", "Xem thời tiết hiện tại")]
+        public async Task WeatherCommand(InteractionContext ctx, [Option("location", "Thành phố bạn cần xem. Ví dụ: Ho Chi Minh City")] string location)
+        {
+            await ctx.DeferAsync();
+            try
+            {
+                WeatherService weatherService = new WeatherService(jsonReader.openWeatherApi);
+                var weatherData = await weatherService.GetWeatherDataAsync(location);
+
+                if (weatherData != null)
+                {
+                    string iconUrl = weatherService.GetWeatherIconUrl(weatherData.weather.icon);
+
+                    string windDirection = Util.GetWindDirection(weatherData.wind.deg);
+
+                    string cloudDescription = Util.GetCloudDescription(weatherData.clouds.all);
+
+                    var embed = new DiscordEmbedBuilder()
+                        .WithTitle($"Thời tiết tại {location}")
+                        .WithDescription($"🕒 Cập nhật: {weatherData.Date} {weatherData.Hour:D2}:{weatherData.Minutes:D2}")
+                        .WithColor(Util.GetEmbedColor(weatherData.main.temp))
+                        .WithThumbnail(iconUrl)
+                        .AddField("🌡️ Nhiệt độ",
+                            $"Hiện tại: **{weatherData.main.temp:F1}°C**\n" +
+                            $"Cảm giác như: **{weatherData.main.feels_like:F1}°C**", true)
+                        .AddField("💨 Gió",
+                            $"Tốc độ: **{weatherData.wind.speed} m/s**\n" +
+                            $"Hướng: **{windDirection} ({weatherData.wind.deg}°)**\n" +
+                            $"Giật gió: **{weatherData.wind.gust} m/s**", true)
+                        .AddField("💧 Độ ẩm",
+                            $"**{weatherData.main.humidity}%**", true)
+                        .AddField("☁️ Mây",
+                            $"{cloudDescription} (**{weatherData.clouds.all}%**)", true)
+                        .AddField("📊 Áp suất",
+                            $"Mặt đất: **{weatherData.main.grnd_level} hPa**\n" +
+                            $"Mực biển: **{weatherData.main.sea_level} hPa**", true)
+                        .AddField("👀 Tầm nhìn",
+                            $"**{weatherData.Visibility / 1000} km**", true)
+                        .WithFooter(
+                            $"Tọa độ: Kinh độ: [{weatherData.coord.Longitude}], Vĩ độ: [{weatherData.coord.Latitude}]");
+
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+                }
+                else
+                {
+                    var nullEmbed = new DiscordEmbedBuilder()
+                        .WithTitle("❌ Không tìm thấy thông tin")
+                        .WithDescription($"Api bị lỗi òi")
+                        .WithColor(DiscordColor.Red);
+
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(nullEmbed));
+                }
+            }
+            catch (Exception e)
+            {
+                var errorEmbed = new DiscordEmbedBuilder()
+                    .WithTitle("❌ Lỗi")
+                    .WithDescription($"Đã có lỗi xảy ra: {e.Message}")
+                    .WithColor(DiscordColor.Red);
+
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(errorEmbed));
+            }
         }
     }
 }
