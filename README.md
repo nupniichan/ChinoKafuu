@@ -28,10 +28,10 @@ To get started, you must download the release file then follow my instructions:
 ---
 
 ## 🆕**New update**
-- Due to Youtube update so Lavalink is not working anymore on VPS so i decided to remove Youtube music commands
-- Improve response time of chatting
-- Update Applio to newest version (3.2.8) and sync to make sure that api can run core.py of Applio
-- Currenly, OsuNet doesn't work so im trying to fix
+- Add weather slashcommand feature
+- Improve embed
+- Improve prompt chat
+- Add datetime to let Chino know what time is it
 ---
 
 ## 🧑‍💻 **How to use?**
@@ -69,11 +69,10 @@ Chino Kafu provide many of features for your Discord server:
 ## 🌟 **Upcoming features**
 - 🎮 Get game and user information on Steam
 - 🛠️ Improve and retructor code
-- Improve prompt
+- Improve prompt v2
 - Remove unnecessary folder/file/code
 - Create one-click install
 - Create my own voice dataset and train it
-- Add current datetime to make sure Chino know what time is it
 - Create dockerfile
 
 ---
