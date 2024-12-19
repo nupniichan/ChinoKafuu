@@ -192,5 +192,44 @@ namespace ChinoKafuu.Utils
             if (cloudiness < 75) return "Nhiều mây";
             return "Trời âm u";
         }
+        public static string GetMainWeather(string weather)
+        {
+            if (weather == "Clear") return ":sunny: Trời quang";
+            if (weather == "Clouds") return ":cloud: Có mây";
+            if (weather == "Rain") return ":cloud_rain: Mưa";
+            if (weather == "Drizzle") return "🌧 Mưa phùn";
+            if (weather == "Thunderstorm") return "⛈ Giông bão";
+            if (weather == "Snow") return "❄ Tuyết";
+            if (weather == "Mist") return "🌫 Sương mù nhẹ";
+            if (weather == "Smoke") return "💨 Khói"; 
+            if (weather == "Haze") return "🌫 Sương mù do khói bụi";
+            if (weather == "Dust") return "🌪 Bụi"; 
+            if (weather == "Fog") return "🌫 Sương mù dày đặc";
+            if (weather == "Sand") return "🌪 Cát hoặc bão cát"; 
+            if (weather == "Ash") return "🌪 Tro núi lửa"; 
+            if (weather == "Squall") return "🌬 Gió giật"; 
+            if (weather == "Tornado") return ":cloud_tornado: Lốc xoáy"; 
+
+            return "❓ Không xác định"; 
+        }
+        public static string GetTimeOfDay(int hour)
+        {
+            if (hour >= 5 && hour < 12)
+            {
+                return ":sunrise: Trời sáng";
+            }
+            else if (hour >= 12 && hour < 17)
+            {
+                return ":sunny: Trời trưa";
+            }
+            else if (hour >= 17 && hour < 19)
+            {
+                return ":city_sunset: Trời chiều";
+            }
+            else
+            {
+                return ":milky_way: Trời tối";
+            }
+        }
     }
 }

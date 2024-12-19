@@ -34,17 +34,14 @@ public class WeatherService
                 throw new Exception("Can't find weather data.");
             }
 
-            long unixTime = weatherDataResponse.dt; 
-            var utcTime = DateTimeOffset.FromUnixTimeSeconds(unixTime).UtcDateTime;
+            int unixTime = weatherDataResponse.dt;
+            int timeZoneOffset = weatherDataResponse.timezone;
 
-            var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            var localTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, timeZoneInfo);
+            var utcTime = DateTimeOffset.FromUnixTimeSeconds(unixTime).UtcDateTime;
+            var localTime = utcTime.AddSeconds(timeZoneOffset);
 
             return new WeatherData
-            {
-                Date = localTime.ToString("dd-MM-yyyy"),
-                Hour = localTime.ToString("HH"),
-                Minutes = localTime.ToString("mm"),
+            { 
                 coord = new Coord
                 {
                     Latitude = weatherDataResponse.coord.lat,
@@ -76,7 +73,9 @@ public class WeatherService
                 clouds = new Clouds
                 {
                     all = weatherDataResponse.clouds.all
-                }
+                },
+                timezoneOffset = timeZoneOffset, 
+                localTime = localTime.ToString("dd-MM-yyyy HH:mm:ss") 
             };
         }
         catch (Exception ex)

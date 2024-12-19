@@ -33,6 +33,7 @@ namespace ChinoKafuu.CommandsFolder.SlashCommandsFolder
                 .AddField("/ping", "Kiểm tra độ trễ")
                 .AddField("/uptime", "Hiển thị thời gian hoạt động của Chino")
                 .AddField("/remind", "Tạo nhắc nhở")
+                .AddField("/weather", "Xem thời tiết của thành phố")
                 .WithFooter("Để sử dụng lệnh cụ thể, nhập /tên-lệnh");
 
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
@@ -224,15 +225,20 @@ namespace ChinoKafuu.CommandsFolder.SlashCommandsFolder
                 if (weatherData != null)
                 {
                     string iconUrl = weatherService.GetWeatherIconUrl(weatherData.weather.icon);
-
                     string windDirection = Util.GetWindDirection(weatherData.wind.deg);
-
                     string cloudDescription = Util.GetCloudDescription(weatherData.clouds.all);
+                    string translateMainWeather = Util.GetMainWeather(weatherData.weather.main);
+                    DiscordColor weatherColor = Util.GetEmbedColor(weatherData.main.temp);
+
+                    var localTime = DateTimeOffset.Parse(weatherData.localTime);  
+                    var localTimeWithOffset = localTime.ToOffset(TimeSpan.FromSeconds(weatherData.timezoneOffset));
+
+                    string timeOfDay = Util.GetTimeOfDay(localTimeWithOffset.Hour);
 
                     var embed = new DiscordEmbedBuilder()
                         .WithTitle($"Thời tiết tại {location}")
-                        .WithDescription($"🕒 Cập nhật: {weatherData.Date} {weatherData.Hour:D2}:{weatherData.Minutes:D2}")
-                        .WithColor(Util.GetEmbedColor(weatherData.main.temp))
+                        .WithDescription($"{timeOfDay} - {translateMainWeather}")
+                        .WithColor(weatherColor)
                         .WithThumbnail(iconUrl)
                         .AddField("🌡️ Nhiệt độ",
                             $"Hiện tại: **{weatherData.main.temp:F1}°C**\n" +
@@ -251,7 +257,8 @@ namespace ChinoKafuu.CommandsFolder.SlashCommandsFolder
                         .AddField("👀 Tầm nhìn",
                             $"**{weatherData.Visibility / 1000} km**", true)
                         .WithFooter(
-                            $"Tọa độ: Kinh độ: [{weatherData.coord.Longitude}], Vĩ độ: [{weatherData.coord.Latitude}]");
+                            $"🕒 Cập nhật: {localTimeWithOffset:dd/MM/yyyy HH:mm:ss}\n" +
+                            $"🗺️ Kinh độ: [{weatherData.coord.Longitude}], Vĩ độ: [{weatherData.coord.Latitude}]");
 
                     await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
                 }
