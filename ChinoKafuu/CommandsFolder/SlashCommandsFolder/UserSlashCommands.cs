@@ -5,6 +5,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 using System;
+using System.Globalization;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -230,7 +231,7 @@ namespace ChinoKafuu.CommandsFolder.SlashCommandsFolder
                     string translateMainWeather = Util.GetMainWeather(weatherData.weather.main);
                     DiscordColor weatherColor = Util.GetEmbedColor(weatherData.main.temp);
 
-                    var localTime = DateTimeOffset.Parse(weatherData.localTime);  
+					var localTime = DateTimeOffset.ParseExact(weatherData.localTime, "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
                     var localTimeWithOffset = localTime.ToOffset(TimeSpan.FromSeconds(weatherData.timezoneOffset));
 
                     string timeOfDay = Util.GetTimeOfDay(localTimeWithOffset.Hour);
