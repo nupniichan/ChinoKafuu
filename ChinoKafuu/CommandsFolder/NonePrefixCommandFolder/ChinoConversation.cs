@@ -99,14 +99,16 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                     username = member.Nickname;
                 }
 
-                string chatHistoryPath = Path.Combine("..","..","..",
+                string projectRoot = Directory.GetParent(AppContext.BaseDirectory).Parent.Parent.Parent.FullName;
+                string chatHistoryPath = Path.Combine(
+                    projectRoot,
                     "CommunicationHistory",
                     "HistoryChat",
                     message.Channel.Guild.Id.ToString(),
                     "chat_history.json"
                 );
-                Directory.CreateDirectory(Path.GetDirectoryName(chatHistoryPath));
 
+                Console.WriteLine(chatHistoryPath);
                 string chinoMessage = await _geminiService.RunGeminiAPI(message.Content, username, chatHistoryPath);
 
                 if (message.Content.ToLower().Contains("rời voice") ||
