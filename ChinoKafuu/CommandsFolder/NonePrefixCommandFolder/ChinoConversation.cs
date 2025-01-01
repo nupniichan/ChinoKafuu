@@ -254,25 +254,54 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
             return voiceLock;
         }
 
-        private async Task PlayAudioFileAsync(string filePath, VoiceNextConnection connection, float volume = 0.5f)
+        private async Task PlayAudioFileAsync(string filePath, VoiceNextConnection connection, float volume = 1f)
         {
+            if (connection == null)
+                throw new InvalidOperationException("User not in voice channel");
+
             try
             {
+                var transmitStream = connection.GetTransmitSink();
                 using (var audioFile = new AudioFileReader(filePath))
-                using (var outputDevice = new WaveOutEvent())
                 {
-                    outputDevice.Init(audioFile);
-                    outputDevice.Play();
+                    audioFile.Volume = volume;
+                    var outFormat = new WaveFormat(48000, 16, 2);
 
-                    while (outputDevice.PlaybackState == PlaybackState.Playing)
+                    using (var resampler = new MediaFoundationResampler(audioFile, outFormat))
                     {
-                        await Task.Delay(20);
+                        var buffer = new byte[16384];
+                        int bytesRead;
+
+                        var bufferedProvider = new BufferedWaveProvider(outFormat)
+                        {
+                            BufferLength = 1048576, 
+                            ReadFully = false
+                        };
+
+                        while ((bytesRead = resampler.Read(buffer, 0, buffer.Length)) > 0)
+                        {
+                            if (bytesRead < buffer.Length)
+                            {
+                                var tempBuffer = new byte[bytesRead];
+                                Array.Copy(buffer, tempBuffer, bytesRead);
+                                await transmitStream.WriteAsync(tempBuffer, 0, bytesRead);
+                            }
+                            else
+                            {
+                                await transmitStream.WriteAsync(buffer, 0, bytesRead);
+                            }
+
+                            await Task.Delay(60); 
+                        }
                     }
+
+                    await Task.Delay(100);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error playing audio: {ex.Message}");
+                Console.WriteLine($"Error playing audio through Discord: {ex.Message}");
+                throw;
             }
         }
 
