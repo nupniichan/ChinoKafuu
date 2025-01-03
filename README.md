@@ -28,10 +28,8 @@ To get started, you must download the release file then follow my instructions:
 ---
 
 ## 🆕**New update**
-- Add weather slashcommand feature
-- Improve embed
-- Improve prompt chat
-- Add datetime to let Chino know what time is it
+- Fixed Chino playing on cmd instead of Discord voice chat
+- Improve prompt 
 ---
 
 ## 🧑‍💻 **How to use?**
@@ -69,7 +67,6 @@ Chino Kafu provide many of features for your Discord server:
 ## 🌟 **Upcoming features**
 - 🎮 Get game and user information on Steam
 - 🛠️ Improve and retructor code
-- Improve prompt v2
 - Remove unnecessary folder/file/code
 - Create one-click install
 - Create my own voice dataset and train it
