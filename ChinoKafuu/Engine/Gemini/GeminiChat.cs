@@ -10,7 +10,7 @@ public class GeminiChat
     private readonly string _apiKey;
     private readonly HttpClient _httpClient;
     private const int MAX_CHAT_HISTORY_LENGTH = 1000;
-    private const string API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent";
+    private const string API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent";
     private readonly string _prompt;
 
     public GeminiChat(string apiKey)
