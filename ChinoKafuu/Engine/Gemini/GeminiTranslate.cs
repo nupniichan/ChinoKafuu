@@ -8,7 +8,7 @@ public class GeminiTranslate
 {
     private readonly string _apiKey;
     private readonly HttpClient _httpClient;
-    private const string API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent";
+    private const string API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
     public GeminiTranslate(string apiKey)
     {
