@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.IO;
 using System.Collections.Generic;
+using System.Threading;
 
 public class GeminiChat
 {
@@ -16,19 +17,22 @@ public class GeminiChat
     public GeminiChat(string apiKey)
     {
         _apiKey = apiKey;
-        _httpClient = new HttpClient();
+        _httpClient = new HttpClient
+        {
+            Timeout = TimeSpan.FromMinutes(5)
+        };
         string promptFilePath = Path.Combine(AppContext.BaseDirectory, "../../../Engine/Gemini/Prompt/prompt.txt");
         _prompt = File.ReadAllText(Path.GetFullPath(promptFilePath));
     }
 
-    public async Task<string> RunGeminiAPI(string messageContent, string username, string chatHistoryPath)
+    public async Task<string> RunGeminiAPI(string messageContent, string username, string chatHistoryPath, CancellationToken cancellationToken = default)
     {
         try
         {
             List<Dictionary<string, object>> chatHistory;
             try
             {
-                var historyJson = await File.ReadAllTextAsync(chatHistoryPath);
+                var historyJson = await File.ReadAllTextAsync(chatHistoryPath, cancellationToken);
                 chatHistory = JsonSerializer.Deserialize<List<Dictionary<string, object>>>(historyJson) ?? new List<Dictionary<string, object>>();
             }
             catch (Exception ex)
@@ -96,8 +100,8 @@ public class GeminiChat
 
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{API_URL}?key={_apiKey}", content);
-            var responseContent = await response.Content.ReadAsStringAsync();
+            var response = await _httpClient.PostAsync($"{API_URL}?key={_apiKey}", content, cancellationToken);
+            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -114,7 +118,7 @@ public class GeminiChat
 
             if (!File.Exists(chatHistoryPath))
             {
-                await File.WriteAllTextAsync(chatHistoryPath, "[]", System.Text.Encoding.UTF8);
+                await File.WriteAllTextAsync(chatHistoryPath, "[]", System.Text.Encoding.UTF8, cancellationToken);
             }
 
             if (chatHistory.Count > MAX_CHAT_HISTORY_LENGTH)
@@ -148,7 +152,7 @@ public class GeminiChat
             };
 
             var serializedHistory = JsonSerializer.Serialize(chatHistory, options);
-            await File.WriteAllTextAsync(chatHistoryPath, serializedHistory);
+            await File.WriteAllTextAsync(chatHistoryPath, serializedHistory, cancellationToken);
 
             return modelResponse != null ? modelResponse : "Có lỗi khi gọi Api đến Gemini";
         }

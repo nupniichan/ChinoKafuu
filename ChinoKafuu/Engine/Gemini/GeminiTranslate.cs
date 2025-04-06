@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Threading;
 
 public class GeminiTranslate
 {
@@ -13,10 +14,13 @@ public class GeminiTranslate
     public GeminiTranslate(string apiKey)
     {
         _apiKey = apiKey;
-        _httpClient = new HttpClient();
+        _httpClient = new HttpClient
+        {
+            Timeout = TimeSpan.FromMinutes(5)
+        };
     }
 
-    public async Task<string> Translate(string messageContent)
+    public async Task<string> Translate(string messageContent, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -71,8 +75,8 @@ public class GeminiTranslate
             var json = JsonSerializer.Serialize(requestBody);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{API_URL}?key={_apiKey}", content);
-            var responseContent = await response.Content.ReadAsStringAsync();
+            var response = await _httpClient.PostAsync($"{API_URL}?key={_apiKey}", content, cancellationToken);
+            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -87,7 +91,6 @@ public class GeminiTranslate
                                           .GetProperty("text")
                                           .GetString();
 
-            Console.WriteLine(translatedText);
             return translatedText;
         }
         catch (Exception ex)

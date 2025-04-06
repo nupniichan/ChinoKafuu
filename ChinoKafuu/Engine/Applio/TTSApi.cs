@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using System.Threading;
 
 public class TTSRequest
 {
@@ -35,41 +36,42 @@ public class TTSRequest
 public class TTSApi
 {
     private readonly HttpClient _httpClient;
+    private const string BASE_API_URL = "http://localhost:8000";
 
     public TTSApi(HttpClient httpClient)
     {
         _httpClient = httpClient;
+        _httpClient.Timeout = TimeSpan.FromMinutes(5);
     }
 
-    public async Task<string> GenerateTTS(string message, string guildId)
+    public async Task<string> GenerateTTS(string message, string guildId, CancellationToken cancellationToken = default)
     {
         var ttsRequest = new TTSRequest
         {
             Text = message,
             guild_id = guildId
         };
-        HttpResponseMessage response = await _httpClient.PostAsJsonAsync("http://localhost:8000/tts", ttsRequest);
+        HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"{BASE_API_URL}/tts", ttsRequest, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
-            string responseContent = await response.Content.ReadAsStringAsync();
+            string responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
             throw new Exception($"Gọi api thất bại: {response.ReasonPhrase} - {responseContent}");
         }
 
-        var result = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+        var result = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>(cancellationToken: cancellationToken);
         return result["file_name"];
     }
 
-    public async Task DownloadGeneratedTTS(ulong guildId, string fileName, string outputPath)
+    public async Task DownloadGeneratedTTS(ulong guildId, string fileName, string outputPath, CancellationToken cancellationToken = default)
     {
         string outputDirectory = Path.GetDirectoryName(outputPath);
 
         Directory.CreateDirectory(outputDirectory);
 
-        string baseApiUrl = "http://localhost:8000";
         string decodedFileName = System.Web.HttpUtility.UrlDecode(fileName);
-        string downloadUrl = $"{baseApiUrl}/get-generated/{guildId}/{decodedFileName}";
+        string downloadUrl = $"{BASE_API_URL}/get-generated/{guildId}/{decodedFileName}";
 
-        HttpResponseMessage response = await _httpClient.GetAsync(downloadUrl);
+        HttpResponseMessage response = await _httpClient.GetAsync(downloadUrl, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -77,6 +79,6 @@ public class TTSApi
         }
 
         await using FileStream fs = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None);
-        await response.Content.CopyToAsync(fs);
+        await response.Content.CopyToAsync(fs, cancellationToken);
     }
 }

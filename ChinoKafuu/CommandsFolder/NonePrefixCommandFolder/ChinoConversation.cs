@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Net.Http;
 using System.Text;
 using System.Net.Http.Json;
+using System.Threading;
 
 namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 {
@@ -19,11 +20,12 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         private readonly GeminiChat _geminiService;
         private readonly GeminiTranslate _geminiTranslate;
         private readonly ConcurrentDictionary<ulong, VoiceNextConnection> _connections = new();
-        private readonly SemaphoreSlim _serviceLock = new(1, 1);
+        private readonly ConcurrentDictionary<ulong, SemaphoreSlim> _channelLocks = new();
         private readonly ConcurrentDictionary<ulong, SemaphoreSlim> _voiceLocks = new();
         private readonly ConcurrentDictionary<ulong, Queue<string>> _audioQueues = new();
-        private readonly HttpClient _httpClient = new HttpClient();
+        private readonly HttpClient _httpClient = new HttpClient() { Timeout = TimeSpan.FromMinutes(5) };
         private readonly ulong testChannel = 1140906898779017268;
+        
         public ChinoConversation(DiscordClient client)
         {
             _client = client;
@@ -48,89 +50,64 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
             }
 
             await e.Channel.TriggerTypingAsync();
-
+            
+            var channelLock = GetOrCreateChannelLock(e.Channel.Id);
+            
             _ = Task.Run(async () =>
             {
-                if (e.Message.Attachments.Any())
-                {
-                    await HandleImageInputAsync(e.Message);
-                }
-                else
+                await channelLock.WaitAsync();
+                try
                 {
                     await HandleTextInputAsync(e.Message);
+                }
+                catch (Exception ex)
+                {
+                    await e.Channel.SendMessageAsync($"Hic, có lỗi rồi ;-; {ex.Message}");
+                }
+                finally
+                {
+                    channelLock.Release();
                 }
             });
         }
 
-        private async Task HandleImageInputAsync(DiscordMessage message)
+        private SemaphoreSlim GetOrCreateChannelLock(ulong channelId)
         {
-            var attachment = message.Attachments.FirstOrDefault();
-            try
-            {
-                using var response = await _httpClient.GetAsync(attachment.Url);
-                byte[] attachmentData = await response.Content.ReadAsByteArrayAsync();
-
-                await _serviceLock.WaitAsync();
-                try
-                {
-                    // Im working on it so please wait
-                    await message.RespondAsync("Em lười quá không xem ảnh đâu~");
-                }
-                finally
-                {
-                    _serviceLock.Release();
-                }
-            }
-            catch (Exception ex)
-            {
-                await message.RespondAsync($"Anh ơi có lỗi trong quá trình phân tích ảnh rồi ;-; : {ex.Message}");
-            }
+            return _channelLocks.GetOrAdd(channelId, _ => new SemaphoreSlim(1, 1));
         }
 
         private async Task HandleTextInputAsync(DiscordMessage message)
         {
-            await _serviceLock.WaitAsync();
-            try
+            string username = message.Author.Username;
+            var member = await message.Channel.Guild.GetMemberAsync(message.Author.Id);
+            if (member?.Nickname != null)
             {
-                string username = message.Author.Username;
-                var member = await message.Channel.Guild.GetMemberAsync(message.Author.Id);
-                if (member?.Nickname != null)
+                username = member.Nickname;
+            }
+
+            string projectRoot = Directory.GetParent(AppContext.BaseDirectory).Parent.Parent.Parent.FullName;
+            string chatHistoryPath = Path.Combine(
+                projectRoot,
+                "CommunicationHistory",
+                "HistoryChat",
+                message.Channel.Guild.Id.ToString(),
+                "chat_history.json"
+            );
+
+            string chinoMessage = await _geminiService.RunGeminiAPI(message.Content, username, chatHistoryPath, CancellationToken.None);
+
+            if (message.Content.ToLower().Contains("rời voice") ||
+                message.Content.ToLower().Contains("out voice") ||
+                message.Content.ToLower().Contains("leave voice"))
+            {
+                if (_connections.TryRemove(message.Channel.GuildId.Value, out var connection))
                 {
-                    username = member.Nickname;
+                    connection.Disconnect();
                 }
-
-                string projectRoot = Directory.GetParent(AppContext.BaseDirectory).Parent.Parent.Parent.FullName;
-                string chatHistoryPath = Path.Combine(
-                    projectRoot,
-                    "CommunicationHistory",
-                    "HistoryChat",
-                    message.Channel.Guild.Id.ToString(),
-                    "chat_history.json"
-                );
-
-                string chinoMessage = await _geminiService.RunGeminiAPI(message.Content, username, chatHistoryPath);
-
-                if (message.Content.ToLower().Contains("rời voice") ||
-                    message.Content.ToLower().Contains("out voice") ||
-                    message.Content.ToLower().Contains("leave voice"))
-                {
-                    if (_connections.TryRemove(message.Channel.GuildId.Value, out var connection))
-                    {
-                        connection.Disconnect();
-                    }
-                    await message.Channel.SendMessageAsync(chinoMessage);
-                    return;
-                }
-                await SendMessageAndVoiceAsync(message, chinoMessage);
+                await message.Channel.SendMessageAsync(chinoMessage);
+                return;
             }
-            catch (Exception e)
-            {
-                await message.Channel.SendMessageAsync("Híc, có lỗi rồi ;-; " + e.Message);
-            }
-            finally
-            {
-                _serviceLock.Release();
-            }
+            await SendMessageAndVoiceAsync(message, chinoMessage);
         }
 
         private async Task SendMessageAndVoiceAsync(DiscordMessage message, string textMessage)
@@ -152,7 +129,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 
                 try
                 {
-                    string translateResult = await _geminiTranslate.Translate(textMessage);
+                    string translateResult = await _geminiTranslate.Translate(textMessage, CancellationToken.None);
                     if (string.IsNullOrEmpty(translateResult))
                     {
                         Console.WriteLine("Translation result is empty!");
@@ -199,21 +176,21 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                 string outputFolder = Path.Combine(baseDirectory, "..", "..", "..", "CommunicationHistory", "VoiceHistory", guildId.ToString());
                 Directory.CreateDirectory(outputFolder);
 
-                using var httpClient = new HttpClient();
+                using var httpClient = new HttpClient() { Timeout = TimeSpan.FromMinutes(5) };
                 var ttsService = new TTSApi(httpClient);
 
-                string generatedFileName = await ttsService.GenerateTTS(message, guildId.ToString());
+                string generatedFileName = await ttsService.GenerateTTS(message, guildId.ToString(), CancellationToken.None);
 
                 string fileName = Path.GetFileName(generatedFileName);
                 string localFilePath = Path.Combine(outputFolder, fileName);
 
-                await ttsService.DownloadGeneratedTTS(guildId, fileName, localFilePath);
+                await ttsService.DownloadGeneratedTTS(guildId, fileName, localFilePath, CancellationToken.None);
 
                 return localFilePath;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Lỗi trong RunTTSScript: {ex.Message}");
+                Console.WriteLine($"Lỗi khi gọi API TTS: {ex.Message}");
                 throw;
             }
         }
@@ -247,12 +224,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 
         private SemaphoreSlim GetVoiceLock(ulong guildId)
         {
-            if (!_voiceLocks.TryGetValue(guildId, out var voiceLock))
-            {
-                voiceLock = new SemaphoreSlim(1, 1);
-                _voiceLocks[guildId] = voiceLock;
-            }
-            return voiceLock;
+            return _voiceLocks.GetOrAdd(guildId, _ => new SemaphoreSlim(1, 1));
         }
 
         private async Task PlayAudioFileAsync(string filePath, VoiceNextConnection connection, float volume = 1f)
@@ -308,9 +280,9 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 
         private async Task ProcessNextInQueue(ulong guildId, VoiceNextConnection connection)
         {
-            if (_audioQueues.TryGetValue(guildId, out var queue))
+            if (_audioQueues.TryGetValue(guildId, out var queue) && queue.Count > 0)
             {
-                if (queue.TryDequeue(out var nextAudioFile))
+                if (queue.TryPeek(out var nextAudioFile))
                 {
                     await PlayVoice(nextAudioFile, connection, guildId);
                 }
