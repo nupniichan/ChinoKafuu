@@ -108,7 +108,6 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
                     "chat_history.json"
                 );
 
-                Console.WriteLine(chatHistoryPath);
                 string chinoMessage = await _geminiService.RunGeminiAPI(message.Content, username, chatHistoryPath);
 
                 if (message.Content.ToLower().Contains("rời voice") ||

@@ -59,16 +59,4 @@ namespace ChinoBot.config
             }
         }
     }
-
-    public sealed class EnvStructure
-    {
-        public string token { get; set; }
-        public string prefix { get; set; }
-        public string osuToken { get; set; }
-        public string geminiAPIKey { get; set; }
-        public string geminiTranslateAPIKey { get; set; }
-        public ulong allowChannelID_gemini { get; set; }
-        public string userDefaultRoleName { get; set; }
-        public string openWeatherApi { get; set; }
-    }
 }
