@@ -23,8 +23,13 @@ public class TTSRequest
     public bool CleanAudio { get; set; } = true;
     public float CleanStrength { get; set; } = 0.5f;
     public string ExportFormat { get; set; } = "wav";
-    public bool UpscaleAudio { get; set; } = false;
     public string EmbedderModel { get; set; } = "contentvec";
+    public string PthPath { get; set; } = "logs/chino-kafuu/chino-kafuu.pth";
+    public string IndexPath { get; set; } = "logs/chino-kafuu/added_IVF209_Flat_nprobe_1_chino-kafuu_v2.index";
+    public string F0File { get; set; } = "https://github.com/gradio-app/gradio/raw/main/test/test_files/sample_file.pdf";
+    public string EmbedderModelCustom { get; set; } = null;
+    public int Gpu { get; set; } = 0; // Use task manager to check GPU. If u want use other GPU, change the number.
+    public bool CacheDataInGpu { get; set; } = true; // If u want cache data in GPU, set to true.
 }
 
 public class TTSApi

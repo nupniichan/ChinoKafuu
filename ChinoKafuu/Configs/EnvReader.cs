@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace ChinoBot.config
 {
-    public sealed class JSONreader
+    public sealed class EnvReader
     {
         public string token { get; set; }
         public string prefix { get; set; }
@@ -60,7 +60,7 @@ namespace ChinoBot.config
         }
     }
 
-    public sealed class JsonStructer
+    public sealed class EnvStructure
     {
         public string token { get; set; }
         public string prefix { get; set; }

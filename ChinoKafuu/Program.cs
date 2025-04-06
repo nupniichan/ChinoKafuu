@@ -23,8 +23,8 @@ internal sealed class Program
     {
         builder = new HostApplicationBuilder(args);
 
-        var jsonReader = new JSONreader();
-        await jsonReader.ReadJson();
+        var jsonReader = new EnvReader();
+        await jsonReader.ReadConfigFile();
 
         builder.Services.AddHostedService<ApplicationHost>();
         builder.Services.AddSingleton<DiscordClient>();
@@ -51,7 +51,7 @@ file sealed class ApplicationHost : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly DiscordClient _discordClient;
-    private static JSONreader jsonReader;
+    private static EnvReader jsonReader;
     private ChinoConversation _chinoConversation;
 
     private static Dictionary<string, ulong> voiceChannelIDs = new Dictionary<string, ulong>();
@@ -97,8 +97,8 @@ file sealed class ApplicationHost : BackgroundService
         };
 
         // Đọc dữ liệu file config
-        jsonReader = new JSONreader();
-        await jsonReader.ReadJson();
+        jsonReader = new EnvReader();
+        await jsonReader.ReadConfigFile();
 
         var commandsConfig = new CommandsNextConfiguration()
         {

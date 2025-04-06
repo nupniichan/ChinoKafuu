@@ -14,12 +14,12 @@ namespace ChinoKafuu.CommandsFolder.SlashCommandsFolder
 {
     public class UserSlashCommands : ApplicationCommandModule
     {
-        private readonly JSONreader jsonReader;
+        private readonly EnvReader jsonReader;
 
         public UserSlashCommands()
         {
-            jsonReader = new JSONreader();
-            jsonReader.ReadJson().GetAwaiter().GetResult();
+            jsonReader = new EnvReader();
+            jsonReader.ReadConfigFile().GetAwaiter().GetResult();
         }
 
         [SlashCommand("user-help", "Xem các câu lệnh được hỗ trợ")]

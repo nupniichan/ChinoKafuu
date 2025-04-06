@@ -14,7 +14,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 {
     internal class ChinoConversation
     {
-        private readonly JSONreader jsonReader;
+        private readonly EnvReader jsonReader;
         private readonly DiscordClient _client;
         private readonly GeminiChat _geminiService;
         private readonly GeminiTranslate _geminiTranslate;
@@ -27,8 +27,8 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         public ChinoConversation(DiscordClient client)
         {
             _client = client;
-            jsonReader = new JSONreader();
-            jsonReader.ReadJson().GetAwaiter().GetResult();
+            jsonReader = new EnvReader();
+            jsonReader.ReadConfigFile().GetAwaiter().GetResult();
             _geminiService = new GeminiChat(jsonReader.geminiAPIKey);
             _geminiTranslate = new GeminiTranslate(jsonReader.geminiTranslateAPIKey);
             _client.MessageCreated += Client_MessageCreated;
