@@ -8,6 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="cs-anilist" Version="1.0.4" />
+    <PackageReference Include="cs-owm" Version="1.0.2" />
     <PackageReference Include="DSharpPlus" Version="4.5.0" />
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.5.0" />
     <PackageReference Include="DSharpPlus.Interactivity" Version="4.5.0" />
@@ -33,6 +35,5 @@
 
   <ItemGroup>
     <Folder Include="CommunicationHistory\" />
-    <Folder Include="Engine\cs-owm\" />
   </ItemGroup>
 </Project>

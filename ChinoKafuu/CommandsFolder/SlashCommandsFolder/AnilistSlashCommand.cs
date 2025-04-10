@@ -1,17 +1,17 @@
 ﻿using ChinoKafuu.Utils;
+using CsAnilist.AnilistAPI.Enum;
+using CsAnilist.Models.Character;
+using CsAnilist.Models.Media;
+using CsAnilist.Models.Staff;
+using CsAnilist.Models.Studio;
+using CsAnilist.Models.User;
+using CsAnilist.Services;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
-using HtmlAgilityPack;
-using SimpleAnilist.AnilistAPI.Enum;
-using SimpleAnilist.Models.Character;
-using SimpleAnilist.Models.Media;
-using SimpleAnilist.Models.Staff;
-using SimpleAnilist.Models.Studio;
-using SimpleAnilist.Models.User;
-using SimpleAnilist.Services;
 using System.Net;
 using System.Text.RegularExpressions;
+
 
 namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 {
@@ -19,7 +19,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
     {
         private const string ANILIST_LOGO = "https://media.discordapp.net/attachments/1023808975185133638/1143013784584208504/AniList_logo.svg.png?width=588&height=588";
         private const string ANILIST_URL = "https://anilist.co/";
-        private SimpleAniListService anilistService = new SimpleAniListService();
+        private CsAniListService anilistService = new CsAniListService();
 
         [SlashCommand("ani-help", "Hiển thị trợ giúp về các lệnh Anilist")]
         public async Task AniHelpCommand(InteractionContext ctx)

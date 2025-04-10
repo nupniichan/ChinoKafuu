@@ -7,6 +7,7 @@ using DSharpPlus.SlashCommands;
 using System;
 using System.Globalization;
 using System.Diagnostics;
+using CsOwm.Service;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -220,7 +221,7 @@ namespace ChinoKafuu.CommandsFolder.SlashCommandsFolder
             await ctx.DeferAsync();
             try
             {
-                WeatherService weatherService = new WeatherService(jsonReader.openWeatherApi);
+                CsOwmService weatherService = new CsOwmService(jsonReader.openWeatherApi);
                 var weatherData = await weatherService.GetWeatherDataAsync(location);
 
                 if (weatherData != null)
