@@ -8,37 +8,37 @@
 
 ## ✨ **Introduction**
 
-Welcome to Chino Kafu, the Discord bot I've crafted using the dotnet framework. As this is my first attempt at creating a bot, there might be a few errors along the way. Don't hesitate to contact me if you encounter any issues. I'll do my best to resolve them.
+Welcome to Chino Kafu, the Discord bot I've crafted using the .NET9 . As this is my first attempt at creating a bot, there might be a few errors along the way. Don't hesitate to contact me if you encounter any issues. I'll do my best to resolve them.
 
 ---
 
 ## 🚀 Get started
 To get started, you must download the release file then follow my instructions:
 - Download newest release file
-- Add your token to `_config.json`. After done that please rename the file to 'config.json'
-- Use cmd ( or venv it's on you ) cd to Applio folder and use this command ```pip install -r requirement.txt``` to install package needed
+- Add your token to `._env`. After done that please rename the file to '.env'
+- Use cmd ( or venv it's on you ) cd to Applio folder and use this command ```pip install -r requirement.txt``` to install package needed *( Or simply just install [pre-complited applio](https://huggingface.co/IAHispano/Applio/tree/main/Compiled) )*
 
 ---
 
 ## 🔧 **Requirements**
 - Make sure you have the following installed:
 - **dotnet = 9.0 (Required)** 
-- **python 3.9 (Required)**
+- **python >= 3.9 (Required)**
 
 ---
 
 ## 🆕**New update**
-- Fixed Chino playing on cmd instead of Discord voice chat
-- Improve prompt 
+- Use nuget package of cs-anilist and cs-owm
+
 ---
 
 ## 🧑‍💻 **How to use?**
 - Install all python package and config the file like i said before
-- Use cmd and cd to Applio folder and run api.py
+- Use cmd and cd to Applio folder and run TTSApi.py
 - For example:
 ```bash
 cd E:\ChinoKafuu\Applio # Change to your path
-uvicorn api:app --reload
+uvicorn TTSApi:app --reload
 ```
 - Run c# console app
 ```bash
@@ -62,25 +62,25 @@ Chino Kafu provide many of features for your Discord server:
 
 - **Conversation with Chino-Chan**: You will be able to chat with Chino-Chan. If you want to hear her voice, join any voice channel on your server first, after a few seconds, Chino will join channel and say what she reply to you ( She only reply ja-jp language only ). Note: *No prefix needed while chatting in that channel*.
 
+- And more... You can try / in discord to find out.
+
 ---
 
 ## 🌟 **Upcoming features**
 - 🎮 Get game and user information on Steam
 - 🛠️ Improve and retructor code
-- Remove unnecessary folder/file/code
 - Create one-click install
 - Create my own voice dataset and train it
-- Create dockerfile
 
 ---
 
 ## 📚 **Library used**
 - [DSharpPlus](https://github.com/DSharpPlus/DSharpPlus)
 - [OsuNet](https://github.com/Blackcat76iT/OsuNet/tree/29571b5270b52c628a809225ce32c20573b65a3b) 
-- [Anilist-GraphQL](https://github.com/AniList/ApiV2-GraphQL-Docs)
 - [generativeAI](https://github.com/google/generative-ai-docs)
 - [Applio](https://github.com/IAHispano/Applio)
-- [SimpleAnilist](https://github.com/nupniichan/SimpleAnilist)
+- [cs-anilist](https://github.com/nupniichan/cs-anilist)
+- [cs-owm](https://github.com/nupniichan/cs-owm)
 
 ---
 
