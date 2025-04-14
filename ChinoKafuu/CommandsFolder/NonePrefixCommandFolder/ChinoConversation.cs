@@ -15,7 +15,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 {
     internal class ChinoConversation
     {
-        private readonly EnvReader jsonReader;
+        private readonly EnvReader envReader;
         private readonly DiscordClient _client;
         private readonly GeminiChat _geminiService;
         private readonly GeminiTranslate _geminiTranslate;
@@ -29,10 +29,10 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         public ChinoConversation(DiscordClient client)
         {
             _client = client;
-            jsonReader = new EnvReader();
-            jsonReader.ReadConfigFile().GetAwaiter().GetResult();
-            _geminiService = new GeminiChat(jsonReader.geminiAPIKey);
-            _geminiTranslate = new GeminiTranslate(jsonReader.geminiTranslateAPIKey);
+            envReader = new EnvReader();
+            envReader.ReadConfigFile().GetAwaiter().GetResult();
+            _geminiService = new GeminiChat(envReader.geminiAPIKey);
+            _geminiTranslate = new GeminiTranslate(envReader.geminiTranslateAPIKey);
             _client.MessageCreated += Client_MessageCreated;
         }
 
@@ -44,7 +44,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         private async Task Client_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
         {
             if (e.Author.IsBot || e.Message.Content.StartsWith("BOT") ||
-                (e.Channel.Id != testChannel && e.Channel.Id != jsonReader.allowChannelID_gemini))
+                (e.Channel.Id != testChannel && e.Channel.Id != envReader.allowChannelID_gemini))
             {
                 return;
             }

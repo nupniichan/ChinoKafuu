@@ -23,15 +23,15 @@ internal sealed class Program
     {
         builder = new HostApplicationBuilder(args);
 
-        var jsonReader = new EnvReader();
-        await jsonReader.ReadConfigFile();
+        var envReader = new EnvReader();
+        await envReader.ReadConfigFile();
 
         builder.Services.AddHostedService<ApplicationHost>();
         builder.Services.AddSingleton<DiscordClient>();
         builder.Services.AddSingleton(new DiscordConfiguration()
         {
             Intents = DiscordIntents.All,
-            Token = jsonReader.token,
+            Token = envReader.token,
             TokenType = TokenType.Bot,
             AutoReconnect = true
         });
@@ -117,8 +117,8 @@ file sealed class ApplicationHost : BackgroundService
         slashCommands.RegisterCommands<AdministratorCommand>();
         slashCommands.RegisterCommands<AnilistSlashCommand>();
         slashCommands.RegisterCommands<OsuSlashCommand>();
-        slashCommands.RegisterCommands<SystemStatusSlashCommands>();
         slashCommands.RegisterCommands<UserSlashCommands>();
+        slashCommands.RegisterCommands<SteamSlashCommands>();
 
         await _discordClient.ConnectAsync().ConfigureAwait(false);
 
