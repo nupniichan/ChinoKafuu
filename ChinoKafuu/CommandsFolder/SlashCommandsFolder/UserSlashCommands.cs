@@ -15,12 +15,12 @@ namespace ChinoKafuu.CommandsFolder.SlashCommandsFolder
 {
     public class UserSlashCommands : ApplicationCommandModule
     {
-        private readonly EnvReader jsonReader;
+        private readonly EnvReader envReader;
 
         public UserSlashCommands()
         {
-            jsonReader = new EnvReader();
-            jsonReader.ReadConfigFile().GetAwaiter().GetResult();
+            envReader = new EnvReader();
+            envReader.ReadConfigFile().GetAwaiter().GetResult();
         }
 
         [SlashCommand("user-help", "Xem các câu lệnh được hỗ trợ")]
@@ -221,7 +221,7 @@ namespace ChinoKafuu.CommandsFolder.SlashCommandsFolder
             await ctx.DeferAsync();
             try
             {
-                CsOwmService weatherService = new CsOwmService(jsonReader.openWeatherApi);
+                CsOwmService weatherService = new CsOwmService(envReader.openWeatherApi);
                 var weatherData = await weatherService.GetWeatherDataAsync(location);
 
                 if (weatherData != null)

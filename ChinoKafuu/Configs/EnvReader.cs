@@ -15,6 +15,7 @@ namespace ChinoBot.config
         public ulong allowChannelID_gemini { get; set; }
         public string userDefaultRoleName { get; set; }
         public string openWeatherApi { get; set; }
+        public string steamApiKey { get; set; }
 
         public async Task ReadConfigFile()
         {
@@ -48,6 +49,7 @@ namespace ChinoBot.config
                 this.allowChannelID_gemini = ulong.Parse(envVars["ALLOW_CHANNEL_ID_GEMINI"]);
                 this.userDefaultRoleName = envVars["USER_DEFAULT_ROLE_NAME"];
                 this.openWeatherApi = envVars["OPEN_WEATHER_API"];
+                this.steamApiKey = envVars["STEAM_API_KEY"];
             }
             catch (FileNotFoundException)
             {
