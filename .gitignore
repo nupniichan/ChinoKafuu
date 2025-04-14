@@ -311,7 +311,7 @@ ChinoKafuu/Configs/config.json
 
 # Applio ( except API )
 Applio/*
-!Applio/api.py
+!Applio/TTSApi.py
 !Applio/requirements.txt
 !Applio/Dockerfile
 
