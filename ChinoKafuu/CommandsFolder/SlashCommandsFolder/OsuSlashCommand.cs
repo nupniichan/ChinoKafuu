@@ -1,4 +1,4 @@
-﻿using ChinoBot.Engine.Osu;
+﻿using ChinoBot.config;
 using ChinoKafuu.Utils;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -12,6 +12,16 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 {
     public class OsuSlashCommand : ApplicationCommandModule
     {
+        public readonly EnvReader envReader;
+        private readonly string osuAPI;
+        public OsuSlashCommand()
+        {
+            envReader = new EnvReader();
+            envReader.ReadConfigFile().GetAwaiter().GetResult();
+
+            osuAPI = envReader.osuToken;
+        }
+
         [SlashCommand("ohelp", "Để tớ giúp cậu nắm rõ các lệnh nhé")]
         public async Task HelpOsuCommand(InteractionContext ctx)
         {
@@ -37,7 +47,6 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             try
             {
                 // Connect to Osu API
-                string osuAPI = await OsuStorageAPI.OsuAPIConnect();
                 OsuApi api = new OsuApi(osuAPI);
 
                 // send query to API consist of user and mode
@@ -115,7 +124,6 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             try
             {
                 // Kết nối với API
-                string osuAPI = await OsuStorageAPI.OsuAPIConnect();
                 OsuApi api = new OsuApi(osuAPI);
                 GetUserRecentOptions userRecentOptions = new GetUserRecentOptions
                 {
@@ -195,8 +203,6 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                                           [Option("mode", "Chọn loại mode mà bạn muốn xem")] BeatmapMode mode)
         {
             await ctx.DeferAsync();
-
-            string osuAPI = await OsuStorageAPI.OsuAPIConnect();
             OsuApi api = new OsuApi(osuAPI);
 
             try
@@ -272,7 +278,6 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 
             try
             {
-                string osuAPI = await OsuStorageAPI.OsuAPIConnect();
                 OsuApi api = new OsuApi(osuAPI);
 
                 GetBeatmapOptions beatmapOptions = new GetBeatmapOptions()
