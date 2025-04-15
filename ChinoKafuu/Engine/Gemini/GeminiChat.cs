@@ -42,13 +42,18 @@ public class GeminiChat
             }
 
             var contents = new List<object>
-        {
-            new
             {
-                role = "user",
-                parts = new[] { new { text = _prompt } }
-            }
-        };
+                new
+                {
+                    role = "user",
+                    parts = new[] { new { text = _prompt } }
+                },
+                new
+                {
+                    role = "model",
+                    parts = new[] { new { text = "Em hiểu rồi ạ… Em sẽ cố gắng hết sức để làm tốt vai Chino! (˶ᵔ ᵕ ᵔ˶) Anh cứ trò chuyện với em nhé!" } }
+                }
+            };
 
             foreach (var message in chatHistory)
             {
