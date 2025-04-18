@@ -19,36 +19,36 @@ class TTSRequest(BaseModel):
     text: str
     voice: str = "ja-JP-NanamiNeural"
     rate: int = 0
-    pitch: int = 3
-    filter_radius: int = 4
-    index_rate: float = 0.6
+    pitch: int = 4
+    filter_radius: int = 3
+    index_rate: float = 0.5
     volume_envelope: int = 1
-    protect: float = 0.5
-    hop_length: int = 256
+    protect: float = 0.4
+    hop_length: int = 64
     f0_method: str = "rmvpe"
-    split_audio: bool = False
+    split_audio: bool = True
     f0_autotune: bool = False
-    f0_autotune_strength: float = 0.12
+    f0_autotune_strength: float = 0.0
     clean_audio: bool = True
-    clean_strength: float = 0.5
+    clean_strength: float = 0.2
     export_format: str = "wav"
     embedder_model: str = "contentvec"
-    pth_path: str = "logs/chino-kafuu/chino-kafuu.pth"
-    index_path: str = "logs/chino-kafuu/added_IVF209_Flat_nprobe_1_chino-kafuu_v2.index"
+    pth_path: str = "logs/Chino-kafuu/Chino-Kafuu.pth"
+    index_path: str = "logs/Chino-Kafuu/Chino-Kafuu.index"
     f0_file: str = "https://github.com/gradio-app/gradio/raw/main/test/test_files/sample_file.pdf"
     embedder_model_custom: Optional[str] = None
 
 # Check and download model if not exist
 @app.get("/check_model")
 async def check_model():
-    model_name = "chino-kafuu"
+    model_name = "Chino-Kafuu"
     logs_dir = os.path.join("logs", model_name)
     pth_path = os.path.join(logs_dir, f"{model_name}.pth")
     index_path = os.path.join(logs_dir, f"added_IVF209_Flat_nprobe_1_{model_name}_v2.index")
     
     if not os.path.exists(pth_path) or not os.path.exists(index_path):
         try:
-            model_download_url = "https://huggingface.co/Timur04129/Chino-Kafuu/resolve/main/chino-kafuu.zip"
+            model_download_url = "https://huggingface.co/nupniichan/Chino-Kafuu/resolve/main/Chino-Kafuu.zip"
             os.makedirs(logs_dir, exist_ok=True)
             run_download_script(model_download_url)
             return {"message": "Model tải thành công."}
@@ -70,15 +70,15 @@ async def download_file(file_name: str):
 # Text_to_speech api
 @app.post("/tts")
 async def text_to_speech(request: TTSRequest):
-    model_name = "chino-kafuu"
+    model_name = "Chino-Kafuu"
     logs_dir = os.path.join("logs", model_name)
     pth_path = os.path.join(logs_dir, f"{model_name}.pth")
-    index_path = os.path.join(logs_dir, f"added_IVF209_Flat_nprobe_1_{model_name}_v2.index")
+    index_path = os.path.join(logs_dir, f"{model_name}.index")
     
     # Check if model is exist or not, if not then download it
     if not os.path.exists(pth_path) or not os.path.exists(index_path):
         try:
-            model_download_url = "https://huggingface.co/Timur04129/Chino-Kafuu/resolve/main/chino-kafuu.zip"
+            model_download_url = "https://huggingface.co/nupniichan/Chino-Kafuu/resolve/main/Chino-Kafuu.zip"
             os.makedirs(logs_dir, exist_ok=True)
             run_download_script(model_download_url)
             return {"message": "Model tải thành công."}
