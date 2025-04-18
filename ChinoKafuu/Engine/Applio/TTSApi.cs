@@ -11,18 +11,18 @@ public class TTSRequest
     public string guild_id { get; set; }
     public string Voice { get; set; } = "ja-JP-NanamiNeural";
     public int Rate { get; set; } = 0;
-    public int Pitch { get; set; } = 3;
-    public int FilterRadius { get; set; } = 4;
-    public float IndexRate { get; set; } = 0.6f;
+    public int Pitch { get; set; } = 4;
+    public int FilterRadius { get; set; } = 3;
+    public float IndexRate { get; set; } = 0.5f;
     public int VolumeEnvelope { get; set; } = 1;
-    public float Protect { get; set; } = 0.5f;
-    public int HopLength { get; set; } = 256;
+    public float Protect { get; set; } = 0.4f;
+    public int HopLength { get; set; } = 64;
     public string F0Method { get; set; } = "rmvpe";
-    public bool SplitAudio { get; set; } = false;
+    public bool SplitAudio { get; set; } = true;
     public bool F0Autotune { get; set; } = false;
     public float F0AutotuneStrength { get; set; } = 0.12f;
     public bool CleanAudio { get; set; } = true;
-    public float CleanStrength { get; set; } = 0.5f;
+    public float CleanStrength { get; set; } = 0.2f;
     public string ExportFormat { get; set; } = "wav";
     public string EmbedderModel { get; set; } = "contentvec";
     public string PthPath { get; set; } = "logs/chino-kafuu/chino-kafuu.pth";
