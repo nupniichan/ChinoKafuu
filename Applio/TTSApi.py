@@ -2,6 +2,8 @@ import os
 import sys
 import shutil
 import requests
+import re
+import pathlib
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import uvicorn
@@ -38,13 +40,27 @@ class TTSRequest(BaseModel):
     f0_file: str = "https://github.com/gradio-app/gradio/raw/main/test/test_files/sample_file.pdf"
     embedder_model_custom: Optional[str] = None
 
+def sanitize_filename(filename):
+    return re.sub(r'[^\w\-\.]', '_', filename)
+
+def sanitize_id(id_str):
+    return re.sub(r'[^\w]', '', id_str)
+
+def safe_path_join(*paths):
+    joined_path = os.path.join(*paths)
+    base_path = os.path.abspath(os.path.join(*paths[:1]))
+    abs_path = os.path.abspath(joined_path)
+    if not abs_path.startswith(base_path):
+        raise ValueError("File path is not valid")
+    return joined_path
+
 # Check and download model if not exist
 @app.get("/check_model")
 async def check_model():
     model_name = "Chino-Kafuu"
-    logs_dir = os.path.join("logs", model_name)
-    pth_path = os.path.join(logs_dir, f"{model_name}.pth")
-    index_path = os.path.join(logs_dir, f"added_IVF209_Flat_nprobe_1_{model_name}_v2.index")
+    logs_dir = safe_path_join("logs", model_name)
+    pth_path = safe_path_join(logs_dir, f"{model_name}.pth")
+    index_path = safe_path_join(logs_dir, f"added_IVF209_Flat_nprobe_1_{model_name}_v2.index")
     
     if not os.path.exists(pth_path) or not os.path.exists(index_path):
         try:
@@ -60,7 +76,8 @@ async def check_model():
 # I have no idea why i create this api
 @app.get("/download/{file_name}")
 async def download_file(file_name: str):
-    file_path = os.path.join("downloads", file_name)
+    safe_file_name = sanitize_filename(file_name)
+    file_path = safe_path_join("downloads", safe_file_name)
     
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="File không tồn tại.")
@@ -71,9 +88,9 @@ async def download_file(file_name: str):
 @app.post("/tts")
 async def text_to_speech(request: TTSRequest):
     model_name = "Chino-Kafuu"
-    logs_dir = os.path.join("logs", model_name)
-    pth_path = os.path.join(logs_dir, f"{model_name}.pth")
-    index_path = os.path.join(logs_dir, f"{model_name}.index")
+    logs_dir = safe_path_join("logs", model_name)
+    pth_path = safe_path_join(logs_dir, f"{model_name}.pth")
+    index_path = safe_path_join(logs_dir, f"{model_name}.index")
     
     # Check if model is exist or not, if not then download it
     if not os.path.exists(pth_path) or not os.path.exists(index_path):
@@ -87,19 +104,23 @@ async def text_to_speech(request: TTSRequest):
         
     # Generate unique_id for temporary file
     unique_id = os.urandom(4).hex()
-    tts_file = os.path.join("tts_temp", f"tts_input_{unique_id}.txt")
-    output_tts_path = os.path.join("tts_temp", f"tts_output_{unique_id}.wav")
+    tts_file = safe_path_join("tts_temp", f"tts_input_{unique_id}.txt")
+    output_tts_path = safe_path_join("tts_temp", f"tts_output_{unique_id}.wav")
 
     # Get current time execute
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
     # Get guild_id via request and create folder for output
-    guild_id = request.guild_id 
-    guild_output_dir = os.path.join("tts_output", str(guild_id))
+    safe_guild_id = sanitize_id(request.guild_id) 
+    guild_output_dir = safe_path_join("tts_output", safe_guild_id)
     os.makedirs(guild_output_dir, exist_ok=True)
 
+    safe_export_format = "wav" 
+    if request.export_format in ["wav", "mp3", "ogg"]:
+        safe_export_format = request.export_format
+
     # it will be {guildid}/result____.wav
-    output_rvc_path = os.path.join(guild_output_dir, f"result_{timestamp}.{request.export_format}")
+    output_rvc_path = safe_path_join(guild_output_dir, f"result_{timestamp}.{safe_export_format}")
 
     os.makedirs("tts_temp", exist_ok=True)
     os.makedirs("tts_output", exist_ok=True)
@@ -130,7 +151,7 @@ async def text_to_speech(request: TTSRequest):
             f0_autotune_strength=request.f0_autotune_strength,
             clean_audio=request.clean_audio,
             clean_strength=request.clean_strength,
-            export_format=request.export_format,
+            export_format=safe_export_format,
             f0_file="",
             embedder_model=request.embedder_model
         )
@@ -139,34 +160,46 @@ async def text_to_speech(request: TTSRequest):
         os.remove(output_tts_path)
         
         # Return result
-        return {"file_name": f"result_{timestamp}.{request.export_format}"}
+        return {"file_name": f"result_{timestamp}.{safe_export_format}"}
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi TTS: {str(e)}")
     
 @app.get("/get-generated/{guild_id}/{file_name}")
 async def download_tts_file(guild_id: str, file_name: str, background_tasks: BackgroundTasks):
-    file_path = os.path.join("tts_output", guild_id, file_name)
+    safe_guild_id = sanitize_id(guild_id)
+    safe_file_name = sanitize_filename(file_name)
     
-    if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail="File không tồn tại.")
-
     try:
+        file_path = safe_path_join("tts_output", safe_guild_id, safe_file_name)
+        
+        if not os.path.exists(file_path):
+            raise HTTPException(status_code=404, detail="File không tồn tại.")
+    
         background_tasks.add_task(remove_file, file_path)
         
         return FileResponse(
             file_path,
             media_type="audio/wav",
-            headers={"Content-Disposition": f"attachment; filename={file_name}"}
+            headers={"Content-Disposition": f"attachment; filename={safe_file_name}"}
         )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Đường dẫn không hợp lệ: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi tải file: {str(e)}")
 
 # Remove file of course
 def remove_file(file_path: str):
     try:
-        os.remove(file_path)
-        print(f"Đã xóa file: {file_path}")
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            abs_path = os.path.abspath(file_path)
+            tts_output_dir = os.path.abspath("tts_output")
+            if not abs_path.startswith(tts_output_dir):
+                print(f"Không thể xóa file ngoài thư mục tts_output: {file_path}")
+                return
+                
+            os.remove(file_path)
+            print(f"Đã xóa file: {file_path}")
     except Exception as e:
         print(f"Lỗi khi xóa file {file_path}: {str(e)}")
 
