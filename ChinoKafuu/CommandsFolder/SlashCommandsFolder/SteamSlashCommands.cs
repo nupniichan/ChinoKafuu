@@ -16,14 +16,14 @@ namespace ChinoKafuu.CommandsFolder.SlashCommandsFolder
         private const string STEAM_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Steam_icon_logo.svg/768px-Steam_icon_logo.svg.png";
         private const string STEAM_URL = "https://store.steampowered.com/";
         private readonly DiscordColor STEAM_COLOR = new DiscordColor(27, 40, 56);
-        public readonly EnvReader envReader;
+        public readonly Config config;
         private readonly CsSteamUser steamUser = new CsSteamUser();
         private readonly CsSteamApp steamApp = new CsSteamApp();
 
         public SteamSlashCommands()
         {
-            envReader = new EnvReader();
-            envReader.ReadConfigFile().GetAwaiter().GetResult();
+            config = new Config();
+            config.ReadConfigFile().GetAwaiter().GetResult();
         }
 
         [SlashCommand("steam-help", "Hiển thị trợ giúp về các lệnh Steam")]
@@ -52,9 +52,9 @@ namespace ChinoKafuu.CommandsFolder.SlashCommandsFolder
             await ctx.DeferAsync();
             try
             {
-                var userId = await steamUser.GetUserID(envReader.steamApiKey, username);
-                var userStats = await steamUser.GetUserStats(envReader.steamApiKey, userId.steamid);
-                var playerSummary = await steamUser.GetPlayerSummaries(envReader.steamApiKey, userId.steamid);
+                var userId = await steamUser.GetUserID(config.steamApiKey, username);
+                var userStats = await steamUser.GetUserStats(config.steamApiKey, userId.steamid);
+                var playerSummary = await steamUser.GetPlayerSummaries(config.steamApiKey, userId.steamid);
 
                 DiscordColor statusColor = GetStatusColor(userStats.OnlineStatus);
 
@@ -91,7 +91,7 @@ namespace ChinoKafuu.CommandsFolder.SlashCommandsFolder
 
                 try
                 {
-                    var badges = await steamUser.GetPlayerBadges(envReader.steamApiKey, userId.steamid);
+                    var badges = await steamUser.GetPlayerBadges(config.steamApiKey, userId.steamid);
                     if (badges.Count > 0)
                     {
                         int totalXp = badges.Sum(b => b.XP);
@@ -637,8 +637,8 @@ namespace ChinoKafuu.CommandsFolder.SlashCommandsFolder
             await ctx.DeferAsync();
             try
             {
-                var userId = await steamUser.GetUserID(envReader.steamApiKey, username);
-                var userStats = await steamUser.GetUserStats(envReader.steamApiKey, userId.steamid);
+                var userId = await steamUser.GetUserID(config.steamApiKey, username);
+                var userStats = await steamUser.GetUserStats(config.steamApiKey, userId.steamid);
                 
                 if (userStats.RecentlyPlayedGames == null || userStats.RecentlyPlayedGames.Count == 0)
                 {
@@ -676,8 +676,8 @@ namespace ChinoKafuu.CommandsFolder.SlashCommandsFolder
             await ctx.DeferAsync();
             try
             {
-                var userId = await steamUser.GetUserID(envReader.steamApiKey, username);
-                var userStats = await steamUser.GetUserStats(envReader.steamApiKey, userId.steamid);
+                var userId = await steamUser.GetUserID(config.steamApiKey, username);
+                var userStats = await steamUser.GetUserStats(config.steamApiKey, userId.steamid);
 
                 if (userStats.TotalGamesOwned == 0)
                 {

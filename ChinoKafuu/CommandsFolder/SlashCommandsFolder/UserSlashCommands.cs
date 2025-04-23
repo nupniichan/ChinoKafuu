@@ -4,23 +4,20 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
-using System;
 using System.Globalization;
 using System.Diagnostics;
 using CsOwm.Service;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ChinoKafuu.CommandsFolder.SlashCommandsFolder
 {
     public class UserSlashCommands : ApplicationCommandModule
     {
-        private readonly EnvReader envReader;
+        private readonly Config config;
 
         public UserSlashCommands()
         {
-            envReader = new EnvReader();
-            envReader.ReadConfigFile().GetAwaiter().GetResult();
+            config = new Config();
+            config.ReadConfigFile().GetAwaiter().GetResult();
         }
 
         [SlashCommand("user-help", "Xem các câu lệnh được hỗ trợ")]
@@ -221,7 +218,7 @@ namespace ChinoKafuu.CommandsFolder.SlashCommandsFolder
             await ctx.DeferAsync();
             try
             {
-                CsOwmService weatherService = new CsOwmService(envReader.openWeatherApi);
+                CsOwmService weatherService = new CsOwmService(config.openWeatherApi);
                 var weatherData = await weatherService.GetWeatherDataAsync(location);
 
                 if (weatherData != null)

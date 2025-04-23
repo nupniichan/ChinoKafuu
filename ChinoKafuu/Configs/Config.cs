@@ -1,11 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-
-namespace ChinoBot.config
+﻿namespace ChinoBot.config
 {
-    public sealed class EnvReader
+    public sealed class Config
     {
         public string token { get; set; }
         public string prefix { get; set; }

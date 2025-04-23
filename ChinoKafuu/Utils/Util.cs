@@ -1,18 +1,12 @@
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using HtmlAgilityPack;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace ChinoKafuu.Utils
 {
     public class Util
     {
-        public static bool SkipLavalink => Environment.GetEnvironmentVariable("SKIP_LAVALINK") == "true";
         public static DiscordColor GetRandomDiscordColor()
         {
             Random random = new Random();
@@ -174,11 +168,10 @@ namespace ChinoKafuu.Utils
         public static string GetWindDirection(float degrees)
         {
             string[] directions = {
-        "Bắc", "Bắc Đông Bắc", "Đông Bắc",
-        "Đông", "Đông Nam", "Nam Đông Nam",
-        "Nam", "Nam Tây Nam", "Tây Nam",
-        "Tây", "Tây Bắc", "Bắc Tây Bắc"
-    };
+                "Bắc", "Bắc Đông Bắc", "Đông Bắc",
+                "Đông", "Đông Nam", "Nam Đông Nam",
+                "Nam", "Nam Tây Nam", "Tây Nam",
+                "Tây", "Tây Bắc", "Bắc Tây Bắc" };
 
             int index = (int)((degrees + 15) % 360 / 30);
             return directions[index];

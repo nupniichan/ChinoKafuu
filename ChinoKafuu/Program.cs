@@ -23,15 +23,15 @@ internal sealed class Program
     {
         builder = new HostApplicationBuilder(args);
 
-        var envReader = new EnvReader();
-        await envReader.ReadConfigFile();
+        var _config = new Config();
+        await _config.ReadConfigFile();
 
         builder.Services.AddHostedService<ApplicationHost>();
         builder.Services.AddSingleton<DiscordClient>();
         builder.Services.AddSingleton(new DiscordConfiguration()
         {
             Intents = DiscordIntents.All,
-            Token = envReader.token,
+            Token = _config.token,
             TokenType = TokenType.Bot,
             AutoReconnect = true
         });
@@ -51,7 +51,7 @@ file sealed class ApplicationHost : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly DiscordClient _discordClient;
-    private static EnvReader jsonReader;
+    private static Config config;
     private ChinoConversation _chinoConversation;
 
     private static Dictionary<string, ulong> voiceChannelIDs = new Dictionary<string, ulong>();
@@ -97,12 +97,12 @@ file sealed class ApplicationHost : BackgroundService
         };
 
         // Đọc dữ liệu file config
-        jsonReader = new EnvReader();
-        await jsonReader.ReadConfigFile();
+        config = new Config();
+        await config.ReadConfigFile();
 
         var commandsConfig = new CommandsNextConfiguration()
         {
-            StringPrefixes = new string[] { jsonReader.prefix },
+            StringPrefixes = new string[] { config.prefix },
             EnableMentionPrefix = true,
             EnableDms = true,
             EnableDefaultHelp = false
@@ -158,7 +158,7 @@ file sealed class ApplicationHost : BackgroundService
             .WithDescription("Chào mừng bạn đến với CaféDeNup~")
             .WithThumbnail(e.Member.AvatarUrl)
             .WithImageUrl(welcomeGifUrl);
-        var defaultRolePair = e.Guild.Roles.FirstOrDefault(r => r.Value.Name == jsonReader.userDefaultRoleName);
+        var defaultRolePair = e.Guild.Roles.FirstOrDefault(r => r.Value.Name == config.userDefaultRoleName);
         var defaultRole = defaultRolePair.Value;
         await e.Member.GrantRoleAsync(defaultRole);
         await defaultChannel.SendMessageAsync(embed: welcomeEmbed);

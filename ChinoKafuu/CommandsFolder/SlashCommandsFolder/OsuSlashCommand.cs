@@ -12,14 +12,14 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 {
     public class OsuSlashCommand : ApplicationCommandModule
     {
-        public readonly EnvReader envReader;
+        public readonly Config config;
         private readonly string osuAPI;
         public OsuSlashCommand()
         {
-            envReader = new EnvReader();
-            envReader.ReadConfigFile().GetAwaiter().GetResult();
+            config = new Config();
+            config.ReadConfigFile().GetAwaiter().GetResult();
 
-            osuAPI = envReader.osuToken;
+            osuAPI = config.osuToken;
         }
 
         [SlashCommand("ohelp", "Để tớ giúp cậu nắm rõ các lệnh nhé")]

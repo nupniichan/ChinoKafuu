@@ -137,7 +137,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
         public async Task GetVideoTrailer(InteractionContext ctx, [Option("name", "Tên anime")] string name)
         {
             await ctx.DeferAsync();
-            var media = await anilistService.SearchMediaByNameAsync(name, MediaType.ANIME);
+            var media = await anilistService.SearchMedia(name, MediaType.ANIME);
             if (media == null)
             {
                 await SendErrorEmbed(ctx, $"Không tìm thấy anime: {name}");
@@ -159,7 +159,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             try
             {
                 await ctx.DeferAsync();
-                var media = await anilistService.SearchMediaByNameAsync(search, type);
+                var media = await anilistService.SearchMedia(search, type);
 
                 if (media == null)
                 {

@@ -5,17 +5,12 @@ using DSharpPlus;
 using NAudio.Wave;
 using System.Collections.Concurrent;
 using ChinoBot.config;
-using System.Text.Json;
-using System.Net.Http;
-using System.Text;
-using System.Net.Http.Json;
-using System.Threading;
 
 namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
 {
     internal class ChinoConversation
     {
-        private readonly EnvReader envReader;
+        private readonly Config config;
         private readonly DiscordClient _client;
         private readonly GeminiChat _geminiService;
         private readonly GeminiTranslate _geminiTranslate;
@@ -29,10 +24,10 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         public ChinoConversation(DiscordClient client)
         {
             _client = client;
-            envReader = new EnvReader();
-            envReader.ReadConfigFile().GetAwaiter().GetResult();
-            _geminiService = new GeminiChat(envReader.geminiAPIKey);
-            _geminiTranslate = new GeminiTranslate(envReader.geminiTranslateAPIKey);
+            config = new Config();
+            config.ReadConfigFile().GetAwaiter().GetResult();
+            _geminiService = new GeminiChat(config.geminiAPIKey);
+            _geminiTranslate = new GeminiTranslate(config.geminiTranslateAPIKey);
             _client.MessageCreated += Client_MessageCreated;
         }
 
@@ -44,7 +39,7 @@ namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
         private async Task Client_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
         {
             if (e.Author.IsBot || e.Message.Content.StartsWith("BOT") ||
-                (e.Channel.Id != testChannel && e.Channel.Id != envReader.allowChannelID_gemini))
+                (e.Channel.Id != testChannel && e.Channel.Id != config.allowChannelID_gemini))
             {
                 return;
             }
