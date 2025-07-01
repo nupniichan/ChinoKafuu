@@ -1,5 +1,5 @@
 ﻿using ChinoKafuu.Utils;
-using CsAnilist.AnilistAPI.Enum;
+using CsAnilist.Models.Enums;
 using CsAnilist.Models.Character;
 using CsAnilist.Models.Media;
 using CsAnilist.Models.Staff;
@@ -277,6 +277,9 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 .WithImageUrl(media.bannerImage);
 
             string utcOffsetString = Util.GetUtcOffsetString();
+            
+            string seasonName = media.season.HasValue ? media.season.ToString() : "UNKNOWN";
+            string sourceName = media.source.HasValue ? media.source.ToString() : "UNKNOWN";
 
             if (isAnime)
             {
@@ -286,8 +289,8 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                          .AddField("⏱ Thời lượng", $"{media.duration} phút", true)
                          .AddField(":hourglass_flowing_sand: Trạng thái", status, true)
                          .AddField(":calendar_spiral: Phát sóng", $"{startDate} -> {endDate}", false)
-                         .AddField(":comet: Mùa", char.ToUpper(media.season[0]) + media.season.Substring(1).ToLower(), false)
-                         .AddField(":file_folder: Nguồn", char.ToUpper(media.source[0]) + media.source.Substring(1).ToLower(), false)
+                         .AddField(":comet: Mùa", FormatEnumValue(seasonName), false)
+                         .AddField(":file_folder: Nguồn", FormatEnumValue(sourceName), false)
                          .AddField(":star: Điểm trung bình", $"{media.averageScore}/100", true)
                          .AddField(":star: Điểm trung vị", $"{media.meanScore}/100", true)
                          .AddField(":thumbsup: Số lượt thích", $"{media.favourites}", true)
@@ -304,10 +307,10 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
 
                         embed.AddField(":calendar_spiral: Phát sóng", $"{startDate} -> N/A", true)
                              .AddField(":hourglass_flowing_sand: Trạng thái", status, true)
-                             .AddField(":comet: Mùa", char.ToUpper(media.season[0]) + media.season.Substring(1).ToLower(), true)
+                             .AddField(":comet: Mùa", FormatEnumValue(seasonName), true)
                              .AddField(":calendar: Tập tiếp theo", $"Tập {nextEpisode.episode}, sẽ được phát sóng sau: {airingTime} ({utcOffsetString})", false)
                              .AddField("⏱ Thời lượng tập", $"{media.duration} phút", false)
-                             .AddField(":file_folder: Nguồn", char.ToUpper(media.source[0]) + media.source.Substring(1).ToLower(), false)
+                             .AddField(":file_folder: Nguồn", FormatEnumValue(sourceName), false)
                              .AddField(":star: Điểm trung bình", $"{media.averageScore}/100", true)
                              .AddField(":star: Điểm trung vị", $"{media.meanScore}/100", true)
                              .AddField(":thumbsup: Số lượt thích", $"{media.favourites}", true)
@@ -319,9 +322,9 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                     {
                         embed.AddField(":calendar_spiral: Phát sóng", $"{startDate} -> N/A", true)
                              .AddField(":hourglass_flowing_sand: Trạng thái", status, true)
-                             .AddField(":comet: Mùa", char.ToUpper(media.season[0]) + media.season.Substring(1).ToLower(), true)
+                             .AddField(":comet: Mùa", FormatEnumValue(seasonName), true)
                              .AddField("⏱ Thời lượng tập", $"{media.duration} phút", false)
-                             .AddField(":file_folder: Nguồn", char.ToUpper(media.source[0]) + media.source.Substring(1).ToLower(), false)
+                             .AddField(":file_folder: Nguồn", FormatEnumValue(sourceName), false)
                              .AddField(":star: Điểm trung bình", $"{media.averageScore}/100", true)
                              .AddField(":star: Điểm trung vị", $"{media.meanScore}/100", true)
                              .AddField(":thumbsup: Số lượt thích", $"{media.favourites}", true)
@@ -333,15 +336,15 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 else
                 {
                     embed.AddField(":calendar_spiral: Phát sóng", $"{startDate} -> N/A", true)
-                             .AddField(":hourglass_flowing_sand: Trạng thái", status, true)
-                             .AddField("⏱ Thời lượng tập", $"{media.duration} phút", false)
-                             .AddField(":file_folder: Nguồn", char.ToUpper(media.source[0]) + media.source.Substring(1).ToLower(), false)
-                             .AddField(":star: Điểm trung bình", $"{media.averageScore}/100", true)
-                             .AddField(":star: Điểm trung vị", $"{media.meanScore}/100", true)
-                             .AddField(":thumbsup: Số lượt thích", $"{media.favourites}", true)
-                             .AddField(":arrow_right: Thể loại", string.Join(", ", media.genres), false)
-                             .AddField("🌐 Tên gốc", media.title.native, false)
-                             .AddField("🛈 Thông tin thêm", $"[Anilist]({media.siteUrl})");
+                         .AddField(":hourglass_flowing_sand: Trạng thái", status, true)
+                         .AddField("⏱ Thời lượng tập", $"{media.duration} phút", false)
+                         .AddField(":file_folder: Nguồn", FormatEnumValue(sourceName), false)
+                         .AddField(":star: Điểm trung bình", $"{media.averageScore}/100", true)
+                         .AddField(":star: Điểm trung vị", $"{media.meanScore}/100", true)
+                         .AddField(":thumbsup: Số lượt thích", $"{media.favourites}", true)
+                         .AddField(":arrow_right: Thể loại", string.Join(", ", media.genres), false)
+                         .AddField("🌐 Tên gốc", media.title.native, false)
+                         .AddField("🛈 Thông tin thêm", $"[Anilist]({media.siteUrl})");
                 }
             }
             else
@@ -351,7 +354,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                     embed.AddField(":hourglass_flowing_sand: Trạng thái: ", status, true)
                          .AddField(":calendar_spiral: Phát hành", $"{startDate} -> {endDate}", true)
                          .AddField(":arrow_right: Thể loại", string.Join(", ", media.genres), false)
-                         .AddField(":file_folder: Nguồn", char.ToUpper(media.source[0]) + media.source.Substring(1).ToLower(), false)
+                         .AddField(":file_folder: Nguồn", FormatEnumValue(sourceName), false)
                          .AddField(":star: Điểm trung bình", $"{media.averageScore}/100", true)
                          .AddField(":star: Điểm trung vị", $"{media.meanScore}/100", true)
                          .AddField(":thumbsup: Số lượt thích", $"{media.favourites}", true)
@@ -363,7 +366,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                     embed.AddField(":hourglass_flowing_sand: Trạng thái", status, true)
                          .AddField(":calendar_spiral: Phát hành", $"{startDate} -> N/A", true)
                          .AddField(":arrow_right: Thể loại", string.Join(", ", media.genres), false)
-                         .AddField(":file_folder: Nguồn", char.ToUpper(media.source[0]) + media.source.Substring(1).ToLower(), false)
+                         .AddField(":file_folder: Nguồn", FormatEnumValue(sourceName), false)
                          .AddField(":star: Điểm trung bình", $"{media.averageScore}/100", true)
                          .AddField(":star: Điểm trung vị", $"{media.meanScore}/100", true)
                          .AddField(":thumbsup: Số lượt thích", $"{media.favourites}", true)
@@ -375,7 +378,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                     embed.AddField(":hourglass_flowing_sand: Trạng thái", status, true)
                          .AddField(":calendar_spiral: Phát hành", $"{startDate} -> {(endDate != null ? endDate.ToString() : "N/A")}", true)
                          .AddField(":arrow_right: Thể loại", string.Join(", ", media.genres), false)
-                         .AddField(":file_folder: Nguồn", char.ToUpper(media.source[0]) + media.source.Substring(1).ToLower(), false)
+                         .AddField(":file_folder: Nguồn", FormatEnumValue(sourceName), false)
                          .AddField(":star: Điểm trung bình", $"{media.averageScore}/100", true)
                          .AddField(":star: Điểm trung vị", $"{media.meanScore}/100", true)
                          .AddField(":thumbsup: Số lượt thích", $"{media.favourites}", true)
@@ -432,6 +435,7 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 .AddField(":heart: Số lượt thích", $"{studio.favourites}", true)
                 .WithFooter($"{ANILIST_URL}");
         }
+
         private string ProcessDescription(string description)
         {
             if (string.IsNullOrEmpty(description))
@@ -463,6 +467,14 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
             var hours = (secondsUntilAiring % (60 * 60 * 24)) / (60 * 60);
             var minutes = (secondsUntilAiring % (60 * 60)) / 60;
             return $"{days}d {hours}h {minutes}m";
+        }
+
+        private string FormatEnumValue(string enumValue)
+        {
+            if (string.IsNullOrEmpty(enumValue))
+                return "Không xác định";
+                
+            return char.ToUpper(enumValue[0]) + enumValue.Substring(1).ToLower();
         }
 
         private async Task SendErrorEmbed(InteractionContext ctx, string errorMessage)
