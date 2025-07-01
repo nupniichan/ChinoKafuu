@@ -1,6 +1,6 @@
 <div align="center">
 
-# Chino Kafu Discord Bot - README
+# Chino Kafuu Discord Bot - README
 
 [![.NET](https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=.net&logoColor=white)](https://dotnet.microsoft.com/)
 [![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
@@ -8,15 +8,7 @@
 
 ## ✨ **Introduction**
 
-Welcome to Chino Kafu, the Discord bot I've crafted using the .NET9 . As this is my first attempt at creating a bot, there might be a few errors along the way. Don't hesitate to contact me if you encounter any issues. I'll do my best to resolve them.
-
----
-
-## 🚀 Get started
-To get started, you must download the release file then follow my instructions:
-- Download newest release file
-- Add your token to `._env`. After done that please rename the file to '.env'
-- Use cmd ( or venv it's on you ) cd to Applio folder and use this command ```pip install -r requirement.txt``` to install package needed *( Or simply just install [pre-complited applio](https://huggingface.co/IAHispano/Applio/tree/main/Compiled) )*
+Welcome to Chino Kafuu, the Discord bot I've crafted using the .NET9 . As this is my first attempt at creating a bot, there might be a few errors along the way. Don't hesitate to raise a issue if you encounter any problems. I'll do my best to solve them.
 
 ---
 
@@ -27,8 +19,19 @@ To get started, you must download the release file then follow my instructions:
 
 ---
 
-## 🆕**New update**
-- Use nuget package of cs-anilist and cs-owm
+## 🔥 **New update**
+- Update applio to newest version
+- Use my own trained data voice ( Chino Kafuu voice )
+- Update cs-anilist to 1.2.0
+- Get Steam Apps and Profile via csteam-works
+
+---
+
+
+## 🚀 Get started
+To get started, you must download the release file then follow my instructions:
+- Download newest release file
+- Add your token to `._env`. After done that please rename the file to '.env'
 
 ---
 
@@ -37,12 +40,12 @@ To get started, you must download the release file then follow my instructions:
 - Use cmd and cd to Applio folder and run TTSApi.py
 - For example:
 ```bash
-cd E:\ChinoKafuu\Applio # Change to your path
-uvicorn TTSApi:app --reload
+cd .\Applio
+.\env\python.exe .\TTSApi.py
 ```
 - Run c# console app
 ```bash
-cd E:\ChinoKafuu\ChinoKafuu # Change to your path
+cd .\ChinoKafuu 
 dotnet restore
 dotnet build
 dotnet run
@@ -67,10 +70,9 @@ Chino Kafu provide many of features for your Discord server:
 ---
 
 ## 🌟 **Upcoming features**
-- 🎮 Get game and user information on Steam
 - 🛠️ Improve and retructor code
 - Create one-click install
-- Create my own voice dataset and train it
+- Paging for anilist data searching
 
 ---
 
@@ -81,7 +83,7 @@ Chino Kafu provide many of features for your Discord server:
 - [Applio](https://github.com/IAHispano/Applio)
 - [cs-anilist](https://github.com/nupniichan/cs-anilist)
 - [cs-owm](https://github.com/nupniichan/cs-owm)
-
+- [csteam-works](https://github.com/nupniichan/csteam-works)
 ---
 
 ## 📝 **License**
@@ -96,3 +98,4 @@ Any contributions are highly appreciated! Feel free to submit issues or pull req
 ---
 
 <div align="center">Thank you for visiting this respository! More features are coming soon ❤️.</div>
+<div align="center">My angel Chino Kafuu (つ≧▽≦)つ.</div>
