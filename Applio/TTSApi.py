@@ -22,7 +22,6 @@ class TTSRequest(BaseModel):
     voice: str = "ja-JP-NanamiNeural"
     rate: int = 0
     pitch: int = 4
-    filter_radius: int = 3
     index_rate: float = 0.5
     volume_envelope: int = 1
     protect: float = 0.4
@@ -136,7 +135,6 @@ async def text_to_speech(request: TTSRequest):
             tts_voice=request.voice,
             tts_rate=request.rate,
             pitch=request.pitch,
-            filter_radius=request.filter_radius,
             index_rate=request.index_rate,
             volume_envelope=request.volume_envelope,
             protect=request.protect,
