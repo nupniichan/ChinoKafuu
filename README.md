@@ -25,11 +25,10 @@ Welcome to Chino Kafuu, the Discord bot I've crafted using the .NET9 . As this i
 - Better history chat storage
 
 ## ⚠️ **Warning**
-- Today (10-05-2025) the voice chat stuck at this line
-```                        
+- Today (10-05-2025) the voice chat stuck at the line of **NonePrefixCommandFolder/ChinoConversation.cs** below so i can't test the audio voice. Lets wait DSharpPlus fix this and then i will try to test and upgrade Applio to the newest version.
+```csharp                     
 connection = await channel.ConnectAsync();
 ```
-So i can't test the audio voice. Lets wait DSharpPlus fix this and then i will try to test and upgrade Applio to the newest version
 ---
 
 
