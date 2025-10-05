@@ -1,4 +1,5 @@
 ﻿using ChinoKafuu.Utils;
+using ChinoBot.Utils;
 using CsAnilist.Models.Enums;
 using CsAnilist.Models.Character;
 using CsAnilist.Models.Media;
@@ -167,8 +168,8 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                     return;
                 }
 
-                var embed = CreateMediaEmbed(media, type == MediaType.ANIME);
-                await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+                var pagination = new MediaPagination(ctx, media, type == MediaType.ANIME);
+                await pagination.StartAsync();
             }
             catch (Exception e)
             {
@@ -336,15 +337,15 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                 else
                 {
                     embed.AddField(":calendar_spiral: Phát sóng", $"{startDate} -> N/A", true)
-                         .AddField(":hourglass_flowing_sand: Trạng thái", status, true)
-                         .AddField("⏱ Thời lượng tập", $"{media.duration} phút", false)
+                             .AddField(":hourglass_flowing_sand: Trạng thái", status, true)
+                             .AddField("⏱ Thời lượng tập", $"{media.duration} phút", false)
                          .AddField(":file_folder: Nguồn", FormatEnumValue(sourceName), false)
-                         .AddField(":star: Điểm trung bình", $"{media.averageScore}/100", true)
-                         .AddField(":star: Điểm trung vị", $"{media.meanScore}/100", true)
-                         .AddField(":thumbsup: Số lượt thích", $"{media.favourites}", true)
-                         .AddField(":arrow_right: Thể loại", string.Join(", ", media.genres), false)
-                         .AddField("🌐 Tên gốc", media.title.native, false)
-                         .AddField("🛈 Thông tin thêm", $"[Anilist]({media.siteUrl})");
+                             .AddField(":star: Điểm trung bình", $"{media.averageScore}/100", true)
+                             .AddField(":star: Điểm trung vị", $"{media.meanScore}/100", true)
+                             .AddField(":thumbsup: Số lượt thích", $"{media.favourites}", true)
+                             .AddField(":arrow_right: Thể loại", string.Join(", ", media.genres), false)
+                             .AddField("🌐 Tên gốc", media.title.native, false)
+                             .AddField("🛈 Thông tin thêm", $"[Anilist]({media.siteUrl})");
                 }
             }
             else
