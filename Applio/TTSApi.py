@@ -59,7 +59,7 @@ async def check_model():
     model_name = "Chino-Kafuu"
     logs_dir = safe_path_join("logs", model_name)
     pth_path = safe_path_join(logs_dir, f"{model_name}.pth")
-    index_path = safe_path_join(logs_dir, f"added_IVF209_Flat_nprobe_1_{model_name}_v2.index")
+    index_path = safe_path_join(logs_dir, f"{model_name}.index")
     
     if not os.path.exists(pth_path) or not os.path.exists(index_path):
         try:
