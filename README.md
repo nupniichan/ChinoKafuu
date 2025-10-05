@@ -21,10 +21,15 @@ Welcome to Chino Kafuu, the Discord bot I've crafted using the .NET9 . As this i
 
 ## 🔥 **New update**
 - Update applio to newest version
-- Use my own trained data voice ( Chino Kafuu voice )
-- Update cs-anilist to 1.2.0
-- Get Steam Apps and Profile via csteam-works
+- Improve and optimized token in/output
+- Better history chat storage
 
+## ⚠️ **Warning**
+- Today (10-05-2025) the voice chat stuck at this line
+```                        
+connection = await channel.ConnectAsync();
+```
+So i can't test the audio voice. Lets wait DSharpPlus fix this and then i will try to test and upgrade Applio to the newest version
 ---
 
 
