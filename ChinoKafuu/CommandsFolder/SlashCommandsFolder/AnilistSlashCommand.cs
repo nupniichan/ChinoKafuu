@@ -1,5 +1,4 @@
 ﻿using ChinoKafuu.Utils;
-using ChinoBot.Utils;
 using CsAnilist.Models.Enums;
 using CsAnilist.Models.Character;
 using CsAnilist.Models.Media;
@@ -168,8 +167,8 @@ namespace ChinoBot.CommandsFolder.SlashCommandsFolder
                     return;
                 }
 
-                var pagination = new MediaPagination(ctx, media, type == MediaType.ANIME);
-                await pagination.StartAsync();
+                var embed = CreateMediaEmbed(media, type == MediaType.ANIME);
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
             }
             catch (Exception e)
             {
