@@ -4,7 +4,7 @@ public class GeminiTranslate
 {
     private readonly string _apiKey;
     private readonly HttpClient _httpClient;
-    private const string API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+    private const string API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
     public GeminiTranslate(string apiKey)
     {
@@ -53,9 +53,9 @@ public class GeminiTranslate
                 },
                 generationConfig = new
                 {
-                    temperature = 0.1f,
-                    topK = 1,
-                    topP = 1,
+                    temperature = 0.3f,
+                    topK = 40,
+                    topP = 0.95f,
                     maxOutputTokens = 1024
                 },
                 safetySettings = new[]
@@ -75,16 +75,36 @@ public class GeminiTranslate
 
             if (!response.IsSuccessStatusCode)
             {
-                Console.WriteLine($"Lỗi khi gọi API Google Gemini: {responseContent}");
                 return "Xin lỗi, hiện tại em không thể dịch được. Anh thử lại sau nhé~";
             }
 
             var responseData = JsonSerializer.Deserialize<JsonElement>(responseContent);
-            var translatedText = responseData.GetProperty("candidates")[0]
-                                          .GetProperty("content")
-                                          .GetProperty("parts")[0]
-                                          .GetProperty("text")
-                                          .GetString();
+            
+            if (!responseData.TryGetProperty("candidates", out var candidates) || candidates.GetArrayLength() == 0)
+            {
+                return "Xin lỗi, em nhận được phản hồi không hợp lệ từ server. Anh thử lại sau nhé~";
+            }
+
+            var candidate = candidates[0];
+            
+            if (candidate.TryGetProperty("finishReason", out var finishReason))
+            {
+                var reason = finishReason.GetString();
+                if (reason == "SAFETY" || reason == "RECITATION" || reason == "OTHER")
+                {
+                    return "Xin lỗi, em không thể dịch nội dung này. Anh thử lại với nội dung khác nhé~";
+                }
+            }
+
+            if (!candidate.TryGetProperty("content", out var contentProp) ||
+                !contentProp.TryGetProperty("parts", out var parts) ||
+                parts.GetArrayLength() == 0 ||
+                !parts[0].TryGetProperty("text", out var textProp))
+            {
+                return "Xin lỗi, em không thể xử lý phản hồi. Anh thử lại sau nhé~";
+            }
+
+            var translatedText = textProp.GetString();
 
             return translatedText;
         }

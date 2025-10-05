@@ -4,6 +4,7 @@ using DSharpPlus.VoiceNext;
 using DSharpPlus;
 using NAudio.Wave;
 using System.Collections.Concurrent;
+using ChinoKafuu.Engine.Gemini;
 using ChinoBot.config;
 
 namespace ChinoBot.CommandsFolder.NonePrefixCommandFolder
