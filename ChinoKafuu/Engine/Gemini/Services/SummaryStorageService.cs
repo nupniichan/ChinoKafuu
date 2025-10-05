@@ -47,8 +47,6 @@ public class SummaryStorageService
 
         string json = JsonSerializer.Serialize(summaryData, options);
         await _compressionService.CompressAndSaveString(summaryPath, json, cancellationToken);
-
-        Console.WriteLine($"[SummaryStorage] Saved {summaries.Count} summaries (representing {summaryData.OriginalMessageCount} messages)");
     }
 
     /// <summary>
@@ -69,14 +67,12 @@ public class SummaryStorageService
             
             if (summaries.Count > 0)
             {
-                Console.WriteLine($"[SummaryStorage] Loaded {summaries.Count} summaries from disk");
             }
             
             return summaries;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[SummaryStorage] Error loading summaries: {ex.Message}");
             return new List<ChatMessage>();
         }
     }
@@ -125,8 +121,6 @@ public class SummaryStorageService
 
         string json = JsonSerializer.Serialize(existingArchive, options);
         await _compressionService.CompressAndSaveString(archivePath, json, cancellationToken);
-
-        Console.WriteLine($"[SummaryStorage] Archived {messagesToArchive.Count} messages (total: {existingArchive.TotalMessages})");
     }
 
     /// <summary>
@@ -159,7 +153,6 @@ public class SummaryStorageService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[SummaryStorage] Error loading archive: {ex.Message}");
             return new MessageArchive
             {
                 CreatedAt = DateTime.UtcNow,
@@ -197,8 +190,6 @@ public class SummaryStorageService
 
             string json = JsonSerializer.Serialize(archive, options);
             await _compressionService.CompressAndSaveString(GetArchivePath(basePath), json, cancellationToken);
-
-            Console.WriteLine($"[SummaryStorage] Cleaned up {removedCount} archived messages older than {_config.ArchiveRetentionDays} days");
         }
     }
 
@@ -262,7 +253,6 @@ public class SummaryStorageService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[SummaryStorage] Error getting storage info: {ex.Message}");
         }
 
         return info;

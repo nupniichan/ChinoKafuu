@@ -68,13 +68,11 @@ public class GeminiChat : IDisposable
             {
                 // Prepend summaries to message list (they represent old conversations)
                 chatSession.Messages.InsertRange(0, summaries);
-                Console.WriteLine($"[LAZY LOAD] Loaded {summaries.Count} summaries representing {summaries.Sum(s => s.SummarizedMessageCount)} original messages");
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             chatSession = new ChatSession();
-            Console.WriteLine($"[WARNING] Không thể load chat history: {ex.Message}");
         }
 
         return chatSession;
@@ -144,12 +142,10 @@ public class GeminiChat : IDisposable
             }
             
             _lastSaveTimes[chatHistoryPath] = DateTime.Now;
-            
-            Console.WriteLine($"[SAVE] {Path.GetFileName(chatHistoryPath)}: {regularMessages.Count} msgs + {summaries.Count} summaries, {tokenStats.TotalTokens:N0} tokens");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            Console.WriteLine($"[ERROR] Không thể lưu chat history: {ex.Message}");
+            // Silent fail
         }
         finally
         {
@@ -173,8 +169,6 @@ public class GeminiChat : IDisposable
             // Step 2: Check if summarization is needed
             if (_summarizationService.ShouldSummarize(chatSession))
             {
-                Console.WriteLine("[OPTIMIZATION] Triggering automatic summarization...");
-                
                 // Separate summaries from regular messages
                 var existingSummaries = chatSession.Messages.Where(m => m.IsSummary).ToList();
                 var regularMessages = chatSession.Messages.Where(m => !m.IsSummary).ToList();
@@ -205,7 +199,6 @@ public class GeminiChat : IDisposable
                     if (messagesToArchive.Count > 0)
                     {
                         await _summaryStorageService.ArchiveMessages(chatHistoryPath, messagesToArchive, cancellationToken);
-                        Console.WriteLine($"[ARCHIVE] Archived {messagesToArchive.Count} original messages");
                     }
                 }
                 
@@ -218,9 +211,6 @@ public class GeminiChat : IDisposable
             var tempSessionForAPI = new ChatSession { Messages = messagesForAPI };
             var optimizedMessages = _tokenService.GetOptimalMessagesForAPI(tempSessionForAPI);
             var tokenStats = _tokenService.GetTokenStats(tempSessionForAPI);
-            
-            Console.WriteLine($"[TOKEN OPTIMIZATION] {tokenStats}");
-            Console.WriteLine($"[TOKEN OPTIMIZATION] Sending {optimizedMessages.Count}/{messagesForAPI.Count} regular messages to API");
 
             // ========== API CALL PHASE ==========
             
@@ -278,8 +268,6 @@ public class GeminiChat : IDisposable
 
             if (!response.IsSuccessStatusCode)
             {
-                Console.WriteLine($"[ERROR] API Error: {response.StatusCode}");
-                Console.WriteLine($"[ERROR] Response: {responseContent}");
                 return "Xin lỗi, hiện tại em không thể trả lời được. Anh thử lại sau nhé~";
             }
 
@@ -288,7 +276,6 @@ public class GeminiChat : IDisposable
             // Kiểm tra xem response có đúng format không
             if (!responseData.TryGetProperty("candidates", out var candidates) || candidates.GetArrayLength() == 0)
             {
-                Console.WriteLine($"[ERROR] Invalid response format: {responseContent}");
                 return "Xin lỗi, em nhận được phản hồi không hợp lệ từ server. Anh thử lại sau nhé~";
             }
 
@@ -300,7 +287,6 @@ public class GeminiChat : IDisposable
                 var reason = finishReason.GetString();
                 if (reason == "SAFETY" || reason == "RECITATION" || reason == "OTHER")
                 {
-                    Console.WriteLine($"[WARNING] Response blocked: {reason}");
                     return "Xin lỗi, em không thể trả lời câu hỏi này. Anh thử hỏi theo cách khác nhé~";
                 }
             }
@@ -311,7 +297,6 @@ public class GeminiChat : IDisposable
                 parts.GetArrayLength() == 0 ||
                 !parts[0].TryGetProperty("text", out var textProp))
             {
-                Console.WriteLine($"[ERROR] Cannot extract text from response: {responseContent}");
                 return "Xin lỗi, em không thể xử lý phản hồi. Anh thử lại sau nhé~";
             }
 
@@ -352,10 +337,8 @@ public class GeminiChat : IDisposable
 
             return modelResponse ?? "Có lỗi khi gọi Api đến Gemini";
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            Console.WriteLine($"[ERROR] Lỗi: {ex.Message}");
-            Console.WriteLine($"[ERROR] Stack trace: {ex.StackTrace}");
             return "Xin lỗi, hiện tại em không thể trả lời được. Anh thử lại sau nhé~";
         }
     }

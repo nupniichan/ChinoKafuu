@@ -96,7 +96,6 @@ public class HistoryCompressionService
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[COMPRESSION] Failed to load compressed file: {ex.Message}");
             }
         }
         
@@ -109,7 +108,6 @@ public class HistoryCompressionService
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[COMPRESSION] Failed to load file: {ex.Message}");
             }
         }
         
@@ -210,9 +208,6 @@ public class HistoryCompressionService
             // Also remove uncompressed version if exists
             if (File.Exists(filePath))
                 File.Delete(filePath);
-            
-            Console.WriteLine($"[COMPRESSION] Saved {Path.GetFileName(filePath)}: {uncompressedSize:N0} → {compressedData.Length:N0} bytes " +
-                            $"({(100.0 * compressedData.Length / uncompressedSize):F1}% of original)");
         }
         else
         {
@@ -252,14 +247,11 @@ public class HistoryCompressionService
                 
                 if (session != null)
                 {
-                    Console.WriteLine($"[COMPRESSION] Loaded compressed {Path.GetFileName(filePath)}: " +
-                                    $"{compressedData.Length:N0} bytes → {session.OriginalSize:N0} bytes");
                     return session;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERROR] Failed to load compressed file: {ex.Message}");
                 // Fall through to try uncompressed version
             }
         }
@@ -275,7 +267,6 @@ public class HistoryCompressionService
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERROR] Failed to load uncompressed file: {ex.Message}");
             }
         }
         
@@ -322,8 +313,6 @@ public class HistoryCompressionService
         var json = JsonSerializer.Serialize(session, options);
         string outputPath = filePath.Replace(".gz", "");
         await File.WriteAllTextAsync(outputPath, json, cancellationToken);
-        
-        Console.WriteLine($"[COMPRESSION] Decompressed to {outputPath}");
     }
     
     /// <summary>
@@ -391,7 +380,6 @@ public class HistoryCompressionService
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERROR] Failed to compress {filePath}: {ex.Message}");
             }
         }
         

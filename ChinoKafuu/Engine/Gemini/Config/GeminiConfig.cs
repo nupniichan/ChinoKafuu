@@ -11,10 +11,10 @@ public class GeminiConfig
     public int MaxActiveMessages { get; set; } = 150;
     
     /// <summary>Maximum messages before triggering summarization</summary>
-    public int SummarizationThreshold { get; set; } = 200;
+    public int SummarizationThreshold { get; set; } = 300;
     
     /// <summary>Target messages after summarization (keeps recent + summary)</summary>
-    public int PostSummarizationTarget { get; set; } = 100;
+    public int PostSummarizationTarget { get; set; } = 200;
     
     /// <summary>Maximum tokens to send to API per request</summary>
     public int MaxTokensPerRequest { get; set; } = 30000; // Gemini 2.5 Flash supports 1M, but we limit for efficiency

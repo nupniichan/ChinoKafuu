@@ -145,9 +145,6 @@ public class TieredStorageManager
         session.Metadata["lastArchived"] = DateTime.Now;
         session.Metadata["archivedMessageCount"] = coldMessages.Count;
         session.Metadata["archivePath"] = archivePath;
-        
-        Console.WriteLine($"[TIERED STORAGE] Archived {coldMessages.Count} cold messages to {Path.GetFileName(archivePath)}");
-        
         return archivePath;
     }
     
@@ -205,12 +202,6 @@ public class TieredStorageManager
         var afterInfo = GetTierInfo(session);
         result.AfterTierInfo = afterInfo;
         result.FinalMessageCount = session.Messages.Count;
-        
-        Console.WriteLine($"[TIERED STORAGE] Optimization completed:");
-        Console.WriteLine($"  Messages: {result.InitialMessageCount} → {result.FinalMessageCount}");
-        Console.WriteLine($"  Archived: {result.ArchivedMessages}");
-        Console.WriteLine($"  Space saved: {result.SpaceSavedByCompression:N0} bytes");
-        
         return result;
     }
     

@@ -110,7 +110,6 @@ public class GeminiTranslate
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Lỗi: {ex.Message}");
             return "Xin lỗi, hiện tại em không thể dịch được. Anh thử lại sau nhé~";
         }
     }

@@ -39,10 +39,6 @@ public class MessageSummarizationService
         
         if (session.Messages.Count <= _config.SummarizationThreshold)
             return session;
-        
-        Console.WriteLine($"[SUMMARIZATION] Starting summarization for session {session.SessionId}");
-        Console.WriteLine($"[SUMMARIZATION] Current messages: {session.Messages.Count}");
-        
         // Separate messages into groups
         var recentMessages = session.Messages
             .TakeLast(_config.PostSummarizationTarget)
@@ -56,7 +52,6 @@ public class MessageSummarizationService
         
         if (oldMessages.Count < _config.SummarizationBatchSize)
         {
-            Console.WriteLine($"[SUMMARIZATION] Not enough messages to summarize ({oldMessages.Count} < {_config.SummarizationBatchSize})");
             return session;
         }
         
@@ -79,7 +74,6 @@ public class MessageSummarizationService
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERROR] Failed to summarize batch: {ex.Message}");
             }
         }
         
@@ -98,10 +92,6 @@ public class MessageSummarizationService
         session.Messages = newMessages;
         session.SummarizedMessagesCount = totalSummarized;
         session.LastSummarizedAt = DateTime.Now;
-        
-        Console.WriteLine($"[SUMMARIZATION] Completed: {totalSummarized} messages → {summaries.Count} summaries");
-        Console.WriteLine($"[SUMMARIZATION] New message count: {session.Messages.Count}");
-        
         return session;
     }
     
@@ -160,7 +150,6 @@ public class MessageSummarizationService
             
             if (!response.IsSuccessStatusCode)
             {
-                Console.WriteLine($"[ERROR] Summarization API Error: {response.StatusCode}");
                 return null;
             }
             
@@ -206,11 +195,6 @@ public class MessageSummarizationService
             summary.Metadata["originalTokenCount"] = originalTokens;
             summary.Metadata["tokensSaved"] = originalTokens - summaryTokens;
             summary.Metadata["compressionRatio"] = (double)summaryTokens / originalTokens;
-            
-            Console.WriteLine($"[SUMMARIZATION] Batch summarized: {messages.Count} msgs, " +
-                            $"{originalTokens} tokens → {summaryTokens} tokens " +
-                            $"({(double)summaryTokens / originalTokens * 100:F1}% of original)");
-            
             // Store originals if configured
             if (_config.KeepOriginalMessages)
             {
@@ -221,7 +205,6 @@ public class MessageSummarizationService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[ERROR] Failed to call summarization API: {ex.Message}");
             return null;
         }
     }
