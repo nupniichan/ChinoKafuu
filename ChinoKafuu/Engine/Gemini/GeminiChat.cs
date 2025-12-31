@@ -5,9 +5,6 @@ using ChinoKafuu.Engine.Gemini.Services;
 
 namespace ChinoKafuu.Engine.Gemini;
 
-/// <summary>
-/// Gemini Chat with integrated optimization features
-/// </summary>
 public class GeminiChat : IDisposable
 {
     private readonly string _apiKey;
@@ -17,14 +14,12 @@ public class GeminiChat : IDisposable
 
     private readonly string _prompt;
     
-    // Optimization services
     private readonly TokenManagementService _tokenService;
     private readonly HistoryCompressionService _compressionService;
     private readonly MessageSummarizationService _summarizationService;
     private readonly TieredStorageManager _storageManager;
     private readonly SummaryStorageService _summaryStorageService;
     
-    // File-based save throttling (per path)
     private readonly Dictionary<string, DateTime> _lastSaveTimes = new();
     private readonly SemaphoreSlim _saveSemaphore = new(1, 1);
 
@@ -41,7 +36,6 @@ public class GeminiChat : IDisposable
         string promptFilePath = Path.Combine(AppContext.BaseDirectory, "../../../Engine/Gemini/Prompt/prompt.txt");
         _prompt = File.ReadAllText(Path.GetFullPath(promptFilePath));
         
-        // Initialize optimization services
         _tokenService = new TokenManagementService(_config);
         _compressionService = new HistoryCompressionService(_config);
         _summarizationService = new MessageSummarizationService(apiKey, _config, _tokenService);
@@ -49,24 +43,17 @@ public class GeminiChat : IDisposable
         _summaryStorageService = new SummaryStorageService(_config, _compressionService);
     }
 
-    /// <summary>
-    /// Load chat history from file (lazy loading - NO memory cache)
-    /// Also loads summaries if they exist
-    /// </summary>
     private async Task<ChatSession> LoadChatHistory(string chatHistoryPath, CancellationToken cancellationToken = default)
     {
         ChatSession chatSession;
         try
         {
-            // Load main history
             chatSession = await _compressionService.LoadSessionFromFile(chatHistoryPath, cancellationToken) 
                 ?? new ChatSession();
             
-            // Load summaries from separate file
             var summaries = await _summaryStorageService.LoadSummaries(chatHistoryPath, cancellationToken);
             if (summaries.Count > 0)
             {
-                // Prepend summaries to message list (they represent old conversations)
                 chatSession.Messages.InsertRange(0, summaries);
             }
         }
@@ -78,17 +65,12 @@ public class GeminiChat : IDisposable
         return chatSession;
     }
 
-    /// <summary>
-    /// Save chat history to file immediately (NO memory cache)
-    /// Summaries are saved to separate file
-    /// </summary>
     private async Task SaveChatHistory(
         ChatSession session, 
         string chatHistoryPath, 
         bool force = false, 
         CancellationToken cancellationToken = default)
     {
-        // Throttle saves unless forced
         if (!force && _lastSaveTimes.TryGetValue(chatHistoryPath, out var lastSave) 
             && (DateTime.Now - lastSave).TotalSeconds < 5)
         {
@@ -99,25 +81,21 @@ public class GeminiChat : IDisposable
         
         try
         {
-            // Separate summaries from regular messages
             var summaries = session.Messages.Where(m => m.IsSummary).ToList();
             var regularMessages = session.Messages.Where(m => !m.IsSummary).ToList();
             
-            // Update session metadata
             session.LastUpdated = DateTime.Now;
             session.Metadata["totalMessages"] = regularMessages.Count;
             session.Metadata["summaryCount"] = summaries.Count;
             session.Metadata["filePath"] = Path.GetFileName(chatHistoryPath);
             session.Metadata["lastSaveTime"] = DateTime.Now;
             
-            // Update token statistics (only for regular messages)
             var tempSession = new ChatSession { Messages = regularMessages };
             var tokenStats = _tokenService.GetTokenStats(tempSession);
             session.TotalTokensUsed = tokenStats.TotalTokens;
             session.ActiveMessagesCount = tokenStats.ActiveMessages;
             session.Metadata["tokenStats"] = tokenStats.ToString();
             
-            // Save regular messages to main history file
             var mainSession = new ChatSession
             {
                 SessionId = session.SessionId,
@@ -135,7 +113,6 @@ public class GeminiChat : IDisposable
             
             await _compressionService.SaveSessionToFile(mainSession, chatHistoryPath, cancellationToken: cancellationToken);
 
-            // Save summaries to separate file
             if (summaries.Count > 0)
             {
                 await _summaryStorageService.SaveSummaries(chatHistoryPath, summaries, cancellationToken);
@@ -145,7 +122,6 @@ public class GeminiChat : IDisposable
         }
         catch (Exception)
         {
-            // Silent fail
         }
         finally
         {
@@ -157,27 +133,19 @@ public class GeminiChat : IDisposable
     {
         try
         {
-            // Load from file (lazy loading - no cache)
             var chatSession = await LoadChatHistory(chatHistoryPath, cancellationToken);
 
-            // ========== OPTIMIZATION PHASE ==========
-            
-            // Step 1: Update importance scores and storage tiers
             _tokenService.UpdateImportanceScores(chatSession);
             _storageManager.OrganizeMessageTiers(chatSession);
             
-            // Step 2: Check if summarization is needed
             if (_summarizationService.ShouldSummarize(chatSession))
             {
-                // Separate summaries from regular messages
                 var existingSummaries = chatSession.Messages.Where(m => m.IsSummary).ToList();
                 var regularMessages = chatSession.Messages.Where(m => !m.IsSummary).ToList();
                 
-                // Summarize only regular messages
                 var tempSession = new ChatSession { Messages = regularMessages };
                 var summarizedSession = await _summarizationService.SummarizeOldMessages(tempSession, cancellationToken);
                 
-                // Merge back: summaries + new summaries + remaining messages
                 var newSummaries = summarizedSession.Messages.Where(m => m.IsSummary).ToList();
                 var remainingMessages = summarizedSession.Messages.Where(m => !m.IsSummary).ToList();
                 
@@ -186,11 +154,8 @@ public class GeminiChat : IDisposable
                 chatSession.Messages.AddRange(newSummaries);
                 chatSession.Messages.AddRange(remainingMessages);
                 
-                // Archive original messages if configured
                 if (_config.ArchiveOriginalMessagesAfterSummarization && newSummaries.Count > 0)
                 {
-                    // Archive messages that were summarized
-                    // (Messages that are in regularMessages but NOT in remainingMessages)
                     var remainingMessageIds = new HashSet<string>(remainingMessages.Select(m => m.Id));
                     var messagesToArchive = regularMessages
                         .Where(m => !remainingMessageIds.Contains(m.Id) && !m.IsSummary)
@@ -202,18 +167,14 @@ public class GeminiChat : IDisposable
                     }
                 }
                 
-                // Save immediately after summarization
                 await SaveChatHistory(chatSession, chatHistoryPath, force: true, cancellationToken: cancellationToken);
             }
             
-            // Step 3: Get optimized messages for API call (exclude summaries)
             var messagesForAPI = chatSession.Messages.Where(m => !m.IsSummary).ToList();
             var tempSessionForAPI = new ChatSession { Messages = messagesForAPI };
             var optimizedMessages = _tokenService.GetOptimalMessagesForAPI(tempSessionForAPI);
             var tokenStats = _tokenService.GetTokenStats(tempSessionForAPI);
 
-            // ========== API CALL PHASE ==========
-            
             var contents = new List<object>
             {
                 new
@@ -228,7 +189,6 @@ public class GeminiChat : IDisposable
                 }
             };
 
-            // Add optimized messages to context
             foreach (var message in optimizedMessages)
             {
                 contents.Add(new
@@ -273,7 +233,6 @@ public class GeminiChat : IDisposable
 
             var responseData = JsonSerializer.Deserialize<JsonElement>(responseContent);
             
-            // Kiểm tra xem response có đúng format không
             if (!responseData.TryGetProperty("candidates", out var candidates) || candidates.GetArrayLength() == 0)
             {
                 return "Xin lỗi, em nhận được phản hồi không hợp lệ từ server. Anh thử lại sau nhé~";
@@ -281,7 +240,6 @@ public class GeminiChat : IDisposable
 
             var candidate = candidates[0];
             
-            // Kiểm tra xem có bị block không (safety ratings)
             if (candidate.TryGetProperty("finishReason", out var finishReason))
             {
                 var reason = finishReason.GetString();
@@ -291,7 +249,6 @@ public class GeminiChat : IDisposable
                 }
             }
 
-            // Lấy content một cách an toàn
             if (!candidate.TryGetProperty("content", out var contentProp) ||
                 !contentProp.TryGetProperty("parts", out var parts) ||
                 parts.GetArrayLength() == 0 ||
@@ -302,9 +259,6 @@ public class GeminiChat : IDisposable
 
             var modelResponse = textProp.GetString();
 
-            // ========== SAVE PHASE ==========
-            
-            // Create new messages with metadata (reuse currentDateTime from above)
             var userMessage = new ChatMessage
             {
                 Role = "user",
@@ -319,7 +273,6 @@ public class GeminiChat : IDisposable
                 Timestamp = DateTime.Now
             };
             
-            // Set optimization metadata for both messages
             int positionFromEnd = chatSession.Messages.Count(m => !m.IsSummary);
             userMessage.ImportanceScore = _tokenService.CalculateImportanceScore(userMessage, positionFromEnd);
             userMessage.StorageTier = _config.GetStorageTier(userMessage.Timestamp);
@@ -329,7 +282,6 @@ public class GeminiChat : IDisposable
             modelMessage.StorageTier = _config.GetStorageTier(modelMessage.Timestamp);
             modelMessage.EstimatedTokenCount = _tokenService.EstimateMessageTokens(modelMessage);
             
-            // Add to session and save immediately
             chatSession.Messages.Add(userMessage);
             chatSession.Messages.Add(modelMessage);
             
@@ -343,10 +295,6 @@ public class GeminiChat : IDisposable
         }
     }
 
-
-    /// <summary>
-    /// Manually trigger storage optimization (file-based)
-    /// </summary>
     public async Task<StorageOptimizationResult?> OptimizeStorage(string chatHistoryPath, CancellationToken cancellationToken = default)
     {
         var session = await LoadChatHistory(chatHistoryPath, cancellationToken);
@@ -356,9 +304,6 @@ public class GeminiChat : IDisposable
         return result;
     }
 
-    /// <summary>
-    /// Get comprehensive statistics about a chat session (lazy load from file)
-    /// </summary>
     public async Task<Dictionary<string, object>> GetSessionStats(string chatHistoryPath, CancellationToken cancellationToken = default)
     {
         try
@@ -395,14 +340,8 @@ public class GeminiChat : IDisposable
         }
     }
 
-    /// <summary>
-    /// Clear file-based save throttle cache
-    /// </summary>
     public void ClearChatCache(string chatHistoryPath) => _lastSaveTimes.Remove(chatHistoryPath);
 
-    /// <summary>
-    /// Get information about all tracked chat paths
-    /// </summary>
     public Dictionary<string, object> GetCacheStats()
     {
         return new Dictionary<string, object>
@@ -415,9 +354,6 @@ public class GeminiChat : IDisposable
         };
     }
 
-    /// <summary>
-    /// Get chat session from file (lazy load)
-    /// </summary>
     public async Task<ChatSession?> GetChatSession(string chatHistoryPath, CancellationToken cancellationToken = default)
     {
         try
@@ -430,9 +366,6 @@ public class GeminiChat : IDisposable
         }
     }
 
-    /// <summary>
-    /// Get messages in time range (lazy load from file)
-    /// </summary>
     public async Task<List<ChatMessage>> GetMessagesInTimeRange(
         string chatHistoryPath, 
         DateTime from, 
@@ -443,17 +376,11 @@ public class GeminiChat : IDisposable
         return session.Messages.Where(m => m.Timestamp >= from && m.Timestamp <= to).ToList();
     }
 
-    /// <summary>
-    /// Get storage information for a specific chat
-    /// </summary>
     public async Task<StorageInfo> GetStorageInfo(string chatHistoryPath)
     {
         return await _summaryStorageService.GetStorageInfo(chatHistoryPath);
     }
 
-    /// <summary>
-    /// Manually trigger archive cleanup
-    /// </summary>
     public async Task CleanupArchives(string chatHistoryPath, CancellationToken cancellationToken = default)
     {
         await _summaryStorageService.CleanupOldArchives(chatHistoryPath, cancellationToken);
