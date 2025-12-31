@@ -3,11 +3,11 @@ using System.Text.Json.Serialization;
 
 public class TTSRequest
 {
-    [JsonPropertyName("text")]
-    public string Text { get; set; }
-    
     [JsonPropertyName("guild_id")]
     public string guild_id { get; set; }
+    
+    [JsonPropertyName("text")]
+    public string Text { get; set; }
     
     [JsonPropertyName("voice")]
     public string Voice { get; set; } = "ja-JP-NanamiNeural";
@@ -22,13 +22,10 @@ public class TTSRequest
     public float IndexRate { get; set; } = 0.5f;
     
     [JsonPropertyName("volume_envelope")]
-    public int VolumeEnvelope { get; set; } = 1;
+    public float VolumeEnvelope { get; set; } = 1.0f;
     
     [JsonPropertyName("protect")]
     public float Protect { get; set; } = 0.4f;
-    
-    [JsonPropertyName("hop_length")]
-    public int HopLength { get; set; } = 64;
     
     [JsonPropertyName("f0_method")]
     public string F0Method { get; set; } = "rmvpe";
@@ -40,7 +37,7 @@ public class TTSRequest
     public bool F0Autotune { get; set; } = false;
     
     [JsonPropertyName("f0_autotune_strength")]
-    public float F0AutotuneStrength { get; set; } = 0.12f;
+    public float F0AutotuneStrength { get; set; } = 0.0f;
     
     [JsonPropertyName("clean_audio")]
     public bool CleanAudio { get; set; } = true;
@@ -54,23 +51,14 @@ public class TTSRequest
     [JsonPropertyName("embedder_model")]
     public string EmbedderModel { get; set; } = "contentvec";
     
-    [JsonPropertyName("pth_path")]
-    public string PthPath { get; set; } = "logs/chino-kafuu/chino-kafuu.pth";
-    
-    [JsonPropertyName("index_path")]
-    public string IndexPath { get; set; } = "logs/chino-kafuu/chino-kafuu.index";
-    
-    [JsonPropertyName("f0_file")]
-    public string F0File { get; set; } = "https://github.com/gradio-app/gradio/raw/main/test/test_files/sample_file.pdf";
-    
     [JsonPropertyName("embedder_model_custom")]
-    public string EmbedderModelCustom { get; set; } = null;
+    public string? EmbedderModelCustom { get; set; } = null;
     
     [JsonPropertyName("gpu")]
-    public int Gpu { get; set; } = 0; // Use task manager to check GPU. If u want use other GPU, change the number.
+    public int Gpu { get; set; } = 0;
     
     [JsonPropertyName("cache_data_in_gpu")]
-    public bool CacheDataInGpu { get; set; } = true; // If u want cache data in GPU, set to true.
+    public bool CacheDataInGpu { get; set; } = true;
 }
 
 public class TTSApi
