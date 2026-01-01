@@ -1,10 +1,16 @@
+using System;
+using System.Net.Http;
+using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 public class GeminiTranslate
 {
     private readonly string _apiKey;
     private readonly HttpClient _httpClient;
-    private const string API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+    private const string API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent";
 
     public GeminiTranslate(string apiKey)
     {
@@ -19,6 +25,19 @@ public class GeminiTranslate
     {
         try
         {
+            string cleanText = Regex.Replace(messageContent, @"\*.*?\*", "");
+
+            cleanText = Regex.Replace(cleanText, @":[a-zA-Z0-9_]+:", "");
+
+            cleanText = cleanText.Replace("\n", " ").Replace("\r", " ");
+
+            cleanText = Regex.Replace(cleanText, @"\s+", " ").Trim();
+
+            if (string.IsNullOrWhiteSpace(cleanText))
+            {
+                return "";
+            }
+
             var requestBody = new
             {
                 contents = new[]
@@ -30,7 +49,10 @@ public class GeminiTranslate
                         {
                             new
                             {
-                                text = "Bạn là một dịch giả. Hãy dịch những gì tôi gửi sang tiếng Nhật. Đồng thời đừng dịch các đoạn trong dấu * và /n và \\n ví dụ: *cười nhẹ* thì xoá nó luôn cũng như là các emoji ví dụ như: (^▽^), (≧∇≦), (^▽^) ,v.v và các emoji của discord được sử dụng trong cặp dấu :. Chỉ cần giữ lại và dịch đoạn trò chuyện chính thôi. Chỉ trả về kết quả dịch, không cần giải thích thêm."
+                                text = "Bạn là một dịch giả chuyên nghiệp. Hãy dịch câu hội thoại bên dưới sang tiếng Nhật (giọng điệu tự nhiên, giống anime/manga). " +
+                                       "QUY TẮC: " +
+                                       "1. Nếu vẫn còn sót lại Kaomoji (ví dụ (≧∇≦), (^^))... hãy BỎ QUA chúng, KHÔNG dịch, KHÔNG giữ lại. " +
+                                       "2. Chỉ trả về kết quả dịch của lời thoại, không giải thích thêm."
                             }
                         }
                     },
@@ -39,7 +61,7 @@ public class GeminiTranslate
                         role = "model",
                         parts = new[]
                         {
-                            new { text = "はい、承知しました。日本語に翻訳します。" }
+                            new { text = "はい、承知しました。" }
                         }
                     },
                     new
@@ -47,7 +69,7 @@ public class GeminiTranslate
                         role = "user",
                         parts = new[]
                         {
-                            new { text = messageContent }
+                            new { text = cleanText }
                         }
                     }
                 },
@@ -68,7 +90,7 @@ public class GeminiTranslate
             };
 
             var json = JsonSerializer.Serialize(requestBody);
-            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PostAsync($"{API_URL}?key={_apiKey}", content, cancellationToken);
             var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -78,21 +100,22 @@ public class GeminiTranslate
                 return "Xin lỗi, hiện tại em không thể dịch được. Anh thử lại sau nhé~";
             }
 
-            var responseData = JsonSerializer.Deserialize<JsonElement>(responseContent);
-            
-            if (!responseData.TryGetProperty("candidates", out var candidates) || candidates.GetArrayLength() == 0)
+            using var doc = JsonDocument.Parse(responseContent);
+            var root = doc.RootElement;
+
+            if (!root.TryGetProperty("candidates", out var candidates) || candidates.GetArrayLength() == 0)
             {
-                return "Xin lỗi, em nhận được phản hồi không hợp lệ từ server. Anh thử lại sau nhé~";
+                return "Xin lỗi, em nhận được phản hồi không hợp lệ. Anh thử lại sau nhé~";
             }
 
             var candidate = candidates[0];
-            
+
             if (candidate.TryGetProperty("finishReason", out var finishReason))
             {
                 var reason = finishReason.GetString();
                 if (reason == "SAFETY" || reason == "RECITATION" || reason == "OTHER")
                 {
-                    return "Xin lỗi, em không thể dịch nội dung này. Anh thử lại với nội dung khác nhé~";
+                    return "Xin lỗi, em không thể dịch nội dung này do chính sách an toàn.";
                 }
             }
 
@@ -101,15 +124,16 @@ public class GeminiTranslate
                 parts.GetArrayLength() == 0 ||
                 !parts[0].TryGetProperty("text", out var textProp))
             {
-                return "Xin lỗi, em không thể xử lý phản hồi. Anh thử lại sau nhé~";
+                return "Xin lỗi, lỗi xử lý dữ liệu.";
             }
 
-            var translatedText = textProp.GetString();
+            var translatedText = textProp.GetString()?.Trim();
 
-            return translatedText;
+            return translatedText ?? "";
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"Exception Gemini: {ex.Message}");
             return "Xin lỗi, hiện tại em không thể dịch được. Anh thử lại sau nhé~";
         }
     }
