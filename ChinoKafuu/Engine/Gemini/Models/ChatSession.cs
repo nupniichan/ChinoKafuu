@@ -9,15 +9,12 @@ public class ChatSession
     public DateTime LastUpdated { get; set; } = DateTime.Now;
     public Dictionary<string, object> Metadata { get; set; } = new();
     
-    // Token optimization tracking
     public int TotalTokensUsed { get; set; } = 0;
     public int ActiveMessagesCount { get; set; } = 0;
     public int SummarizedMessagesCount { get; set; } = 0;
     
-    // Last summarization timestamp
     public DateTime? LastSummarizedAt { get; set; } = null;
     
-    // Compression info
     public bool IsCompressed { get; set; } = false;
     public long OriginalSize { get; set; } = 0;
     public long CompressedSize { get; set; } = 0;
