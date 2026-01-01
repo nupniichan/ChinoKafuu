@@ -10,7 +10,7 @@ public class GeminiChat : IDisposable
     private readonly string _apiKey;
     private readonly HttpClient _httpClient;
     private readonly GeminiConfig _config;
-    private const string API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+    private const string API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent";
 
     private readonly string _prompt;
     
@@ -170,9 +170,11 @@ public class GeminiChat : IDisposable
                 await SaveChatHistory(chatSession, chatHistoryPath, force: true, cancellationToken: cancellationToken);
             }
             
-            var messagesForAPI = chatSession.Messages.Where(m => !m.IsSummary).ToList();
+            var summaries = chatSession.Messages.Where(m => m.IsSummary).OrderBy(m => m.Timestamp).ToList();
+            var messagesForAPI = chatSession.Messages.Where(m => !m.IsSummary).OrderBy(m => m.Timestamp).ToList();
             var tempSessionForAPI = new ChatSession { Messages = messagesForAPI };
             var optimizedMessages = _tokenService.GetOptimalMessagesForAPI(tempSessionForAPI);
+            optimizedMessages = optimizedMessages.OrderBy(m => m.Timestamp).ToList();
             var tokenStats = _tokenService.GetTokenStats(tempSessionForAPI);
 
             var contents = new List<object>
@@ -189,7 +191,12 @@ public class GeminiChat : IDisposable
                 }
             };
 
-            foreach (var message in optimizedMessages)
+            var allHistoryMessages = new List<ChatMessage>();
+            allHistoryMessages.AddRange(summaries);
+            allHistoryMessages.AddRange(optimizedMessages);
+            allHistoryMessages = allHistoryMessages.OrderBy(m => m.Timestamp).ToList();
+
+            foreach (var message in allHistoryMessages)
             {
                 contents.Add(new
                 {
