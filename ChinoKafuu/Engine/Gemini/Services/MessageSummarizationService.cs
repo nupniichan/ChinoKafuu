@@ -5,9 +5,6 @@ using ChinoKafuu.Engine.Gemini.Models;
 
 namespace ChinoKafuu.Engine.Gemini.Services;
 
-/// <summary>
-/// Automatically summarizes old chat messages to reduce token usage while preserving context
-/// </summary>
 public class MessageSummarizationService
 {
     private readonly string _apiKey;
@@ -27,9 +24,6 @@ public class MessageSummarizationService
         _tokenService = tokenService ?? new TokenManagementService(_config);
     }
     
-    /// <summary>
-    /// Summarize old messages in a chat session to reduce token usage
-    /// </summary>
     public async Task<ChatSession> SummarizeOldMessages(
         ChatSession session, 
         CancellationToken cancellationToken = default)
@@ -39,15 +33,14 @@ public class MessageSummarizationService
         
         if (session.Messages.Count <= _config.SummarizationThreshold)
             return session;
-        // Separate messages into groups
         var recentMessages = session.Messages
             .TakeLast(_config.PostSummarizationTarget)
             .ToList();
         
         var oldMessages = session.Messages
             .Take(session.Messages.Count - _config.PostSummarizationTarget)
-            .Where(m => !m.IsSummarized) // Don't re-summarize already summarized messages
-            .Where(m => m.ImportanceScore < _config.MinImportanceToPreserveSummarization) // Keep important messages
+            .Where(m => !m.IsSummarized)
+            .Where(m => m.ImportanceScore < _config.MinImportanceToPreserveSummarization)
             .ToList();
         
         if (oldMessages.Count < _config.SummarizationBatchSize)
@@ -55,14 +48,12 @@ public class MessageSummarizationService
             return session;
         }
         
-        // Summarize in batches
         var summaries = new List<ChatMessage>();
         int totalSummarized = 0;
         
         for (int i = 0; i < oldMessages.Count; i += _config.SummarizationBatchSize)
         {
             var batch = oldMessages.Skip(i).Take(_config.SummarizationBatchSize).ToList();
-            
             try
             {
                 var summary = await SummarizeBatch(batch, cancellationToken);
@@ -72,32 +63,20 @@ public class MessageSummarizationService
                     totalSummarized += batch.Count;
                 }
             }
-            catch (Exception ex)
-            {
-            }
+            catch { }
         }
         
-        // Reconstruct message list: important old messages + summaries + recent messages
         var importantOldMessages = session.Messages
             .Take(session.Messages.Count - _config.PostSummarizationTarget)
             .Where(m => m.ImportanceScore >= _config.MinImportanceToPreserveSummarization || m.IsSummarized)
             .ToList();
         
-        var newMessages = new List<ChatMessage>();
-        newMessages.AddRange(importantOldMessages);
-        newMessages.AddRange(summaries);
-        newMessages.AddRange(recentMessages);
-        
-        // Update session
-        session.Messages = newMessages;
+        session.Messages = importantOldMessages.Concat(summaries).Concat(recentMessages).ToList();
         session.SummarizedMessagesCount = totalSummarized;
         session.LastSummarizedAt = DateTime.Now;
         return session;
     }
     
-    /// <summary>
-    /// Summarize a batch of messages using Gemini API
-    /// </summary>
     private async Task<ChatMessage?> SummarizeBatch(
         List<ChatMessage> messages, 
         CancellationToken cancellationToken = default)
@@ -105,7 +84,6 @@ public class MessageSummarizationService
         if (messages.Count == 0)
             return null;
         
-        // Build conversation text
         var conversationText = new StringBuilder();
         conversationText.AppendLine("Hãy tóm tắt đoạn hội thoại sau đây một cách ngắn gọn nhưng giữ lại những thông tin quan trọng:");
         conversationText.AppendLine();
@@ -132,10 +110,10 @@ public class MessageSummarizationService
             },
             generationConfig = new
             {
-                temperature = 0.3f, // Lower temperature for more focused summaries
+                temperature = 0.3f,
                 topK = 20,
                 topP = 0.8f,
-                maxOutputTokens = 500, // Short summaries
+                maxOutputTokens = 500,
                 responseMimeType = "text/plain"
             }
         };
@@ -171,14 +149,13 @@ public class MessageSummarizationService
             if (string.IsNullOrWhiteSpace(summaryText))
                 return null;
             
-            // Create summary message
             var summary = new ChatMessage
             {
                 Role = "model",
                 Parts = new[] { $"[TÓM TẮT {messages.Count} tin nhắn từ {messages.First().Timestamp:dd/MM HH:mm} đến {messages.Last().Timestamp:dd/MM HH:mm}]: {summaryText}" },
                 Timestamp = messages.Last().Timestamp,
                 IsSummarized = true,
-                ImportanceScore = 8, // High importance to preserve summaries
+                ImportanceScore = 8,
                 StorageTier = "warm",
                 Metadata = new Dictionary<string, object>
                 {
@@ -188,14 +165,12 @@ public class MessageSummarizationService
                 }
             };
             
-            // Calculate original token count
             int originalTokens = messages.Sum(m => _tokenService.EstimateMessageTokens(m));
             int summaryTokens = _tokenService.EstimateMessageTokens(summary);
             
             summary.Metadata["originalTokenCount"] = originalTokens;
             summary.Metadata["tokensSaved"] = originalTokens - summaryTokens;
             summary.Metadata["compressionRatio"] = (double)summaryTokens / originalTokens;
-            // Store originals if configured
             if (_config.KeepOriginalMessages)
             {
                 summary.OriginalContent = JsonSerializer.Serialize(messages);
@@ -203,23 +178,17 @@ public class MessageSummarizationService
             
             return summary;
         }
-        catch (Exception ex)
+        catch
         {
             return null;
         }
     }
     
-    /// <summary>
-    /// Check if summarization should be triggered for a session
-    /// </summary>
     public bool ShouldSummarize(ChatSession session)
     {
         return _config.ShouldTriggerSummarization(session.Messages.Count);
     }
     
-    /// <summary>
-    /// Get summarization statistics for a session
-    /// </summary>
     public SummarizationStats GetSummarizationStats(ChatSession session)
     {
         var stats = new SummarizationStats
@@ -246,9 +215,6 @@ public class MessageSummarizationService
         return stats;
     }
     
-    /// <summary>
-    /// Restore original messages from a summary (if available)
-    /// </summary>
     public List<ChatMessage>? RestoreOriginalMessages(ChatMessage summaryMessage)
     {
         if (!summaryMessage.IsSummarized || string.IsNullOrEmpty(summaryMessage.OriginalContent))
@@ -265,9 +231,6 @@ public class MessageSummarizationService
     }
 }
 
-/// <summary>
-/// Summarization statistics
-/// </summary>
 public class SummarizationStats
 {
     public int TotalMessages { get; set; }

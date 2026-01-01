@@ -3,9 +3,6 @@ using ChinoKafuu.Engine.Gemini.Models;
 
 namespace ChinoKafuu.Engine.Gemini.Services;
 
-/// <summary>
-/// Manages token counting, optimization, and sliding window for chat messages
-/// </summary>
 public class TokenManagementService
 {
     private readonly GeminiConfig _config;
@@ -15,9 +12,6 @@ public class TokenManagementService
         _config = config ?? GeminiConfig.Instance;
     }
     
-    /// <summary>
-    /// Estimate tokens for a single message
-    /// </summary>
     public int EstimateMessageTokens(ChatMessage message)
     {
         if (message.EstimatedTokenCount > 0)
@@ -29,81 +23,53 @@ public class TokenManagementService
             totalTokens += _config.EstimateTokens(part);
         }
         
-        // Add overhead for role and structure (~20 tokens)
         totalTokens += 20;
         
         message.EstimatedTokenCount = totalTokens;
         return totalTokens;
     }
     
-    /// <summary>
-    /// Estimate total tokens for a list of messages
-    /// </summary>
     public int EstimateTotalTokens(List<ChatMessage> messages)
     {
         return messages.Sum(EstimateMessageTokens);
     }
     
-    /// <summary>
-    /// Get optimal messages to send using sliding window strategy
-    /// Prioritizes: recent messages + important messages + summary of old messages
-    /// </summary>
     public List<ChatMessage> GetOptimalMessagesForAPI(ChatSession session)
     {
         var allMessages = session.Messages;
         if (allMessages.Count == 0)
             return new List<ChatMessage>();
         
-        // Step 1: Get recent messages (hot tier)
-        var recentMessages = allMessages
-            .TakeLast(_config.MaxActiveMessages)
-            .ToList();
-        
+        var recentMessages = allMessages.TakeLast(_config.MaxActiveMessages).ToList();
         int currentTokens = EstimateTotalTokens(recentMessages);
         
-        // Step 2: If we're under token limit, we can include more context
         if (currentTokens < _config.MaxTokensPerRequest)
         {
-            // Try to add important older messages
             var olderMessages = allMessages
                 .Take(allMessages.Count - _config.MaxActiveMessages)
                 .Where(m => m.ImportanceScore >= _config.MinImportanceToPreserveSummarization)
-                .OrderByDescending(m => m.ImportanceScore)
-                .ToList();
+                .OrderByDescending(m => m.ImportanceScore);
             
             foreach (var msg in olderMessages)
             {
                 int msgTokens = EstimateMessageTokens(msg);
-                if (currentTokens + msgTokens < _config.MaxTokensPerRequest)
-                {
-                    recentMessages.Insert(0, msg);
-                    currentTokens += msgTokens;
-                }
-                else
-                {
+                if (currentTokens + msgTokens >= _config.MaxTokensPerRequest)
                     break;
-                }
+                recentMessages.Insert(0, msg);
+                currentTokens += msgTokens;
             }
         }
         
-        // Step 3: If we're over the limit, trim from the middle (keep newest and oldest summary)
-        if (currentTokens > _config.MaxTokensPerRequest)
-        {
-            recentMessages = TrimToTokenLimit(recentMessages, _config.MaxTokensPerRequest);
-        }
-        
-        return recentMessages;
+        return currentTokens > _config.MaxTokensPerRequest 
+            ? TrimToTokenLimit(recentMessages, _config.MaxTokensPerRequest)
+            : recentMessages;
     }
     
-    /// <summary>
-    /// Trim messages to fit within token limit, preserving conversation flow
-    /// </summary>
     private List<ChatMessage> TrimToTokenLimit(List<ChatMessage> messages, int maxTokens)
     {
         var result = new List<ChatMessage>();
         int currentTokens = 0;
         
-        // Strategy: Keep newest messages first (LIFO)
         for (int i = messages.Count - 1; i >= 0; i--)
         {
             var msg = messages[i];
@@ -116,10 +82,8 @@ public class TokenManagementService
             }
             else
             {
-                // Check if this is a summary message - prioritize it
                 if (msg.IsSummarized && result.Count > 10)
                 {
-                    // Try to make room by removing less important messages from the middle
                     var removed = RemoveLeastImportantMessage(result);
                     if (removed != null)
                     {
@@ -136,15 +100,11 @@ public class TokenManagementService
         return result;
     }
     
-    /// <summary>
-    /// Remove the least important message from the list
-    /// </summary>
     private ChatMessage? RemoveLeastImportantMessage(List<ChatMessage> messages)
     {
-        if (messages.Count <= 10) // Keep minimum context
+        if (messages.Count <= 10)
             return null;
         
-        // Don't remove first or last 5 messages (preserve context boundaries)
         var middleMessages = messages.Skip(5).Take(messages.Count - 10).ToList();
         if (middleMessages.Count == 0)
             return null;
@@ -158,43 +118,30 @@ public class TokenManagementService
         return leastImportant;
     }
     
-    /// <summary>
-    /// Calculate importance score for a message based on various factors
-    /// Score range: 0-10 (higher = more important)
-    /// </summary>
     public int CalculateImportanceScore(ChatMessage message, int positionFromEnd)
     {
-        int score = 5; // Base score
+        int score = 5;
         
-        // Factor 1: Recency (newer = more important)
         var age = DateTime.Now - message.Timestamp;
         if (age.TotalHours < 1) score += 3;
         else if (age.TotalHours < 24) score += 2;
         else if (age.TotalHours < 168) score += 1;
         else score -= 1;
         
-        // Factor 2: Position in conversation (recent messages are more important)
         if (positionFromEnd < 10) score += 2;
         else if (positionFromEnd < 50) score += 1;
         
-        // Factor 3: Message length (longer might contain more context)
         int totalLength = message.Parts.Sum(p => p.Length);
         if (totalLength > 500) score += 1;
         if (totalLength > 1000) score += 1;
         
-        // Factor 4: Already summarized messages are important to keep
         if (message.IsSummarized) score += 2;
         
-        // Factor 5: User messages slightly more important (preserve user questions)
         if (message.Role == "user") score += 1;
         
-        // Clamp to 0-10 range
         return Math.Clamp(score, 0, 10);
     }
     
-    /// <summary>
-    /// Update importance scores for all messages in a session
-    /// </summary>
     public void UpdateImportanceScores(ChatSession session)
     {
         var messages = session.Messages;
@@ -205,9 +152,6 @@ public class TokenManagementService
         }
     }
     
-    /// <summary>
-    /// Update storage tiers based on message age
-    /// </summary>
     public void UpdateStorageTiers(ChatSession session)
     {
         foreach (var message in session.Messages)
@@ -216,36 +160,41 @@ public class TokenManagementService
         }
     }
     
-    /// <summary>
-    /// Get statistics about token usage
-    /// </summary>
     public TokenStats GetTokenStats(ChatSession session)
     {
         var messages = session.Messages;
-        var stats = new TokenStats
+        var hotMessages = new List<ChatMessage>();
+        var warmMessages = new List<ChatMessage>();
+        var coldMessages = new List<ChatMessage>();
+        
+        foreach (var msg in messages)
+        {
+            switch (msg.StorageTier)
+            {
+                case "hot": hotMessages.Add(msg); break;
+                case "warm": warmMessages.Add(msg); break;
+                case "cold": coldMessages.Add(msg); break;
+            }
+        }
+        
+        var totalTokens = EstimateTotalTokens(messages);
+        return new TokenStats
         {
             TotalMessages = messages.Count,
-            TotalTokens = EstimateTotalTokens(messages),
-            HotMessages = messages.Count(m => m.StorageTier == "hot"),
-            WarmMessages = messages.Count(m => m.StorageTier == "warm"),
-            ColdMessages = messages.Count(m => m.StorageTier == "cold"),
+            TotalTokens = totalTokens,
+            HotMessages = hotMessages.Count,
+            WarmMessages = warmMessages.Count,
+            ColdMessages = coldMessages.Count,
+            HotTokens = EstimateTotalTokens(hotMessages),
+            WarmTokens = EstimateTotalTokens(warmMessages),
+            ColdTokens = EstimateTotalTokens(coldMessages),
             SummarizedMessages = messages.Count(m => m.IsSummarized),
-            ActiveMessages = messages.TakeLast(_config.MaxActiveMessages).Count(),
-            AverageTokensPerMessage = messages.Count > 0 ? EstimateTotalTokens(messages) / messages.Count : 0
+            ActiveMessages = Math.Min(messages.Count, _config.MaxActiveMessages),
+            AverageTokensPerMessage = messages.Count > 0 ? totalTokens / messages.Count : 0
         };
-        
-        // Calculate tokens by tier
-        stats.HotTokens = EstimateTotalTokens(messages.Where(m => m.StorageTier == "hot").ToList());
-        stats.WarmTokens = EstimateTotalTokens(messages.Where(m => m.StorageTier == "warm").ToList());
-        stats.ColdTokens = EstimateTotalTokens(messages.Where(m => m.StorageTier == "cold").ToList());
-        
-        return stats;
     }
 }
 
-/// <summary>
-/// Token usage statistics
-/// </summary>
 public class TokenStats
 {
     public int TotalMessages { get; set; }
