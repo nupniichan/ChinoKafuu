@@ -25,7 +25,8 @@ Welcome to Chino Kafuu, the Discord bot I've crafted using the .NET9 . As this i
 - Better history chat storage
 
 ## ⚠️ **Warning**
-- Today (10-05-2025) the voice chat stuck at the line of **NonePrefixCommandFolder/ChinoConversation.cs** below so i can't test the audio voice. Lets wait DSharpPlus fix this and then i will try to test and upgrade Applio to the newest version.
+- 10-05-2025: the voice chat stuck at the line of **NonePrefixCommandFolder/ChinoConversation.cs** below so i can't test the audio voice. Lets wait DSharpPlus fix this and then i will try to test and upgrade Applio to the newest version.
+- 01-10-2025: I am currently working on a project developed entirely in Python (**like Neuro-sama**), running the model locally without internet dependency. So this project will soon under a major update about voice processing and data response.
 ```csharp                     
 connection = await channel.ConnectAsync();
 ```
